@@ -1,0 +1,38 @@
+timeline {
+	background-color: alpha(currentColor, .1);
+	border-radius: 6px;
+}
+
+timeline > .selection {
+	background-color: @blue_1;
+	border-radius: 6px;
+}
+
+timeline > .position {
+	background-color: @blue_5;
+	min-width: 2px;
+}
+
+
+.handle {
+    min-width: 7px;
+}
+
+.dots {
+    background-color: @blue_4;
+    min-width: 4px;
+    min-height: 4px;
+    border-radius: 4px;
+}
+
+.crop-region {
+	outline: 2px solid @view_fg_color;
+}
+
+.crop-handle {
+	outline: 5px solid white;
+	border-radius: 10px;
+
+	min-width: 0.1px;
+	min-height: 0.1px;
+}

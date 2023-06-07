@@ -1,0 +1,7 @@
+timeline > .selection {
+	background-color: @blue_3;
+}
+
+timeline > .position {
+	background-color: @light_1;
+}

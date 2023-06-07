@@ -1,0 +1,63 @@
+using Gtk 4.0;
+
+template $Crop: Widget {
+    hexpand: true;
+    vexpand: true;
+
+    Box container {
+        hexpand: true;
+        vexpand: true;
+        
+        Box crop_box {
+            hexpand: true;
+            vexpand: true;
+
+            Box {
+                orientation: vertical;
+                Box {
+
+                    Box {
+                        halign: start;
+                        valign: start;
+
+                        styles ["crop-handle"]
+                    }
+                    Box {
+                        hexpand: true;
+                    }
+                    Box {
+                        halign: end;
+                        valign: start;
+
+                        styles ["crop-handle"]
+                    }
+                }
+
+                Box {
+                    vexpand: true;
+                }
+
+                Box {
+                    Box {
+                        halign: start;
+                        valign: end;
+
+                        styles ["crop-handle"]
+                    }
+                    Box {
+                        hexpand: true;
+                    }
+                    Box {
+                        halign: end;
+                        valign: end;
+
+                        styles ["crop-handle"]
+                    }
+                }
+            }
+
+            styles ["crop-region"]
+        }
+    }
+    styles ["crop-whole-region"]
+}

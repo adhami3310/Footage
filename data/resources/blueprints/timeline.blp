@@ -1,0 +1,88 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $Timeline : Widget {
+  hexpand: true;
+
+  Box box_timeline_selection {
+    can-target: false;
+    overflow: hidden;
+    
+    Box {
+      hexpand: true;
+      vexpand: true;
+
+      Box {
+        halign: start;
+        vexpand: true;
+        orientation: vertical;
+
+        Box {
+          vexpand: true;
+          valign: center;
+          orientation: vertical;
+          spacing: 2;
+
+          Box {
+            halign: center;
+            styles ["dots"]
+          }
+
+          Box {
+            halign: center;
+            styles ["dots"]
+          }
+
+          Box {
+            halign: center;
+            styles ["dots"]
+          }
+        }
+
+        styles ["handle"]
+      }
+
+      Box {
+        hexpand: true;
+      }
+
+      Box {
+        halign: start;
+        vexpand: true;
+        orientation: vertical;
+
+        Box {
+          vexpand: true;
+          valign: center;
+          orientation: vertical;
+          spacing: 2;
+
+          Box {
+            halign: center;
+            styles ["dots"]
+          }
+
+          Box {
+            halign: center;
+            styles ["dots"]
+          }
+
+          Box {
+            halign: center;
+            styles ["dots"]
+          }
+        }
+
+        styles ["handle"]
+      }
+    }
+
+    styles ["selection"]
+  }
+
+  Box box_timeline_position {
+    can-target: false;
+
+    styles ["position"]
+  }
+}
