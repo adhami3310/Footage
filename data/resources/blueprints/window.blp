@@ -115,12 +115,11 @@ template $AppWindow : Adw.ApplicationWindow {
                   max-width-chars: 6;
                   hexpand: false;
                 }
-                ToggleButton link_axis {
-                  active: true;
+                Image link_axis {
                   valign: center;
                   icon-name: 'chain-link-symbolic';
                   tooltip-text: _("Preserve aspect ratio");
-                  styles ['raised', 'circular', 'lock']
+                  styles ['lock']
                 }
                 Entry resize_height_value {
                   valign: center;

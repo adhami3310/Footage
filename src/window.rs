@@ -58,8 +58,8 @@ mod imp {
         pub audio_encoding: TemplateChild<adw::ComboRow>,
         #[template_child]
         pub framerate_button: TemplateChild<gtk::SpinButton>,
-        #[template_child]
-        pub link_axis: TemplateChild<gtk::ToggleButton>,
+        // #[template_child]
+        // pub link_axis: TemplateChild<gtk::ToggleButton>,
         #[template_child]
         pub resize_type: TemplateChild<gtk::DropDown>,
         #[template_child]
@@ -112,7 +112,7 @@ mod imp {
                 video_encoding: TemplateChild::default(),
                 audio_encoding: TemplateChild::default(),
                 framerate_button: TemplateChild::default(),
-                link_axis: TemplateChild::default(),
+                // link_axis: TemplateChild::default(),
                 resize_type: TemplateChild::default(),
                 resize_scale_width_value: TemplateChild::default(),
                 resize_scale_height_value: TemplateChild::default(),
@@ -286,41 +286,41 @@ impl AppWindow {
                 this.update_width_from_height();
             }));
 
-        imp.link_axis
-            .connect_clicked(clone!(@weak self as this => move |_| {
-                if this.imp().link_axis.is_active() && this.imp().link_axis.is_visible() {
-                    this.imp().link_axis.set_icon_name("chain-link-symbolic");
-                    let old_value = this.imp().resize_scale_width_value.text().as_str().to_owned();
-                    let new_value = this.imp().resize_scale_height_value.text().as_str().to_owned();
-                    if old_value != new_value && !new_value.is_empty() {
-                        this.imp().resize_scale_width_value.set_text(&new_value);
-                    }
-                    this.update_width_from_height();
-                } else {
-                    this.imp().link_axis.set_icon_name("chain-link-loose-symbolic");
-                }
-            }));
+        // imp.link_axis
+        //     .connect_clicked(clone!(@weak self as this => move |_| {
+        //         // if this.imp().link_axis.is_active() && this.imp().link_axis.is_visible() {
+        //         //     this.imp().link_axis.set_icon_name("chain-link-symbolic");
+        //             let old_value = this.imp().resize_scale_width_value.text().as_str().to_owned();
+        //             let new_value = this.imp().resize_scale_height_value.text().as_str().to_owned();
+        //             if old_value != new_value && !new_value.is_empty() {
+        //                 this.imp().resize_scale_width_value.set_text(&new_value);
+        //             }
+        //             this.update_width_from_height();
+        //         // } else {
+        //         //     this.imp().link_axis.set_icon_name("chain-link-loose-symbolic");
+        //         // }
+        //     }));
 
         imp.resize_scale_height_value
             .connect_changed(clone!(@weak self as this => move |_| {
-                if this.imp().link_axis.is_active() && this.imp().link_axis.is_visible() {
+                // if this.imp().link_axis.is_active() && this.imp().link_axis.is_visible() {
                     let old_value = this.imp().resize_scale_width_value.text().as_str().to_owned();
                     let new_value = this.imp().resize_scale_height_value.text().as_str().to_owned();
                     if old_value != new_value && !new_value.is_empty() {
                         this.imp().resize_scale_width_value.set_text(&new_value);
                     }
-                }
+                // }
             }));
 
         imp.resize_scale_width_value
             .connect_changed(clone!(@weak self as this => move |_| {
-                if this.imp().link_axis.is_active() && this.imp().link_axis.is_visible() {
+                // if this.imp().link_axis.is_active() && this.imp().link_axis.is_visible() {
                     let old_value = this.imp().resize_scale_height_value.text().as_str().to_owned();
                     let new_value = this.imp().resize_scale_width_value.text().as_str().to_owned();
                     if old_value != new_value && !new_value.is_empty() {
                         this.imp().resize_scale_height_value.set_text(&new_value);
                     }
-                }
+                // }
             }));
         
         imp.video_preview.imp().crop_box.connect_local("crop-box-changed", true, clone!(@weak self as this => @default-return None, move |v| {
@@ -347,7 +347,7 @@ impl AppWindow {
     }
 
     fn update_width_from_height(&self) {
-        if self.imp().link_axis.is_active() && self.imp().link_axis.is_visible() {
+        // if self.imp().link_axis.is_active() && self.imp().link_axis.is_visible() {
             if let (Some(video_width), Some(video_height)) =
                 (self.imp().selected_video_width.get(), self.imp().selected_video_height.get())
             {
@@ -377,11 +377,11 @@ impl AppWindow {
                     self.imp().resize_width_value.set_text(&new_value);
                 }
             }
-        }
+        // }
     }
 
     fn update_height_from_width(&self) {
-        if self.imp().link_axis.is_active() && self.imp().link_axis.is_visible() {
+        // if self.imp().link_axis.is_active() && self.imp().link_axis.is_visible() {
             if let (Some(video_width), Some(video_height)) =
                 (self.imp().selected_video_width.get(), self.imp().selected_video_height.get())
             {
@@ -411,7 +411,7 @@ impl AppWindow {
                     self.imp().resize_height_value.set_text(&new_value);
                 }
             }
-        }
+        // }
     }
 
     async fn open_dialog(&self) -> ashpd::Result<()> {
