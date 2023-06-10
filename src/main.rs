@@ -2,6 +2,7 @@ mod application;
 #[rustfmt::skip]
 mod config;
 mod info;
+mod profiles;
 mod widgets;
 mod window;
 
@@ -19,6 +20,21 @@ macro_rules! spawn {
         ctx.spawn_local($future);
     };
 }
+
+pub trait Listable {
+    fn to_list(&self) -> gtk::StringList;
+}
+
+impl Listable for Vec<String> {
+    fn to_list(&self) -> gtk::StringList {
+        let list = gtk::StringList::new(&[]);
+        for s in self {
+            list.append(s);
+        }
+        list
+    }
+}
+
 fn main() -> ExitCode {
     // Initialize logger
     pretty_env_logger::init();

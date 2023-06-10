@@ -55,7 +55,7 @@ mod imp {
         }
 
         // fn open(&self, files: &[gio::File], _hint: &str) {
-            
+
         //     debug!("Application::open");
         // }
     }

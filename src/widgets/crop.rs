@@ -5,7 +5,8 @@ use gtk::{gdk, prelude::*, subclass::prelude::*};
 
 mod imp {
     use super::*;
-    use gtk::{CompositeTemplate, gdk::RGBA, graphene};
+    use glib::subclass::Signal;
+    use gtk::{gdk::RGBA, graphene, CompositeTemplate};
     use itertools::Itertools;
     use once_cell::unsync::OnceCell;
     use ordered_float::NotNan;
@@ -65,7 +66,6 @@ mod imp {
         #[template_child]
         pub container: TemplateChild<gtk::Box>,
 
-        
         gesture_drag: OnceCell<gtk::GestureDrag>,
         drag_start: Cell<(f64, f64, f64, f64)>,
         pub current_selection: Cell<(f64, f64, f64, f64)>,
@@ -148,6 +148,22 @@ mod imp {
             obj.add_controller(event_controller_motion);
         }
 
+        fn signals() -> &'static [Signal] {
+            use once_cell::sync::Lazy;
+            static SIGNALS: Lazy<[Signal; 1]> = Lazy::new(|| {
+                [Signal::builder("crop-box-changed")
+                    .param_types([
+                        glib::Type::F64,
+                        glib::Type::F64,
+                        glib::Type::F64,
+                        glib::Type::F64,
+                    ])
+                    .build()]
+            });
+
+            SIGNALS.as_ref()
+        }
+
         fn dispose(&self) {
             let obj = self.obj();
             while let Some(child) = obj.first_child() {
@@ -173,17 +189,39 @@ mod imp {
 
         fn snapshot(&self, snapshot: &gtk::Snapshot) {
             let p = self.positons();
-            let c = RGBA::builder().red(0.).green(0.).blue(0.).alpha(0.5).build();
+            let c = RGBA::builder()
+                .red(0.)
+                .green(0.)
+                .blue(0.)
+                .alpha(0.5)
+                .build();
 
-            let (width, height) = (self.obj().allocated_width() as f32, self.obj().allocated_height() as f32);
+            let (width, height) = (
+                self.obj().allocated_width() as f32,
+                self.obj().allocated_height() as f32,
+            );
 
             snapshot.append_color(&c, &graphene::Rect::new(0., 0., width, p.0 as f32));
-            snapshot.append_color(&c, &graphene::Rect::new(0., p.0 as f32, p.3 as f32, (p.2 - p.0) as f32));
-            snapshot.append_color(&c, &graphene::Rect::new(0., p.2 as f32, width, height - p.2 as f32));
-            snapshot.append_color(&c, &graphene::Rect::new(p.1 as f32, p.0 as f32, width - p.1 as f32, (p.2 - p.0) as f32));
+            snapshot.append_color(
+                &c,
+                &graphene::Rect::new(0., p.0 as f32, p.3 as f32, (p.2 - p.0) as f32),
+            );
+            snapshot.append_color(
+                &c,
+                &graphene::Rect::new(0., p.2 as f32, width, height - p.2 as f32),
+            );
+            snapshot.append_color(
+                &c,
+                &graphene::Rect::new(
+                    p.1 as f32,
+                    p.0 as f32,
+                    width - p.1 as f32,
+                    (p.2 - p.0) as f32,
+                ),
+            );
 
-
-            self.container.snapshot_child(&self.container.first_child().unwrap(), snapshot);
+            self.container
+                .snapshot_child(&self.container.first_child().unwrap(), snapshot);
         }
     }
 
@@ -198,10 +236,10 @@ mod imp {
                 (width as f64 * crop.3),
             )
         }
-        
+
         fn calculate_drag_type(&self, x: f64, y: f64) -> Option<DragType> {
             let (t, r, b, l) = self.positons();
-            
+
             let (dt, dr, db, dl) = ((y - t).abs(), (x - r).abs(), (y - b).abs(), (x - l).abs());
 
             let ((i0, v0), (i1, v1)) = [dt, dr, db, dl]
@@ -266,7 +304,7 @@ mod imp {
                 (x, _) => x,
             };
 
-            return Some(current_drag);
+            Some(current_drag)
         }
 
         fn on_drag_start(&self, x: f64, y: f64) {
@@ -292,7 +330,7 @@ mod imp {
             let height = 1. - current_selection.0 - current_selection.2 - min_size;
 
             let offset_x = offset_x / (self.obj().allocated_width() as f64);
-            let offset_y = offset_y  / (self.obj().allocated_height() as f64);
+            let offset_y = offset_y / (self.obj().allocated_height() as f64);
 
             let actual_offset_y = offset_y - (current_selection.0 - old_selection.0)
                 + (current_selection.2 - old_selection.2);
@@ -324,10 +362,15 @@ mod imp {
                 DragType::Top | DragType::TopLeft | DragType::TopRight
             ) {
                 let offset_y = actual_offset_y.clamp(-current_selection.0, height);
-                
+
                 let current_selection = self.current_selection.get();
 
-                self.current_selection.set((offset_y + current_selection.0, current_selection.1, current_selection.2, current_selection.3));
+                self.current_selection.set((
+                    offset_y + current_selection.0,
+                    current_selection.1,
+                    current_selection.2,
+                    current_selection.3,
+                ));
             }
             if matches!(
                 drag_type,
@@ -336,29 +379,56 @@ mod imp {
                 let offset_y = actual_offset_y.clamp(-height, current_selection.2);
 
                 let current_selection = self.current_selection.get();
-                
-                self.current_selection.set((current_selection.0, current_selection.1, -offset_y + current_selection.2 , current_selection.3));
+
+                self.current_selection.set((
+                    current_selection.0,
+                    current_selection.1,
+                    -offset_y + current_selection.2,
+                    current_selection.3,
+                ));
             }
             if matches!(
                 drag_type,
                 DragType::Left | DragType::BottomLeft | DragType::TopLeft
             ) {
                 let offset_x = actual_offset_x.clamp(-current_selection.3, width);
-                
+
                 let current_selection = self.current_selection.get();
-                
-                self.current_selection.set((current_selection.0, current_selection.1, current_selection.2, offset_x + current_selection.3));
+
+                self.current_selection.set((
+                    current_selection.0,
+                    current_selection.1,
+                    current_selection.2,
+                    offset_x + current_selection.3,
+                ));
             }
             if matches!(
                 drag_type,
                 DragType::Right | DragType::BottomRight | DragType::TopRight
             ) {
                 let offset_x = actual_offset_x.clamp(-width, current_selection.1);
-                
+
                 let current_selection = self.current_selection.get();
-                
-                self.current_selection.set((current_selection.0, -offset_x + current_selection.1, current_selection.2, current_selection.3));
+
+                self.current_selection.set((
+                    current_selection.0,
+                    -offset_x + current_selection.1,
+                    current_selection.2,
+                    current_selection.3,
+                ));
             }
+
+            let current_selection = self.current_selection.get();
+
+            self.obj().emit_by_name::<()>(
+                "crop-box-changed",
+                &[
+                    &current_selection.0,
+                    &current_selection.1,
+                    &current_selection.2,
+                    &current_selection.3,
+                ],
+            );
 
             self.obj().queue_allocate();
         }
@@ -403,6 +473,15 @@ impl Crop {
 
     pub fn set_proportions(&self, proportions: (f64, f64, f64, f64)) {
         self.imp().current_selection.set(proportions);
+        self.emit_by_name::<()>(
+            "crop-box-changed",
+            &[
+                &proportions.0,
+                &proportions.1,
+                &proportions.2,
+                &proportions.3,
+            ],
+        );
         self.queue_allocate();
     }
 

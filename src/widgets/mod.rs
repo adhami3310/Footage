@@ -1,3 +1,3 @@
+pub mod crop;
 pub mod preview;
 pub mod timeline;
-pub mod crop;

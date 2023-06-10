@@ -38,6 +38,8 @@ action_icons = [
     join_paths(action_dir, 'pause-symbolic.svg'),
     join_paths(action_dir, 'horizontal-flip-symbolic.svg'),
     join_paths(action_dir, 'vertical-flip-symbolic.svg'),
+    join_paths(action_dir, 'chain-link-symbolic.svg'),
+    join_paths(action_dir, 'chain-link-loose-symbolic.svg'),
 ]
 
 install_data(

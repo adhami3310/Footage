@@ -1,0 +1,10 @@
+.property box.title .title {
+	font-weight: 400;
+	font-size: 9pt;
+	opacity: 0.9;
+}
+
+.property .subtitle {
+	font-size: inherit;
+	opacity: 1;
+}

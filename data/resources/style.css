@@ -36,3 +36,14 @@ timeline > .position {
 	min-width: 0.1px;
 	min-height: 0.1px;
 }
+
+.property box.title .title {
+	font-weight: 400;
+	font-size: 9pt;
+	opacity: 0.55;
+}
+
+.property .subtitle {
+	font-size: inherit;
+	opacity: 1;
+}
