@@ -10,9 +10,8 @@ use gstreamer_pbutils::Discoverer;
 use gtk::{
     gdk::{self, Paintable},
     gio, glib,
-    prelude::PaintableExt,
     subclass::prelude::*,
-    traits::{ButtonExt, SnapshotExt},
+    traits::ButtonExt,
 };
 
 use ges::prelude::*;
@@ -313,20 +312,6 @@ impl VideoPreview {
     //     self.imp().timeline.set_position(position);
     // }
 
-    fn current_frame(&self) -> Paintable {
-        let paint = self.imp().paint.paintable().unwrap();
-
-        let snapshot = gtk::Snapshot::new();
-
-        paint.snapshot(
-            &snapshot,
-            paint.intrinsic_width() as f64,
-            paint.intrinsic_height() as f64,
-        );
-
-        snapshot.to_paintable(None).unwrap()
-    }
-
     fn pause(&self) {
         let orig_p = self.imp().pipeline.borrow();
         let p = orig_p.as_ref().unwrap();
@@ -351,7 +336,7 @@ impl VideoPreview {
     }
 
     fn set_range(&self, start: u64, end: u64) {
-        self.replace_with_thumbnail();
+        // self.replace_with_thumbnail();
         let original_clip = self.imp().clip.borrow();
         let clip = original_clip.as_ref();
         if let Some(clip) = clip {
@@ -360,15 +345,8 @@ impl VideoPreview {
             self.imp().inpoint.set(start);
             self.imp().outpoint.set(end);
         }
-        self.refresh_ui();
-    }
-
-    fn replace_with_thumbnail(&self) {
-        self.pause();
-
-        let current_p = self.current_frame();
-
-        self.imp().paint.set_paintable(Some(&current_p));
+        // self.refresh_ui();
+        self.commit();
     }
 
     pub fn replace_with_pipeline(&self) {
@@ -386,6 +364,14 @@ impl VideoPreview {
         if let Some(clip) = clip {
             clip.add_top_effect(effect, 0).unwrap();
         }
+        self.commit();
+    }
+
+    fn commit(&self) {
+        let orig_p = self.imp().pipeline.borrow();
+        let p = orig_p.as_ref().unwrap();
+
+        p.timeline().unwrap().commit_sync();
     }
 
     fn remove_effect(&self, effect: &ges::Effect) {
@@ -398,7 +384,7 @@ impl VideoPreview {
     }
 
     pub fn rotate_right(&self) {
-        self.replace_with_thumbnail();
+        // self.replace_with_thumbnail();
         self.add_effect(&ges::Effect::new("videoflip method=clockwise").unwrap());
         self.imp()
             .effects
@@ -407,13 +393,13 @@ impl VideoPreview {
         self.imp()
             .proportions_flush
             .set(Some(self.imp().crop_box.rotate_right_proportions()));
-        self.refresh_ui();
+        // self.refresh_ui();
         let (width, height) = self.imp().current_dimensions.get().unwrap();
         self.imp().current_dimensions.set(Some((height, width)));
     }
 
     pub fn rotate_left(&self) {
-        self.replace_with_thumbnail();
+        // self.replace_with_thumbnail();
         self.add_effect(&ges::Effect::new("videoflip method=counterclockwise").unwrap());
         self.imp()
             .effects
@@ -423,13 +409,13 @@ impl VideoPreview {
         self.imp()
             .proportions_flush
             .set(Some(self.imp().crop_box.rotate_left_proportions()));
-        self.refresh_ui();
+        // self.refresh_ui();
         let (width, height) = self.imp().current_dimensions.get().unwrap();
         self.imp().current_dimensions.set(Some((height, width)));
     }
 
     pub fn horizontal_flip(&self) {
-        self.replace_with_thumbnail();
+        // self.replace_with_thumbnail();
         self.add_effect(&ges::Effect::new("videoflip method=horizontal-flip").unwrap());
         self.imp()
             .effects
@@ -439,11 +425,11 @@ impl VideoPreview {
         self.imp()
             .proportions_flush
             .set(Some(self.imp().crop_box.horizontal_flip_proportions()));
-        self.refresh_ui();
+        // self.refresh_ui();
     }
 
     pub fn vertical_flip(&self) {
-        self.replace_with_thumbnail();
+        // self.replace_with_thumbnail();
         self.add_effect(&ges::Effect::new("videoflip method=vertical-flip").unwrap());
         self.imp()
             .effects
@@ -453,11 +439,11 @@ impl VideoPreview {
         self.imp()
             .proportions_flush
             .set(Some(self.imp().crop_box.vertical_flip_proportions()));
-        self.refresh_ui();
+        // self.refresh_ui();
     }
 
     pub fn mute(&self) {
-        self.replace_with_thumbnail();
+        // self.replace_with_thumbnail();
         let new_av = ges::Effect::new("volume volume=0").unwrap();
         self.imp().mute.set(true);
         let av_orig = self.imp().audio_level.replace(Some(new_av));
@@ -467,11 +453,11 @@ impl VideoPreview {
         }
 
         self.add_effect(self.imp().audio_level.borrow().as_ref().unwrap());
-        self.refresh_ui();
+        // self.refresh_ui();
     }
 
     pub fn unmute(&self) {
-        self.replace_with_thumbnail();
+        // self.replace_with_thumbnail();
         let new_av = ges::Effect::new("volume volume=1").unwrap();
         self.imp().mute.set(false);
 
@@ -482,7 +468,7 @@ impl VideoPreview {
         }
 
         self.add_effect(self.imp().audio_level.borrow().as_ref().unwrap());
-        self.refresh_ui();
+        // self.refresh_ui();
     }
 
     pub fn kill(&self) {
@@ -507,14 +493,15 @@ impl VideoPreview {
     ) {
         self.kill();
 
-        
         let input_path = self.imp().path.borrow().to_owned();
-        
+
         let (width, height, _) = get_width_height(input_path.to_str().unwrap().to_owned()).unwrap();
         let (top, right, bottom, left) = self.imp().crop_box.proportions();
-        
-        let full_scaled_width = width as f64 * (scaled_width as f64 / (width as f64 * (1. - right - left)));
-        let full_scaled_height = height as f64 * (scaled_height as f64 / (height as f64 * (1. - top - bottom)));
+
+        let full_scaled_width =
+            width as f64 * (scaled_width as f64 / (width as f64 * (1. - right - left)));
+        let full_scaled_height =
+            height as f64 * (scaled_height as f64 / (height as f64 * (1. - top - bottom)));
 
         dbg!(width, height);
         dbg!(scaled_width, scaled_height);
@@ -538,10 +525,10 @@ impl VideoPreview {
             .unwrap();
 
             let timeline = ges::Timeline::new_audio_video();
-            
+
             let layer = timeline.append_layer();
             layer.add_clip(&clip).unwrap();
-            
+
             if let Some(t) = timeline.tracks().first() {
                 t.set_restriction_caps(
                     &gst::Caps::builder("video/x-raw")
@@ -553,10 +540,30 @@ impl VideoPreview {
                 t.elements().into_iter().for_each(|te| {
                     dbg!(ges::prelude::TrackElementExt::child_property(&te, "width").unwrap());
                     dbg!(ges::prelude::TrackElementExt::child_property(&te, "height").unwrap());
-                    ges::prelude::TrackElementExt::set_child_property(&te, "width", &(full_scaled_width as i32).to_value()).unwrap();
-                    ges::prelude::TrackElementExt::set_child_property(&te, "height", &(full_scaled_height as i32).to_value()).unwrap();
-                    ges::prelude::TrackElementExt::set_child_property(&te, "posx", &((-left * full_scaled_width as f64) as i32).to_value()).unwrap();
-                    ges::prelude::TrackElementExt::set_child_property(&te, "posy", &((-top * full_scaled_height as f64) as i32).to_value()).unwrap();
+                    ges::prelude::TrackElementExt::set_child_property(
+                        &te,
+                        "width",
+                        &(full_scaled_width as i32).to_value(),
+                    )
+                    .unwrap();
+                    ges::prelude::TrackElementExt::set_child_property(
+                        &te,
+                        "height",
+                        &(full_scaled_height as i32).to_value(),
+                    )
+                    .unwrap();
+                    ges::prelude::TrackElementExt::set_child_property(
+                        &te,
+                        "posx",
+                        &((-left * full_scaled_width as f64) as i32).to_value(),
+                    )
+                    .unwrap();
+                    ges::prelude::TrackElementExt::set_child_property(
+                        &te,
+                        "posy",
+                        &((-top * full_scaled_height as f64) as i32).to_value(),
+                    )
+                    .unwrap();
                 });
             }
 
