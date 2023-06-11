@@ -1,4 +1,8 @@
-use std::{cell::RefCell, path::PathBuf};
+use std::{
+    cell::RefCell,
+    path::PathBuf,
+    sync::{atomic::AtomicBool, Arc},
+};
 
 use glib::clone;
 use gst::{ClockTime, PadProbeData, PadProbeType, SeekFlags};
@@ -499,6 +503,7 @@ impl VideoPreview {
         framerate: f64,
         scaled_width: usize,
         scaled_height: usize,
+        cancel_flag: Arc<AtomicBool>,
     ) {
         self.kill();
 
@@ -524,7 +529,8 @@ impl VideoPreview {
             )
             .unwrap();
 
-            clip.add(&ges::Effect::new("videoconvertscale add-borders=false method=0").unwrap()).ok();
+            clip.add(&ges::Effect::new("videoconvertscale add-borders=false method=0").unwrap())
+                .ok();
             clip.add(&ges::Effect::new("videorate").unwrap()).ok();
 
             clip.add(
@@ -554,7 +560,10 @@ impl VideoPreview {
                         .field("framerate", gst::Fraction::new(framerate as i32, 1))
                         .field("width", scaled_width as i32)
                         .field("height", scaled_height as i32)
-                        .field("pixel-aspect-ratio", gst::Fraction::new(scaled_width as i32, scaled_height as i32))
+                        .field(
+                            "pixel-aspect-ratio",
+                            gst::Fraction::new(scaled_width as i32, scaled_height as i32),
+                        )
                         .build(),
                 );
             }
@@ -623,8 +632,6 @@ impl VideoPreview {
 
             pipeline.set_mode(ges::PipelineFlags::RENDER).unwrap();
 
-            pipeline.set_state(gst::State::Playing).unwrap();
-
             let sender_pad = sender.clone();
             timeline.pads().first().unwrap().add_probe(
                 PadProbeType::DATA_DOWNSTREAM,
@@ -639,6 +646,8 @@ impl VideoPreview {
                     gst::PadProbeReturn::Ok
                 },
             );
+
+            pipeline.set_state(gst::State::Playing).unwrap();
 
             let bus = pipeline
                 .bus()
@@ -657,7 +666,13 @@ impl VideoPreview {
 
                         sender.send(Err(())).expect("Concurrency Issues");
                     }
-                    _ => (),
+                    _ => {
+                        if cancel_flag.load(std::sync::atomic::Ordering::SeqCst) {
+                            pipeline.set_state(gst::State::Null).unwrap();
+
+                            sender.send(Err(())).expect("Concurrency Issues");
+                        }
+                    }
                 }
             }
 

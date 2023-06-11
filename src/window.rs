@@ -14,7 +14,10 @@ use crate::{
 
 mod imp {
 
-    use std::cell::{Cell, RefCell};
+    use std::{
+        cell::{Cell, RefCell},
+        sync::{atomic::AtomicBool, Arc},
+    };
 
     use crate::{config::APP_ID, widgets::preview::VideoPreview};
 
@@ -70,7 +73,10 @@ mod imp {
         pub resize_width_value: TemplateChild<gtk::Entry>,
         #[template_child]
         pub resize_height_value: TemplateChild<gtk::Entry>,
+        #[template_child]
+        pub cancel_button: TemplateChild<gtk::Button>,
 
+        pub cancel_flag: Arc<AtomicBool>,
         pub video_width: Cell<Option<usize>>,
         pub video_height: Cell<Option<usize>>,
         pub selected_video_width: Cell<Option<usize>>,
@@ -118,7 +124,9 @@ mod imp {
                 resize_scale_height_value: TemplateChild::default(),
                 resize_width_value: TemplateChild::default(),
                 resize_height_value: TemplateChild::default(),
+                cancel_button: TemplateChild::default(),
 
+                cancel_flag: Arc::new(AtomicBool::new(false)),
                 video_width: Default::default(),
                 video_height: Default::default(),
                 selected_video_width: Default::default(),
@@ -148,8 +156,13 @@ mod imp {
                 dbg!("Failed to save window state, {}", &err);
             }
 
-            // Pass close request on to the parent
-            self.parent_close_request()
+            if !self.cancel_flag.load(std::sync::atomic::Ordering::SeqCst) {
+                self.obj().close_dialog();
+                glib::signal::Inhibit(true)
+            } else {
+                // Pass close request on to the parent
+                self.parent_close_request()
+            }
         }
     }
 
@@ -255,6 +268,10 @@ impl AppWindow {
             .connect_clicked(clone!(@weak self as this => move |_| {
                 this.imp().stack.set_visible_child_name("welcome");
             }));
+        imp.cancel_button
+            .connect_clicked(clone!(@weak self as this => move |_| {
+                this.convert_cancel();
+            }));
         imp.container_row
             .connect_selected_notify(clone!(@weak self as this => move |_| {
                 this.update_options();
@@ -286,21 +303,6 @@ impl AppWindow {
                 this.update_width_from_height();
             }));
 
-        // imp.link_axis
-        //     .connect_clicked(clone!(@weak self as this => move |_| {
-        //         // if this.imp().link_axis.is_active() && this.imp().link_axis.is_visible() {
-        //         //     this.imp().link_axis.set_icon_name("chain-link-symbolic");
-        //             let old_value = this.imp().resize_scale_width_value.text().as_str().to_owned();
-        //             let new_value = this.imp().resize_scale_height_value.text().as_str().to_owned();
-        //             if old_value != new_value && !new_value.is_empty() {
-        //                 this.imp().resize_scale_width_value.set_text(&new_value);
-        //             }
-        //             this.update_width_from_height();
-        //         // } else {
-        //         //     this.imp().link_axis.set_icon_name("chain-link-loose-symbolic");
-        //         // }
-        //     }));
-
         imp.resize_scale_height_value
             .connect_changed(clone!(@weak self as this => move |_| {
                 // if this.imp().link_axis.is_active() && this.imp().link_axis.is_visible() {
@@ -322,11 +324,9 @@ impl AppWindow {
                     }
                 // }
             }));
-        
+
         imp.video_preview.imp().crop_box.connect_local("crop-box-changed", true, clone!(@weak self as this => @default-return None, move |v| {
-            if this.imp().video_height.get().is_none() {
-                return None;
-            }
+            this.imp().video_height.get()?;
 
             let t: f64 = v.get(1).unwrap().get().expect("Expected a F64");
             let r: f64 = v.get(2).unwrap().get().expect("Expected a F64");
@@ -340,7 +340,7 @@ impl AppWindow {
             this.imp().selected_video_width.set(Some(selected_width));
 
             this.imp().resize_height_value.set_text(&selected_height.to_string());
-            this.imp().resize_width_value.set_text(&selected_width.to_string());    
+            this.imp().resize_width_value.set_text(&selected_width.to_string());
 
             None
         }));
@@ -348,70 +348,124 @@ impl AppWindow {
 
     fn update_width_from_height(&self) {
         // if self.imp().link_axis.is_active() && self.imp().link_axis.is_visible() {
-            if let (Some(video_width), Some(video_height)) =
-                (self.imp().selected_video_width.get(), self.imp().selected_video_height.get())
-            {
-                let old_value = self.imp().resize_width_value.text().as_str().to_owned();
-                let other_text = self.imp().resize_height_value.text().as_str().to_owned();
-                if other_text.is_empty() {
-                    return;
-                }
-
-                let other_way = generate_height_from_width(
-                    old_value.parse().unwrap_or(0),
-                    (video_width, video_height),
-                )
-                .to_string();
-
-                if other_way == other_text {
-                    return;
-                }
-
-                let new_value = generate_width_from_height(
-                    other_text.parse().unwrap_or(0),
-                    (video_width, video_height),
-                )
-                .to_string();
-
-                if old_value != new_value && new_value != "0" {
-                    self.imp().resize_width_value.set_text(&new_value);
-                }
+        if let (Some(video_width), Some(video_height)) = (
+            self.imp().selected_video_width.get(),
+            self.imp().selected_video_height.get(),
+        ) {
+            let old_value = self.imp().resize_width_value.text().as_str().to_owned();
+            let other_text = self.imp().resize_height_value.text().as_str().to_owned();
+            if other_text.is_empty() {
+                return;
             }
+
+            let other_way = generate_height_from_width(
+                old_value.parse().unwrap_or(0),
+                (video_width, video_height),
+            )
+            .to_string();
+
+            if other_way == other_text {
+                return;
+            }
+
+            let new_value = generate_width_from_height(
+                other_text.parse().unwrap_or(0),
+                (video_width, video_height),
+            )
+            .to_string();
+
+            if old_value != new_value && new_value != "0" {
+                self.imp().resize_width_value.set_text(&new_value);
+            }
+        }
         // }
     }
 
     fn update_height_from_width(&self) {
         // if self.imp().link_axis.is_active() && self.imp().link_axis.is_visible() {
-            if let (Some(video_width), Some(video_height)) =
-                (self.imp().selected_video_width.get(), self.imp().selected_video_height.get())
-            {
-                let old_value = self.imp().resize_height_value.text().as_str().to_owned();
-                let other_text = self.imp().resize_width_value.text().as_str().to_owned();
-                if other_text.is_empty() {
-                    return;
-                }
-
-                let other_way = generate_width_from_height(
-                    old_value.parse().unwrap_or(0),
-                    (video_width, video_height),
-                )
-                .to_string();
-
-                if other_way == other_text {
-                    return;
-                }
-
-                let new_value = generate_height_from_width(
-                    other_text.parse().unwrap_or(0),
-                    (video_width, video_height),
-                )
-                .to_string();
-
-                if old_value != new_value && new_value != "0" {
-                    self.imp().resize_height_value.set_text(&new_value);
-                }
+        if let (Some(video_width), Some(video_height)) = (
+            self.imp().selected_video_width.get(),
+            self.imp().selected_video_height.get(),
+        ) {
+            let old_value = self.imp().resize_height_value.text().as_str().to_owned();
+            let other_text = self.imp().resize_width_value.text().as_str().to_owned();
+            if other_text.is_empty() {
+                return;
             }
+
+            let other_way = generate_width_from_height(
+                old_value.parse().unwrap_or(0),
+                (video_width, video_height),
+            )
+            .to_string();
+
+            if other_way == other_text {
+                return;
+            }
+
+            let new_value = generate_height_from_width(
+                other_text.parse().unwrap_or(0),
+                (video_width, video_height),
+            )
+            .to_string();
+
+            if old_value != new_value && new_value != "0" {
+                self.imp().resize_height_value.set_text(&new_value);
+            }
+        }
         // }
+    }
+
+    fn close_dialog(&self) {
+        let stop_converting_dialog = adw::MessageDialog::new(
+            Some(self),
+            Some(&gettext("Stop rendering?")),
+            Some(&gettext("You will lose all progress.")),
+        );
+
+        stop_converting_dialog.add_response("cancel", &gettext("_Cancel"));
+        stop_converting_dialog.add_response("stop", &gettext("_Stop"));
+        stop_converting_dialog
+            .set_response_appearance("stop", adw::ResponseAppearance::Destructive);
+        stop_converting_dialog.connect_response(
+            None,
+            clone!(@weak self as this => move |_, response_id| {
+                if response_id == "stop" {
+                    this.imp()
+                        .cancel_flag
+                        .store(true, std::sync::atomic::Ordering::SeqCst);
+                    this.close();
+                }
+            }),
+        );
+        stop_converting_dialog.present();
+    }
+
+    fn convert_cancel(&self) {
+        let stop_converting_dialog = adw::MessageDialog::new(
+            Some(self),
+            Some(&gettext("Stop rendering?")),
+            Some(&gettext("You will lose all progress.")),
+        );
+
+        stop_converting_dialog
+            .add_responses(&[("cancel", &gettext("_Cancel")), ("stop", &gettext("_Stop"))]);
+        stop_converting_dialog
+            .set_response_appearance("stop", adw::ResponseAppearance::Destructive);
+
+        stop_converting_dialog.connect_response(
+            None,
+            clone!(@weak self as this => move |_, response_id| {
+                if response_id == "stop" {
+                    this.imp()
+                        .cancel_flag
+                        .store(true, std::sync::atomic::Ordering::SeqCst);
+                    this.imp().stack.set_visible_child_name("failure");
+                }
+            }),
+        );
+
+        stop_converting_dialog.present();
     }
 
     async fn open_dialog(&self) -> ashpd::Result<()> {
@@ -512,15 +566,25 @@ impl AppWindow {
 
         let (scaled_width, scaled_height) = match self.imp().resize_type.selected() {
             0 => {
-                let (sw, sh): (usize, usize) = (self.imp().resize_scale_width_value.text().parse().unwrap(), self.imp().resize_scale_height_value.text().parse().unwrap());
-                let (bw, bh) = (self.imp().selected_video_width.get().unwrap(),self.imp().selected_video_height.get().unwrap());
+                let (sw, sh): (usize, usize) = (
+                    self.imp().resize_scale_width_value.text().parse().unwrap(),
+                    self.imp().resize_scale_height_value.text().parse().unwrap(),
+                );
+                let (bw, bh) = (
+                    self.imp().selected_video_width.get().unwrap(),
+                    self.imp().selected_video_height.get().unwrap(),
+                );
                 (bw * sw / 100, bh * sh / 100)
             }
-            1 => {
-                (self.imp().resize_width_value.text().parse().unwrap(), self.imp().resize_height_value.text().parse().unwrap())
-            }
-            _ => unreachable!()
+            1 => (
+                self.imp().resize_width_value.text().parse().unwrap(),
+                self.imp().resize_height_value.text().parse().unwrap(),
+            ),
+            _ => unreachable!(),
         };
+
+        let cancel_flag = self.imp().cancel_flag.clone();
+        cancel_flag.store(false, std::sync::atomic::Ordering::SeqCst);
 
         let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
         self.imp().video_preview.save(
@@ -532,6 +596,7 @@ impl AppWindow {
             self.imp().framerate_button.value(),
             scaled_width,
             scaled_height,
+            cancel_flag,
         );
         receiver.attach(
             None,
@@ -539,6 +604,7 @@ impl AppWindow {
                 match p {
                     Ok(p) if p == 1.0 => {
                         this.imp().stack.set_visible_child_name("success");
+                        this.imp().cancel_flag.store(false, std::sync::atomic::Ordering::SeqCst);
                         Continue(false)
                     }
                     Ok(p) => {
@@ -547,6 +613,7 @@ impl AppWindow {
                     }
                     _ => {
                         this.imp().stack.set_visible_child_name("failure");
+                        this.imp().cancel_flag.store(false, std::sync::atomic::Ordering::SeqCst);
                         Continue(false)
                     }
                 }

@@ -19,6 +19,8 @@ template $AppWindow : Adw.ApplicationWindow {
         tooltip-text: _("Primary Menu");
         primary: true;
       }
+
+      styles ["flat"]
     }
 
 
@@ -29,8 +31,9 @@ template $AppWindow : Adw.ApplicationWindow {
         name: "welcome";
         child: 
         Adw.StatusPage {
-          icon-name: "io.gitlab.adhami3310.Footage-symbolic";
-          title: _("Edit a Video");
+          icon-name: "io.gitlab.adhami3310.Footage";
+          title: _("Footage");
+          description: _("Choose a video to edit");
           hexpand: true;
           vexpand: true;
           child: 
@@ -41,7 +44,7 @@ template $AppWindow : Adw.ApplicationWindow {
             Button open_video_button {
               valign: center;
               halign: center;
-              label: _("Open a Video…");
+              label: _("Open File…");
               action-name: "win.open";
               use-underline: true;
 
@@ -210,18 +213,11 @@ template $AppWindow : Adw.ApplicationWindow {
       StackPage {
         name: "loading";
         child: 
-        Adw.StatusPage {
-          Box {
-            orientation: vertical;
-            spacing: 12;
-
-            Spinner spinner {
-              valign: center;
-              halign: center;
-              height-request: 28;
-              width-request: 28;
-            }
-          }
+        Spinner spinner {
+          valign: center;
+          halign: center;
+          height-request: 28;
+          width-request: 28;
         }
 
         ;
@@ -242,7 +238,7 @@ template $AppWindow : Adw.ApplicationWindow {
             Button done_button {
               valign: center;
               halign: center;
-              label: _("Done");
+              label: _("Finish");
               use-underline: true;
 
               styles [
@@ -272,7 +268,7 @@ template $AppWindow : Adw.ApplicationWindow {
             Button try_again_button {
               valign: center;
               halign: center;
-              label: _("Try Again");
+              label: _("Retry");
               use-underline: true;
 
               styles [
@@ -293,6 +289,8 @@ template $AppWindow : Adw.ApplicationWindow {
         child:
         $AdwStatusPage exporting_page {
           title: _("Rendering…");
+          icon-name: "camera-video-symbolic";
+          description: _("This may take a while");
 
           Box {
             orientation: vertical;
@@ -311,7 +309,6 @@ template $AppWindow : Adw.ApplicationWindow {
               use-underline: true;
 
               styles [
-                "destructive-action",
                 "pill",
               ]
             }
@@ -326,6 +323,11 @@ template $AppWindow : Adw.ApplicationWindow {
 
 menu primary_menu {
   section {
+    item {
+      label: _("Open File…");
+      action: "win.open";
+    }
+
     item {
       label: _("New Window");
       action: "app.new-window";
