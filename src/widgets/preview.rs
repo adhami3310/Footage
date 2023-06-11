@@ -503,14 +503,22 @@ impl VideoPreview {
         framerate: f64,
         scaled_width: usize,
         scaled_height: usize,
-        cancel_flag: Arc<AtomicBool>,
+        running_flag: Arc<AtomicBool>,
     ) {
         self.kill();
 
+        
         let input_path = self.imp().path.borrow().to_owned();
-
+        
         let (width, height, _) = get_width_height(input_path.to_str().unwrap().to_owned()).unwrap();
         let (top, right, bottom, left) = self.imp().crop_box.proportions();
+        
+        let full_scaled_width = width as f64 * (scaled_width as f64 / (width as f64 * (1. - right - left)));
+        let full_scaled_height = height as f64 * (scaled_height as f64 / (height as f64 * (1. - top - bottom)));
+
+        dbg!(width, height);
+        dbg!(scaled_width, scaled_height);
+        dbg!(full_scaled_width, full_scaled_height);
 
         let mut effects = self.imp().effects.borrow().to_owned();
 
@@ -529,47 +537,39 @@ impl VideoPreview {
             )
             .unwrap();
 
-            clip.add(&ges::Effect::new("videoconvertscale add-borders=false method=0").unwrap())
-                .ok();
-            clip.add(&ges::Effect::new("videorate").unwrap()).ok();
-
-            clip.add(
-                &ges::Effect::new(&format!(
-                    "videocrop top={} right={} bottom={} left={}",
-                    (top * height as f64) as u64,
-                    (right * width as f64) as u64,
-                    (bottom * height as f64) as u64,
-                    (left * width as f64) as u64
-                ))
-                .unwrap(),
-            )
-            .ok();
-
-            for effect in effects {
-                clip.add_top_effect(&ges::Effect::new(&effect).unwrap(), 0)
-                    .unwrap();
-            }
-
-            clip.set_inpoint(inpoint);
-            clip.set_duration(Some(duration));
-
             let timeline = ges::Timeline::new_audio_video();
+            
+            let layer = timeline.append_layer();
+            layer.add_clip(&clip).unwrap();
+            
             if let Some(t) = timeline.tracks().first() {
                 t.set_restriction_caps(
                     &gst::Caps::builder("video/x-raw")
                         .field("framerate", gst::Fraction::new(framerate as i32, 1))
                         .field("width", scaled_width as i32)
                         .field("height", scaled_height as i32)
-                        .field(
-                            "pixel-aspect-ratio",
-                            gst::Fraction::new(scaled_width as i32, scaled_height as i32),
-                        )
                         .build(),
                 );
+                t.elements().into_iter().for_each(|te| {
+                    dbg!(ges::prelude::TrackElementExt::child_property(&te, "width").unwrap());
+                    dbg!(ges::prelude::TrackElementExt::child_property(&te, "height").unwrap());
+                    ges::prelude::TrackElementExt::set_child_property(&te, "width", &(full_scaled_width as i32).to_value()).unwrap();
+                    ges::prelude::TrackElementExt::set_child_property(&te, "height", &(full_scaled_height as i32).to_value()).unwrap();
+                    ges::prelude::TrackElementExt::set_child_property(&te, "posx", &((-left * full_scaled_width as f64) as i32).to_value()).unwrap();
+                    ges::prelude::TrackElementExt::set_child_property(&te, "posy", &((-top * full_scaled_height as f64) as i32).to_value()).unwrap();
+                });
             }
 
-            let layer = timeline.append_layer();
-            layer.add_clip(&clip).unwrap();
+            for effect in effects {
+                clip.add_top_effect(&ges::Effect::new(&effect).unwrap(), 0)
+                    .unwrap();
+            }
+
+            clip.add_top_effect(&ges::Effect::new("videorate").unwrap(), 0)
+                .ok();
+
+            clip.set_inpoint(inpoint);
+            clip.set_duration(Some(duration));
 
             let pipeline = ges::Pipeline::new();
             pipeline.set_timeline(&timeline).unwrap();
@@ -667,7 +667,7 @@ impl VideoPreview {
                         sender.send(Err(())).expect("Concurrency Issues");
                     }
                     _ => {
-                        if cancel_flag.load(std::sync::atomic::Ordering::SeqCst) {
+                        if !running_flag.load(std::sync::atomic::Ordering::SeqCst) {
                             pipeline.set_state(gst::State::Null).unwrap();
 
                             sender.send(Err(())).expect("Concurrency Issues");

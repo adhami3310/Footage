@@ -76,7 +76,7 @@ mod imp {
         #[template_child]
         pub cancel_button: TemplateChild<gtk::Button>,
 
-        pub cancel_flag: Arc<AtomicBool>,
+        pub running_flag: Arc<AtomicBool>,
         pub video_width: Cell<Option<usize>>,
         pub video_height: Cell<Option<usize>>,
         pub selected_video_width: Cell<Option<usize>>,
@@ -126,7 +126,7 @@ mod imp {
                 resize_height_value: TemplateChild::default(),
                 cancel_button: TemplateChild::default(),
 
-                cancel_flag: Arc::new(AtomicBool::new(false)),
+                running_flag: Arc::new(AtomicBool::new(false)),
                 video_width: Default::default(),
                 video_height: Default::default(),
                 selected_video_width: Default::default(),
@@ -156,7 +156,7 @@ mod imp {
                 dbg!("Failed to save window state, {}", &err);
             }
 
-            if !self.cancel_flag.load(std::sync::atomic::Ordering::SeqCst) {
+            if self.running_flag.load(std::sync::atomic::Ordering::SeqCst) {
                 self.obj().close_dialog();
                 glib::signal::Inhibit(true)
             } else {
@@ -333,8 +333,8 @@ impl AppWindow {
             let b: f64 = v.get(3).unwrap().get().expect("Expected a F64");
             let l: f64 = v.get(4).unwrap().get().expect("Expected a F64");
 
-            let selected_height = (this.imp().video_height.get().unwrap() as f64 * (1. - t - b)) as usize;
-            let selected_width = (this.imp().video_width.get().unwrap() as f64 * (1. - l - r)) as usize;
+            let selected_height = (this.imp().video_height.get().unwrap() as f64 * (1. - t - b)) as usize / 2 * 2;
+            let selected_width = (this.imp().video_width.get().unwrap() as f64 * (1. - l - r)) as usize / 2 * 2;
 
             this.imp().selected_video_height.set(Some(selected_height));
             this.imp().selected_video_width.set(Some(selected_width));
@@ -432,8 +432,8 @@ impl AppWindow {
             clone!(@weak self as this => move |_, response_id| {
                 if response_id == "stop" {
                     this.imp()
-                        .cancel_flag
-                        .store(true, std::sync::atomic::Ordering::SeqCst);
+                        .running_flag
+                        .store(false, std::sync::atomic::Ordering::SeqCst);
                     this.close();
                 }
             }),
@@ -458,8 +458,8 @@ impl AppWindow {
             clone!(@weak self as this => move |_, response_id| {
                 if response_id == "stop" {
                     this.imp()
-                        .cancel_flag
-                        .store(true, std::sync::atomic::Ordering::SeqCst);
+                        .running_flag
+                        .store(false, std::sync::atomic::Ordering::SeqCst);
                     this.imp().stack.set_visible_child_name("failure");
                 }
             }),
@@ -574,17 +574,17 @@ impl AppWindow {
                     self.imp().selected_video_width.get().unwrap(),
                     self.imp().selected_video_height.get().unwrap(),
                 );
-                (bw * sw / 100, bh * sh / 100)
+                (bw * sw / 100 / 2 * 2, bh * sh / 100 / 2 * 2)
             }
             1 => (
-                self.imp().resize_width_value.text().parse().unwrap(),
-                self.imp().resize_height_value.text().parse().unwrap(),
+                self.imp().resize_width_value.text().parse::<usize>().unwrap() / 2 * 2,
+                self.imp().resize_height_value.text().parse::<usize>().unwrap() / 2 * 2,
             ),
             _ => unreachable!(),
         };
 
-        let cancel_flag = self.imp().cancel_flag.clone();
-        cancel_flag.store(false, std::sync::atomic::Ordering::SeqCst);
+        let running_flag = self.imp().running_flag.clone();
+        running_flag.store(true, std::sync::atomic::Ordering::SeqCst);
 
         let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
         self.imp().video_preview.save(
@@ -596,7 +596,7 @@ impl AppWindow {
             self.imp().framerate_button.value(),
             scaled_width,
             scaled_height,
-            cancel_flag,
+            running_flag,
         );
         receiver.attach(
             None,
@@ -604,7 +604,7 @@ impl AppWindow {
                 match p {
                     Ok(p) if p == 1.0 => {
                         this.imp().stack.set_visible_child_name("success");
-                        this.imp().cancel_flag.store(false, std::sync::atomic::Ordering::SeqCst);
+                        this.imp().running_flag.store(false, std::sync::atomic::Ordering::SeqCst);
                         Continue(false)
                     }
                     Ok(p) => {
@@ -613,7 +613,7 @@ impl AppWindow {
                     }
                     _ => {
                         this.imp().stack.set_visible_child_name("failure");
-                        this.imp().cancel_flag.store(false, std::sync::atomic::Ordering::SeqCst);
+                        this.imp().running_flag.store(false, std::sync::atomic::Ordering::SeqCst);
                         Continue(false)
                     }
                 }
