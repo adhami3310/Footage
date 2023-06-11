@@ -658,6 +658,7 @@ impl AppWindow {
             .website("https://gitlab.com/adhami3310/Footage")
             .issue_url("https://gitlab.com/adhami3310/Footage/-/issues")
             .developers(vec!["Khaleel Al-Adhami"])
+            .artists(vec!["kramo https://kramo.hu"])
             .license_type(gtk::License::Gpl30)
             .version(VERSION)
             .build();
