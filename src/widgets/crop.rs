@@ -178,10 +178,10 @@ mod imp {
 
             self.crop_box.size_allocate(
                 &gtk::Allocation::new(
-                    (width as f64 * crop.3) as i32,
-                    (height as f64 * crop.0) as i32,
-                    (width as f64 * (1. - crop.3 - crop.1)) as i32,
-                    (height as f64 * (1. - crop.2 - crop.0)) as i32,
+                    (width as f64 * crop.3).round() as i32,
+                    (height as f64 * crop.0).round() as i32,
+                    (width as f64 * (1. - crop.3 - crop.1)).round() as i32,
+                    (height as f64 * (1. - crop.2 - crop.0)).round() as i32,
                 ),
                 baseline,
             );

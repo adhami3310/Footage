@@ -30,7 +30,8 @@ timeline > .position {
 }
 
 .crop-handle {
-	outline: 5px solid white;
+	outline: 5px solid @view_fg_color;
+	background-color: @view_fg_color;
 	border-radius: 10px;
 
 	min-width: 0.1px;
@@ -47,3 +48,9 @@ timeline > .position {
 	font-size: inherit;
 	opacity: 1;
 }
+
+
+.unit-drop .menu contents {
+	min-width: 0px;
+  }
+  
