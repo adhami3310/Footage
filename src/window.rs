@@ -286,6 +286,7 @@ impl AppWindow {
             }));
         imp.back_edit
             .connect_clicked(clone!(@weak self as this => move |g| {
+                this.imp().video_preview.refresh_ui();
                 this.imp().stack.set_visible_child_name("editing");
                 g.set_visible(false);
             }));
