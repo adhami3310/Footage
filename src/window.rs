@@ -577,8 +577,20 @@ impl AppWindow {
                 (bw * sw / 100 / 2 * 2, bh * sh / 100 / 2 * 2)
             }
             1 => (
-                self.imp().resize_width_value.text().parse::<usize>().unwrap() / 2 * 2,
-                self.imp().resize_height_value.text().parse::<usize>().unwrap() / 2 * 2,
+                self.imp()
+                    .resize_width_value
+                    .text()
+                    .parse::<usize>()
+                    .unwrap()
+                    / 2
+                    * 2,
+                self.imp()
+                    .resize_height_value
+                    .text()
+                    .parse::<usize>()
+                    .unwrap()
+                    / 2
+                    * 2,
             ),
             _ => unreachable!(),
         };
@@ -623,7 +635,10 @@ impl AppWindow {
 
     fn create_ui(&self, path: PathBuf) {
         glib::MainContext::default().iteration(true);
-        let (width, height, framerate) = self.imp().video_preview.load_path(path);
+        let Ok((width, height, framerate)) = self.imp().video_preview.load_path(path) else {
+            self.imp().stack.set_visible_child_name("invalid");
+            return;
+        };
         self.imp().video_width.set(Some(width));
         self.imp().video_height.set(Some(height));
         self.imp().selected_video_width.set(Some(width));

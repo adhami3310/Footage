@@ -62,6 +62,21 @@ template $AppWindow : Adw.ApplicationWindow {
       }
 
       StackPage {
+        name: "invalid";
+        child:
+        Adw.StatusPage invalid_image {
+          icon-name: "image-missing-symbolic";
+          title: _("Could not Load Video");
+          description: _("This video could be corrupted or may use an unsupported file format.");
+          hexpand: true;
+          vexpand: true;
+        }
+
+        ;
+      }
+
+
+      StackPage {
         name: "editing";
         child: 
         Adw.PreferencesPage {
