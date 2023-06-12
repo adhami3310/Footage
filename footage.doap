@@ -5,7 +5,7 @@
 		xmlns:gnome="http://api.gnome.org/doap-extensions#">
 
 	<name xml:lang="en">Footage</name>
-	<shortdesc xml:lang="en">Edit videos easily</shortdesc>
+	<shortdesc xml:lang="en">Polish your videos</shortdesc>
 
 	<homepage rdf:resource="https://gitlab.com/adhami3310/Footage"/>
 	<download-page rdf:resource="https://flathub.org/apps/details/io.gitlab.adhami3310.Footage"/>
