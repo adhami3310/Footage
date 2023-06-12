@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-07 06:21-0400\n"
+"POT-Creation-Date: 2023-06-12 13:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,12 +19,13 @@ msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
-#: data/resources/blueprints/window.blp:9 src/main.rs:31 src/window.rs:283
+#: data/resources/blueprints/window.blp:9
+#: data/resources/blueprints/window.blp:43 src/main.rs:47 src/window.rs:705
 msgid "Footage"
 msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:4
-msgid "Media Writer"
+msgid "Video Editor"
 msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:5
@@ -32,7 +33,7 @@ msgid "Edit Videos Easily"
 msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:11
-msgid "flash;usb;drive;bootable"
+msgid "video;edit;trim;crop;convert"
 msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.gschema.xml.in:6
@@ -52,42 +53,41 @@ msgid "Khaleel Al-Adhami"
 msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:7
-msgid "Edit videos easily"
+msgid "Polish your videos"
 msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:13
-msgid "Edit videos easily with a modern interface"
+msgid ""
+"Trim, flip, rotate and crop individual clips. Footage is a useful tool for "
+"quickly editing short videos and screencasts. It's also capable of exporting "
+"any video into a format of your choice."
 msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:28
-msgid "usb"
+msgid "video"
 msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:29
-msgid "flash"
+msgid "edit"
 msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:30
-msgid "bootable"
+msgid "trim"
 msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:31
-msgid "drive"
+msgid "crop"
 msgstr ""
 
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:47
-msgid "Main screen with a chosen ISO and two USB memories"
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:32
+msgid "convert"
 msgstr ""
 
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:51
-msgid "Flashing the ISO in progress"
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:48
+msgid "Editing screen with default options"
 msgstr ""
 
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:55
-msgid "Success screen with a big check mark"
-msgstr ""
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:75
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:68
 msgid "Initial version."
 msgstr ""
 
@@ -111,58 +111,137 @@ msgctxt "shortcut window"
 msgid "Quit"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:19
+#: data/resources/blueprints/window.blp:27
 msgid "Primary Menu"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:33
-msgid "Edit a Video"
-msgstr ""
-
 #: data/resources/blueprints/window.blp:44
-msgid "Open a Video…"
+msgid "Choose a video to edit"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:100
+#: data/resources/blueprints/window.blp:55
+#: data/resources/blueprints/window.blp:364
+msgid "Open File…"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:77
+msgid "Could not Load Video"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:78
+msgid "This video could be corrupted or may use an unsupported file format."
+msgstr ""
+
+#: data/resources/blueprints/window.blp:124
+msgid "Resize"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:129
+#: data/resources/blueprints/window.blp:130
+#: data/resources/blueprints/window.blp:138
+#: data/resources/blueprints/window.blp:140
+msgid "Width"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:147
+msgid "Preserve aspect ratio"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:152
+#: data/resources/blueprints/window.blp:153
+#: data/resources/blueprints/window.blp:161
+#: data/resources/blueprints/window.blp:162
+msgid "Height"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:173
+msgid "Choose between resizing with percentages or using exact pixels"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:177
+msgid "%"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:177
+msgid "px"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:186
+msgid "Framerate"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:204
+msgid "Container Format"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:210
+msgid "Video Encoding"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:216
+msgid "Audio Encoding"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:227
 msgid "Save Video"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:134
+#: data/resources/blueprints/window.blp:254
 msgid "Video Exported"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:135
+#: data/resources/blueprints/window.blp:255
 msgid "Have a nice day!"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:144
-msgid "Done"
+#: data/resources/blueprints/window.blp:265
+msgid "Open Video"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:165
+#: data/resources/blueprints/window.blp:277
+msgid "Finish"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:299
 msgid "Exporting Video Unsuccessful"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:174
-msgid "Try Again"
+#: data/resources/blueprints/window.blp:308
+msgid "Retry"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:194
+#: data/resources/blueprints/window.blp:328
 msgid "Rendering…"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:209
+#: data/resources/blueprints/window.blp:330
+msgid "This may take a while"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:345 src/window.rs:451 src/window.rs:477
 msgid "_Cancel"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:229
+#: data/resources/blueprints/window.blp:369
 msgid "New Window"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:236
+#: data/resources/blueprints/window.blp:376
 msgid "Keyboard Shortcuts"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:241
+#: data/resources/blueprints/window.blp:381
 msgid "About Footage"
+msgstr ""
+
+#: src/window.rs:447 src/window.rs:472
+msgid "Stop rendering?"
+msgstr ""
+
+#: src/window.rs:448 src/window.rs:473
+msgid "You will lose all progress."
+msgstr ""
+
+#: src/window.rs:452 src/window.rs:477
+msgid "_Stop"
 msgstr ""

@@ -4,14 +4,14 @@
 
     <name>Footage</name>
     <developer_name>Khaleel Al-Adhami</developer_name>
-    <summary>Edit videos easily</summary>
+    <summary>Polish your videos</summary>
 
     <metadata_license>CC-BY-SA-4.0</metadata_license>
     <project_license>GPL-3.0-only</project_license>
 
     <description>
         <p>
-            Edit videos easily with a modern interface
+            Trim, flip, rotate and crop individual clips. Footage is a useful tool for quickly editing short videos and screencasts. It's also capable of exporting any video into a format of your choice.
         </p>
     </description>
 
@@ -25,10 +25,11 @@
     </categories>
 
     <keywords>
-        <keyword>usb</keyword>
-        <keyword>flash</keyword>
-        <keyword>bootable</keyword>
-        <keyword>drive</keyword>
+        <keyword>video</keyword>
+        <keyword>edit</keyword>
+        <keyword>trim</keyword>
+        <keyword>crop</keyword>
+        <keyword>convert</keyword>
     </keywords>
 
     <requires>
@@ -44,15 +45,7 @@
     <screenshots>
         <screenshot>
             <image>https://gitlab.com/adhami3310/Footage/-/raw/main/data/resources/screenshots/0.png</image>
-            <caption>Main screen with a chosen ISO and two USB memories</caption>
-        </screenshot>
-        <screenshot>
-            <image>https://gitlab.com/adhami3310/Footage/-/raw/main/data/resources/screenshots/1.png</image>
-            <caption>Flashing the ISO in progress</caption>
-        </screenshot>
-        <screenshot>
-            <image>https://gitlab.com/adhami3310/Footage/-/raw/main/data/resources/screenshots/2.png</image>
-            <caption>Success screen with a big check mark</caption>
+            <caption>Editing screen with default options</caption>
         </screenshot>
     </screenshots>
 
@@ -70,7 +63,7 @@
     <content_rating type="oars-1.1" />
 
     <releases>
-        <release version="1.0.0" date="2023-06-03">
+        <release version="1.0.0" date="2023-06-12">
             <description>
                 <p>Initial version.</p>
             </description>

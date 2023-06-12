@@ -1,7 +1,7 @@
 <div align="center">
 <h1>Footage</h1>
 
-Edit videos easily.
+Polish your videos.
 
 <img src="data/resources/icons/hicolor/scalable/apps/io.gitlab.adhami3310.Footage.svg" width="128" height="128" alt="Footage icon">
 
@@ -9,6 +9,8 @@ Edit videos easily.
 [![License](https://img.shields.io/gitlab/license/adhami3310/Footage?style=for-the-badge)](https://gitlab.com/adhami3310/Footage/-/raw/main/COPYING)
 
 </div>
+
+Trim, flip, rotate and crop individual clips. Footage is a useful tool for quickly editing short videos and screencasts. It's also capable of exporting any video into a format of your choice.
 
 ## Contributing
 Issues and merge requests are more than welcome. However, please take the following into consideration:

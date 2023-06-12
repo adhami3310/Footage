@@ -193,8 +193,12 @@ impl VideoPreview {
         self.kill();
 
         let timeline = ges::Timeline::new_audio_video();
-        for t in timeline.tracks() {
-            t.set_restriction_caps(&gst::Caps::new_any());
+        if let Some(t) = timeline.tracks().first() {
+            t.set_restriction_caps(
+                &gst::Caps::builder("video/x-raw")
+                    .field("framerate", gst::Fraction::new(30 as i32, 1))
+                    .build(),
+            );
         }
 
         let original_clip = self.imp().clip.borrow();
