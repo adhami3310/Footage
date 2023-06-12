@@ -12,7 +12,7 @@ mod imp {
     use ordered_float::NotNan;
     use std::cell::Cell;
 
-    const TOLERANCE: f64 = 10.;
+    const TOLERANCE: f64 = 15.;
 
     #[derive(Debug, Clone, Copy, Eq, PartialEq)]
     enum DragType {

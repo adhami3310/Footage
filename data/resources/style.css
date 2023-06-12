@@ -3,26 +3,26 @@ timeline {
 	border-radius: 6px;
 }
 
-timeline > .selection {
+timeline>.selection {
 	background-color: @blue_1;
 	border-radius: 6px;
 }
 
-timeline > .position {
+timeline>.position {
 	background-color: @blue_5;
 	min-width: 2px;
 }
 
 
 .handle {
-    min-width: 7px;
+	min-width: 7px;
 }
 
 .dots {
-    background-color: @blue_4;
-    min-width: 4px;
-    min-height: 4px;
-    border-radius: 4px;
+	background-color: @blue_4;
+	min-width: 4px;
+	min-height: 4px;
+	border-radius: 4px;
 }
 
 .crop-region {
@@ -52,5 +52,4 @@ timeline > .position {
 
 .unit-drop .menu contents {
 	min-width: 0px;
-  }
-  
+}

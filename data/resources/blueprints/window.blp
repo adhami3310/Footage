@@ -12,6 +12,14 @@ template $AppWindow : Adw.ApplicationWindow {
     orientation: vertical;
 
     Adw.HeaderBar headerbar {
+      Button back_edit {
+        icon-name: 'go-previous-symbolic';
+        tooltip-text: _('Edit Same Video');
+        visible: false;
+        styles ['flat']
+      }
+
+
       [end]
       MenuButton {
         icon-name: "open-menu-symbolic";
@@ -241,20 +249,34 @@ template $AppWindow : Adw.ApplicationWindow {
       StackPage {
         name: "success";
         child: 
-        Adw.StatusPage {
+        Adw.StatusPage success_status {
           icon-name: "check-round-outline-symbolic";
           title: _("Video Exported");
           description: _("Have a nice day!");
           child: 
           Box {
             orientation: vertical;
+            halign: center;
             spacing: 12;
+
+            Button open_result {
+              valign: center;
+              halign: center;
+              label: _("Open Video");
+              use-underline: true;
+              width-request: 175;
+
+              styles [
+                "pill",
+              ]
+            }
 
             Button done_button {
               valign: center;
               halign: center;
               label: _("Finish");
               use-underline: true;
+              width-request: 175;
 
               styles [
                 "suggested-action",

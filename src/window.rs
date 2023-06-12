@@ -54,6 +54,8 @@ mod imp {
         #[template_child]
         pub done_button: TemplateChild<gtk::Button>,
         #[template_child]
+        pub open_result: TemplateChild<gtk::Button>,
+        #[template_child]
         pub container_row: TemplateChild<adw::ComboRow>,
         #[template_child]
         pub video_encoding: TemplateChild<adw::ComboRow>,
@@ -75,6 +77,10 @@ mod imp {
         pub resize_height_value: TemplateChild<gtk::Entry>,
         #[template_child]
         pub cancel_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub back_edit: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub success_status: TemplateChild<adw::StatusPage>,
 
         pub running_flag: Arc<AtomicBool>,
         pub video_width: Cell<Option<usize>>,
@@ -82,6 +88,7 @@ mod imp {
         pub selected_video_width: Cell<Option<usize>>,
         pub selected_video_height: Cell<Option<usize>>,
         pub selected_video_path: RefCell<Option<PathBuf>>,
+        pub result_video_path: RefCell<Option<PathBuf>>,
         pub provider: gtk::CssProvider,
         pub settings: gio::Settings,
     }
@@ -114,6 +121,8 @@ mod imp {
                 progress_bar: TemplateChild::default(),
                 try_again_button: TemplateChild::default(),
                 done_button: TemplateChild::default(),
+                back_edit: TemplateChild::default(),
+                open_result: TemplateChild::default(),
                 container_row: TemplateChild::default(),
                 video_encoding: TemplateChild::default(),
                 audio_encoding: TemplateChild::default(),
@@ -125,6 +134,7 @@ mod imp {
                 resize_width_value: TemplateChild::default(),
                 resize_height_value: TemplateChild::default(),
                 cancel_button: TemplateChild::default(),
+                success_status: TemplateChild::default(),
 
                 running_flag: Arc::new(AtomicBool::new(false)),
                 video_width: Default::default(),
@@ -132,6 +142,7 @@ mod imp {
                 selected_video_width: Default::default(),
                 selected_video_height: Default::default(),
                 selected_video_path: RefCell::new(None),
+                result_video_path: RefCell::new(None),
                 provider: gtk::CssProvider::new(),
                 settings: gio::Settings::new(APP_ID),
             }
@@ -267,10 +278,23 @@ impl AppWindow {
         imp.done_button
             .connect_clicked(clone!(@weak self as this => move |_| {
                 this.imp().stack.set_visible_child_name("welcome");
+                this.imp().back_edit.set_visible(false);
             }));
         imp.cancel_button
             .connect_clicked(clone!(@weak self as this => move |_| {
                 this.convert_cancel();
+            }));
+        imp.back_edit
+            .connect_clicked(clone!(@weak self as this => move |g| {
+                this.imp().stack.set_visible_child_name("editing");
+                g.set_visible(false);
+            }));
+        imp.open_result
+            .connect_clicked(clone!(@weak self as this => move |_| {
+                spawn!(async move {
+                    let file = std::fs::File::open(this.imp().result_video_path.borrow().as_ref().unwrap()).unwrap();
+                    ashpd::desktop::open_uri::OpenFileRequest::default().ask(true).identifier(ashpd::WindowIdentifier::from_native(&this.native().unwrap()).await).send_file(&file).await.ok();
+                });
             }));
         imp.container_row
             .connect_selected_notify(clone!(@weak self as this => move |_| {
@@ -561,6 +585,14 @@ impl AppWindow {
     }
 
     fn save_file(&self, path: PathBuf) {
+        self.imp().result_video_path.replace(Some(path.clone()));
+
+        let file_name = path.file_name().unwrap().to_str().unwrap().to_owned();
+
+        self.imp()
+            .success_status
+            .set_description(Some(&gettext!("Saved as {}", file_name)));
+
         self.imp().stack.set_visible_child_name("exporting");
         glib::MainContext::default().iteration(true);
 
@@ -616,6 +648,7 @@ impl AppWindow {
                 match p {
                     Ok(p) if p == 1.0 => {
                         this.imp().stack.set_visible_child_name("success");
+                        this.imp().back_edit.set_visible(true);
                         this.imp().running_flag.store(false, std::sync::atomic::Ordering::SeqCst);
                         Continue(false)
                     }
