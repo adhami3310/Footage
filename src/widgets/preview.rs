@@ -14,6 +14,7 @@ use ges::Effect;
 
 use crate::{
     info::get_width_height,
+    orientation::VideoOrientation,
     profiles::{AudioEncoding, ContainerFormat, VideoEncoding},
 };
 
@@ -23,11 +24,15 @@ mod imp {
 
     use std::cell::Cell;
 
-    use crate::widgets::{crop::Crop, timeline::Timeline};
+    use crate::{
+        orientation::VideoOrientation,
+        widgets::{crop::Crop, timeline::Timeline},
+    };
 
     use super::*;
 
     use adw::subclass::prelude::BinImpl;
+    use glib::subclass::Signal;
     use gtk::CompositeTemplate;
 
     #[derive(Debug, CompositeTemplate, Default)]
@@ -43,6 +48,7 @@ mod imp {
         pub crop_box: TemplateChild<Crop>,
 
         pub current_dimensions: Cell<Option<(usize, usize)>>,
+        pub orientation: Cell<VideoOrientation>,
         pub audio_level: RefCell<Option<Effect>>,
         pub inpoint: Cell<u64>,
         pub mute: Cell<bool>,
@@ -119,6 +125,17 @@ mod imp {
                 }),
             );
         }
+
+        fn signals() -> &'static [Signal] {
+            use once_cell::sync::Lazy;
+            static SIGNALS: Lazy<[Signal; 1]> = Lazy::new(|| {
+                [Signal::builder("orientation-flipped")
+                    .param_types(std::iter::empty::<glib::Type>())
+                    .build()]
+            });
+
+            SIGNALS.as_ref()
+        }
     }
 
     impl WidgetImpl for VideoPreview {}
@@ -167,6 +184,7 @@ impl VideoPreview {
         self.imp().effects.replace(vec![]);
 
         self.imp().crop_box.set_proportions((0., 0., 0., 0.));
+        self.imp().orientation.set(Default::default());
 
         self.refresh_ui();
 
@@ -339,6 +357,7 @@ impl VideoPreview {
             clip.add_top_effect(effect, 0).unwrap();
         }
         self.commit();
+        dbg!(self.imp().orientation.get());
     }
 
     fn commit(&self) {
@@ -358,11 +377,15 @@ impl VideoPreview {
     }
 
     pub fn rotate_right(&self) {
+        self.imp()
+            .orientation
+            .set(self.imp().orientation.get().rotate_right());
         self.add_effect(&ges::Effect::new("videoflip method=clockwise").unwrap());
         self.imp()
             .effects
             .borrow_mut()
             .push("videoflip method=clockwise".to_owned());
+        self.emit_by_name::<()>("orientation-flipped", &[]);
         self.imp()
             .crop_box
             .set_proportions(self.imp().crop_box.rotate_right_proportions());
@@ -371,12 +394,15 @@ impl VideoPreview {
     }
 
     pub fn rotate_left(&self) {
+        self.imp()
+            .orientation
+            .set(self.imp().orientation.get().rotate_left());
         self.add_effect(&ges::Effect::new("videoflip method=counterclockwise").unwrap());
         self.imp()
             .effects
             .borrow_mut()
             .push("videoflip method=counterclockwise".to_owned());
-
+        self.emit_by_name::<()>("orientation-flipped", &[]);
         self.imp()
             .crop_box
             .set_proportions(self.imp().crop_box.rotate_left_proportions());
@@ -386,6 +412,9 @@ impl VideoPreview {
     }
 
     pub fn horizontal_flip(&self) {
+        self.imp()
+            .orientation
+            .set(self.imp().orientation.get().horizontal_flip());
         self.add_effect(&ges::Effect::new("videoflip method=horizontal-flip").unwrap());
         self.imp()
             .effects
@@ -399,6 +428,9 @@ impl VideoPreview {
 
     pub fn vertical_flip(&self) {
         // self.replace_with_thumbnail();
+        self.imp()
+            .orientation
+            .set(self.imp().orientation.get().vertical_flip());
         self.add_effect(&ges::Effect::new("videoflip method=vertical-flip").unwrap());
         self.imp()
             .effects
@@ -458,8 +490,15 @@ impl VideoPreview {
         self.kill();
 
         let input_path = self.imp().path.borrow().to_owned();
+        let orientation = self.imp().orientation.get();
 
         let (width, height, _) = get_width_height(input_path.to_str().unwrap().to_owned()).unwrap();
+
+        let (width, height) = match orientation.is_width_height_swapped() {
+            false => (width, height),
+            true => (height, width),
+        };
+
         let (top, right, bottom, left) = self.imp().crop_box.proportions();
 
         let full_scaled_width =
@@ -502,8 +541,31 @@ impl VideoPreview {
                         .build(),
                 );
                 t.elements().into_iter().for_each(|te| {
-                    dbg!(ges::prelude::TrackElementExt::child_property(&te, "width").unwrap());
-                    dbg!(ges::prelude::TrackElementExt::child_property(&te, "height").unwrap());
+                    ges::prelude::TrackElementExt::set_child_property(
+                        &te,
+                        "video-direction",
+                        &match orientation {
+                            VideoOrientation::Identity => {
+                                gstreamer_video::VideoOrientationMethod::Identity
+                            }
+                            VideoOrientation::R90 => gstreamer_video::VideoOrientationMethod::_90r,
+                            VideoOrientation::R180 => gstreamer_video::VideoOrientationMethod::_180,
+                            VideoOrientation::R270 => gstreamer_video::VideoOrientationMethod::_90l,
+                            VideoOrientation::FlippedIdentity => {
+                                gstreamer_video::VideoOrientationMethod::Horiz
+                            }
+                            VideoOrientation::FR180 => {
+                                gstreamer_video::VideoOrientationMethod::Vert
+                            }
+                            VideoOrientation::FR90 => gstreamer_video::VideoOrientationMethod::UrLl,
+                            VideoOrientation::FR270 => {
+                                gstreamer_video::VideoOrientationMethod::UlLr
+                            }
+                        }
+                        .to_value(),
+                    )
+                    .unwrap();
+
                     ges::prelude::TrackElementExt::set_child_property(
                         &te,
                         "width",
@@ -529,11 +591,6 @@ impl VideoPreview {
                     )
                     .unwrap();
                 });
-            }
-
-            for effect in effects {
-                clip.add_top_effect(&ges::Effect::new(&effect).unwrap(), 0)
-                    .unwrap();
             }
 
             clip.add_top_effect(&ges::Effect::new("videorate").unwrap(), 0)

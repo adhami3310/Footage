@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-12 13:50-0400\n"
+"POT-Creation-Date: 2023-06-13 08:12-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
 #: data/resources/blueprints/window.blp:9
-#: data/resources/blueprints/window.blp:43 src/main.rs:47 src/window.rs:705
+#: data/resources/blueprints/window.blp:43 src/main.rs:48 src/window.rs:712
 msgid "Footage"
 msgstr ""
 
@@ -29,7 +29,7 @@ msgid "Video Editor"
 msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:5
-msgid "Edit Videos Easily"
+msgid "Polish Your Videos"
 msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:11
@@ -218,7 +218,7 @@ msgstr ""
 msgid "This may take a while"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:345 src/window.rs:451 src/window.rs:477
+#: data/resources/blueprints/window.blp:345 src/window.rs:458 src/window.rs:484
 msgid "_Cancel"
 msgstr ""
 
@@ -234,14 +234,14 @@ msgstr ""
 msgid "About Footage"
 msgstr ""
 
-#: src/window.rs:447 src/window.rs:472
+#: src/window.rs:454 src/window.rs:479
 msgid "Stop rendering?"
 msgstr ""
 
-#: src/window.rs:448 src/window.rs:473
+#: src/window.rs:455 src/window.rs:480
 msgid "You will lose all progress."
 msgstr ""
 
-#: src/window.rs:452 src/window.rs:477
+#: src/window.rs:459 src/window.rs:484
 msgid "_Stop"
 msgstr ""

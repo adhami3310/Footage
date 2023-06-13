@@ -65,7 +65,7 @@
         "codecs/libmpeg2.json",
         {
             "name": "x265",
-            "buildsystem": "cmake",
+            "buildsystem": "cmake-ninja",
             "subdir": "source",
             "sources": [
                 {
@@ -234,13 +234,14 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://gitlab.com/adhami3310/Footage/-/raw/6ae4bbeabada41c0f2ac0fdae37148dd001e6775/flatpak/gst-plugins-rs.tar.xz?inline=false",
-                    "sha256": "8564df022a4a057778304c2f1542b28fe3a5ec0f0656fe3dc723327cf4647657"
+                    "url": "https://gitlab.com/adhami3310/Footage/-/raw/615ef6e9c600da451ead6113cda06cc0033901b9/flatpak/gst-plugins-rs.tar.xz?inline=false",
+                    "sha256": "60d8d83f3228f282c2d93030ff583a7eff0fd7423aba9907ac8d579f89505c20"
                 }
             ],
             "build-commands": [
                 "cargo --offline fetch --manifest-path Cargo.toml --verbose",
-                "cargo cinstall -p gst-plugin-gtk4 --prefix=/app"
+                "cargo cinstall -p gst-plugin-gtk4 --prefix=/app",
+                "cargo cinstall -p gst-plugin-gif --prefix=/app"
             ]
         },
         {

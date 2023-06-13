@@ -38,7 +38,7 @@ You can install Footage from the latest commit:
 ### Meson
 You can build and install on your host system by directly using the Meson buildsystem:
 
-1. Install `blueprint-compiler`
+1. Install `blueprint-compiler` and other relevant codecs.
 1. Run the following commands (with `/usr` prefix):
 ```
 meson --prefix=/usr build

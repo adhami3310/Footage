@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Footage
 GenericName=Video Editor
-Comment=Edit Videos Easily
+Comment=Polish Your Videos
 Exec=footage %u
 Icon=@icon@
 Terminal=false

@@ -2,6 +2,7 @@ mod application;
 #[rustfmt::skip]
 mod config;
 mod info;
+mod orientation;
 mod profiles;
 mod widgets;
 mod window;

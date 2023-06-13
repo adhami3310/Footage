@@ -63,7 +63,7 @@
     <content_rating type="oars-1.1" />
 
     <releases>
-        <release version="1.0.0" date="2023-06-12">
+        <release version="1.0" date="2023-06-13">
             <description>
                 <p>Initial version.</p>
             </description>

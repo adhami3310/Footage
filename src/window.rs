@@ -369,6 +369,13 @@ impl AppWindow {
 
             None
         }));
+
+        imp.video_preview.connect_local("orientation-flipped", true, clone!(@weak self as this => @default-return None, move |_| {
+            let (height, width) = (this.imp().video_height.get(), this.imp().video_width.get());
+            this.imp().video_width.set(height);
+            this.imp().video_height.set(width);
+            None
+        }));
     }
 
     fn update_width_from_height(&self) {
