@@ -234,8 +234,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "gst-plugins-rs.tar.xz",
-                    "commit": "7a0f2e9fea1077d8a8a750bee5b068ef0cd4b71e528dd41c14d422e93a66c660"
+                    "url": "https://gitlab.com/adhami3310/Footage/-/raw/efbcf6cc786c7d0be3b414ded0c1a8336fc11782/flatpak/gst-plugins-rs.tar.xz?inline=false",
+                    "sha256": "7a0f2e9fea1077d8a8a750bee5b068ef0cd4b71e528dd41c14d422e93a66c660"
                 }
             ],
             "build-commands": [
