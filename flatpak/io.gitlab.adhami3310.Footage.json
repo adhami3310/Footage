@@ -31,7 +31,8 @@
             "GST_PLUGIN_PATH": "/app/lib/codecs/lib/gstreamer-1.0",
             "GST_PLUGIN_SYSTEM_PATH": "/app/lib/gstreamer-1.0/",
             "GST_ENCODING_TARGET_PATH": "/app/share/gstreamer-1.0/encoding-profiles/:/app/share/pitivi/encoding-profiles/",
-            "GST_VAAPI_ALL_DRIVERS": "1"
+            "GST_VAAPI_ALL_DRIVERS": "1",
+            "CARGO_HOME": "/run/build/footage/cargo"
         },
         "append-ld-library-path": "/app/lib/codecs/lib",
         "ldflags": "-L/app/lib/codecs/lib"
@@ -58,21 +59,6 @@
                     "tag": "v0.8.1",
                     "commit": "aa7679618e864748f4f4d8f15283906e712752fe"
                 }
-            ]
-        },
-        {
-            "name": "cargo-c",
-            "buildsystem": "simple",
-            "build-commands": [
-                "cargo install cargo-c --root /app"
-            ],
-            "build-options": {
-                "build-args": [
-                    "--share=network"
-                ]
-            },
-            "cleanup": [
-                "*"
             ]
         },
         "codecs/liba52.json",
@@ -208,7 +194,8 @@
                     "type": "git",
                     "tag": "1.22.3",
                     "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
-                    "commit": "ecd471f5ea4645102b206a43d863f0f0fe7d04ec"
+                    "commit": "ecd471f5ea4645102b206a43d863f0f0fe7d04ec",
+                    "disable-submodules": false
                 },
                 {
                     "type": "git",
@@ -219,23 +206,41 @@
             ]
         },
         {
+            "name": "cargo-c",
+            "buildsystem": "simple",
+            "build-commands": [
+                "mkdir .cargo",
+                "echo -e '[source.crates-io]\nreplace-with = \"vendored-sources\"\n\n[source.vendored-sources]\ndirectory = \"cargo/vendor\"' >> .cargo/config",
+                "cat .cargo/config",
+                "cargo --offline fetch --manifest-path Cargo.toml --verbose",
+                "cargo install --path . --root /app"
+            ],
+            "sources": [
+                {
+                    "type": "git",
+                    "url": "https://github.com/lu-zero/cargo-c",
+                    "tag": "v0.9.20",
+                    "sha256": "ddf235c6d039d7e75f211f62da16fa5baa2bb2ad"
+                },
+                "cargo-c-sources.json"
+            ],
+            "cleanup": [
+                "*"
+            ]
+        },
+        {
             "name": "gst-plugins-rs",
             "buildsystem": "simple",
             "sources": [
                 {
-                    "type": "git",
-                    "url": "https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs",
-                    "branch": "0.10"
+                    "type": "archive",
+                    "url": "gst-plugins-rs.tar.xz",
+                    "commit": "7a0f2e9fea1077d8a8a750bee5b068ef0cd4b71e528dd41c14d422e93a66c660"
                 }
             ],
-            "build-options": {
-                "build-args": [
-                    "--share=network"
-                ]
-            },
             "build-commands": [
-                "cargo cinstall -p gst-plugin-gtk4 --prefix=/app",
-                "cargo cinstall -p gst-plugin-gif --prefix=/app"
+                "cargo --offline fetch --manifest-path Cargo.toml --verbose",
+                "cargo cinstall -p gst-plugin-gtk4 --prefix=/app"
             ]
         },
         {
