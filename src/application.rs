@@ -4,6 +4,7 @@ use log::{debug, info};
 use gtk::{gio, glib, prelude::*, subclass::prelude::*};
 
 use crate::config::{APP_ID, PKGDATADIR, PROFILE, VERSION};
+use crate::info::get_debug_info;
 use crate::window::AppWindow;
 
 mod imp {
@@ -111,6 +112,8 @@ impl App {
     }
 
     fn present_main_window(&self) {
+        get_debug_info();
+
         let window = AppWindow::new(self);
         let window: gtk::Window = window.upcast();
         window.present();

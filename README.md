@@ -10,7 +10,11 @@ Polish your videos.
 
 </div>
 
+## About
+
 Trim, flip, rotate and crop individual clips. Footage is a useful tool for quickly editing short videos and screencasts. It's also capable of exporting any video into a format of your choice.
+
+<img src="data/resources/screenshots/0.png" alt="Main screen with a chosen ISO and one USB memory">
 
 ## Contributing
 Issues and merge requests are more than welcome. However, please take the following into consideration:
@@ -45,3 +49,11 @@ meson --prefix=/usr build
 ninja -C build
 sudo ninja -C build install
 ```
+
+### Credits
+
+Actively developed by Khaleel Al-Adhami.
+
+Logo desgined by kramo.
+
+<!-- Huge thanks to all of the translators who brought Impression to many other languages! -->

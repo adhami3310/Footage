@@ -175,6 +175,7 @@
                 "-Dgood=enabled",
                 "-Dbase=enabled",
                 "-Dugly=enabled",
+                "-Dbad=enabled",
                 "-Dvaapi=enabled",
                 "-Ddoc=disabled",
                 "-Dgst-examples=disabled",

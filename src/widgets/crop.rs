@@ -1,18 +1,19 @@
 // https://gitlab.gnome.org/YaLTeR/video-trimmer/-/blob/master/src/timeline.rs
 
-use gtk::glib;
 use gtk::{gdk, prelude::*, subclass::prelude::*};
+use gtk::{gio, glib};
 
 mod imp {
     use super::*;
-    use glib::subclass::Signal;
-    use gtk::{gdk::RGBA, graphene, CompositeTemplate};
+    use glib::{clone, subclass::Signal};
+    use gtk::{gdk::{RGBA, Key}, graphene, CompositeTemplate};
     use itertools::Itertools;
     use once_cell::unsync::OnceCell;
     use ordered_float::NotNan;
     use std::cell::Cell;
 
     const TOLERANCE: f64 = 15.;
+    const PIXEL_KEYBOARD_MOVE: f64 = 6.;
 
     #[derive(Debug, Clone, Copy, Eq, PartialEq)]
     enum DragType {
@@ -64,7 +65,21 @@ mod imp {
         #[template_child]
         pub crop_box: TemplateChild<gtk::Box>,
         #[template_child]
+        pub inner_crop_box: TemplateChild<gtk::Box>,
+        #[template_child]
+        pub top: TemplateChild<gtk::Box>,
+        #[template_child]
+        pub bottom: TemplateChild<gtk::Box>,
+        #[template_child]
         pub container: TemplateChild<gtk::Box>,
+        #[template_child]
+        pub top_left: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub top_right: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub bottom_left: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub bottom_right: TemplateChild<gtk::Button>,
 
         gesture_drag: OnceCell<gtk::GestureDrag>,
         drag_start: Cell<(f64, f64, f64, f64)>,
@@ -93,6 +108,13 @@ mod imp {
             Self {
                 crop_box: TemplateChild::default(),
                 container: TemplateChild::default(),
+                inner_crop_box: TemplateChild::default(),
+                top: TemplateChild::default(),
+                bottom: TemplateChild::default(),
+                top_left: TemplateChild::default(),
+                top_right: TemplateChild::default(),
+                bottom_left: TemplateChild::default(),
+                bottom_right: TemplateChild::default(),
 
                 gesture_drag: OnceCell::new(),
                 drag_start: Cell::new((0., 0., 0., 0.)),
@@ -146,6 +168,102 @@ mod imp {
                 }
             });
             obj.add_controller(event_controller_motion);
+
+            let event_controller_keyboard = gtk::EventControllerKey::new();
+            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::signal::Inhibit(true), move |_, k, _, _| {
+                match k {
+                    Key::Down => {
+                        this.bring_top_down();
+                        glib::signal::Inhibit(true)
+                    }
+                    Key::Up => {
+                        this.bring_top_up();
+                        glib::signal::Inhibit(true)
+                    }
+                    Key::Left => {
+                        this.bring_left_left();
+                        glib::signal::Inhibit(true)
+                    }
+                    Key::Right => {
+                        this.bring_left_right();
+                        glib::signal::Inhibit(true)
+                    }
+                    _ => glib::signal::Inhibit(false)
+                }
+            }));
+            self.top_left.add_controller(event_controller_keyboard);
+
+            let event_controller_keyboard = gtk::EventControllerKey::new();
+            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::signal::Inhibit(true), move |_, k, _, _| {
+                match k {
+                    Key::Down => {
+                        this.bring_bottom_down();
+                        glib::signal::Inhibit(true)
+                    }
+                    Key::Up => {
+                        this.bring_bottom_up();
+                        glib::signal::Inhibit(true)
+                    }
+                    Key::Left => {
+                        this.bring_left_left();
+                        glib::signal::Inhibit(true)
+                    }
+                    Key::Right => {
+                        this.bring_left_right();
+                        glib::signal::Inhibit(true)
+                    }
+                    _ => glib::signal::Inhibit(false)
+                }
+            }));
+            self.bottom_left.add_controller(event_controller_keyboard);
+
+            let event_controller_keyboard = gtk::EventControllerKey::new();
+            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::signal::Inhibit(true), move |_, k, _, _| {
+                match k {
+                    Key::Down => {
+                        this.bring_top_down();
+                        glib::signal::Inhibit(true)
+                    }
+                    Key::Up => {
+                        this.bring_top_up();
+                        glib::signal::Inhibit(true)
+                    }
+                    Key::Left => {
+                        this.bring_right_left();
+                        glib::signal::Inhibit(true)
+                    }
+                    Key::Right => {
+                        this.bring_right_right();
+                        glib::signal::Inhibit(true)
+                    }
+                    _ => glib::signal::Inhibit(false)
+                }
+            }));
+            self.top_right.add_controller(event_controller_keyboard);
+
+            let event_controller_keyboard = gtk::EventControllerKey::new();
+            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::signal::Inhibit(true), move |_, k, _, _| {
+                match k {
+                    Key::Down => {
+                        this.bring_bottom_down();
+                        glib::signal::Inhibit(true)
+                    }
+                    Key::Up => {
+                        this.bring_bottom_up();
+                        glib::signal::Inhibit(true)
+                    }
+                    Key::Left => {
+                        this.bring_right_left();
+                        glib::signal::Inhibit(true)
+                    }
+                    Key::Right => {
+                        this.bring_right_right();
+                        glib::signal::Inhibit(true)
+                    }
+                    _ => glib::signal::Inhibit(false)
+                }
+            }));
+            self.bottom_right.add_controller(event_controller_keyboard);
         }
 
         fn signals() -> &'static [Signal] {
@@ -176,7 +294,7 @@ mod imp {
         fn size_allocate(&self, width: i32, height: i32, baseline: i32) {
             let crop = self.current_selection.get();
 
-            self.crop_box.size_allocate(
+            self.container.size_allocate(
                 &gtk::Allocation::new(
                     (width as f64 * crop.3).round() as i32,
                     (height as f64 * crop.0).round() as i32,
@@ -220,8 +338,7 @@ mod imp {
                 ),
             );
 
-            self.container
-                .snapshot_child(&self.container.first_child().unwrap(), snapshot);
+            self.obj().snapshot_child(&self.obj().first_child().unwrap(), snapshot);
         }
     }
 
@@ -437,6 +554,222 @@ mod imp {
             self.drag_type.set(None);
         }
 
+        fn bring_top_down(&self) {
+            let (_width, height) = (self.obj().allocated_width(), self.obj().allocated_height());
+
+            let current_selection = self.current_selection.get();
+            
+            self.current_selection.set((
+                (current_selection.0 + PIXEL_KEYBOARD_MOVE / (height as f64)).clamp(0., 1. - current_selection.2),
+                current_selection.1,
+                current_selection.2,
+                current_selection.3,
+            ));
+
+            let current_selection = self.current_selection.get();
+
+            self.obj().emit_by_name::<()>(
+                "crop-box-changed",
+                &[
+                    &current_selection.0,
+                    &current_selection.1,
+                    &current_selection.2,
+                    &current_selection.3,
+                ],
+            );
+
+            self.obj().queue_allocate();
+        }
+
+        fn bring_top_up(&self) {
+            let (_width, height) = (self.obj().allocated_width(), self.obj().allocated_height());
+
+            let current_selection = self.current_selection.get();
+            
+            self.current_selection.set((
+                (current_selection.0 - PIXEL_KEYBOARD_MOVE / (height as f64)).clamp(0., 1. - current_selection.2),
+                current_selection.1,
+                current_selection.2,
+                current_selection.3,
+            ));
+
+            let current_selection = self.current_selection.get();
+
+            self.obj().emit_by_name::<()>(
+                "crop-box-changed",
+                &[
+                    &current_selection.0,
+                    &current_selection.1,
+                    &current_selection.2,
+                    &current_selection.3,
+                ],
+            );
+
+            self.obj().queue_allocate();
+        }
+
+        fn bring_bottom_down(&self) {
+            let (_width, height) = (self.obj().allocated_width(), self.obj().allocated_height());
+
+            let current_selection = self.current_selection.get();
+            
+            self.current_selection.set((
+                current_selection.0,
+                current_selection.1,
+                (current_selection.2 - PIXEL_KEYBOARD_MOVE / (height as f64)).clamp(0., 1. - current_selection.0),
+                current_selection.3,
+            ));
+
+            let current_selection = self.current_selection.get();
+
+            self.obj().emit_by_name::<()>(
+                "crop-box-changed",
+                &[
+                    &current_selection.0,
+                    &current_selection.1,
+                    &current_selection.2,
+                    &current_selection.3,
+                ],
+            );
+
+            self.obj().queue_allocate();
+        }
+
+        fn bring_bottom_up(&self) {
+            let (_width, height) = (self.obj().allocated_width(), self.obj().allocated_height());
+
+            let current_selection = self.current_selection.get();
+            
+            self.current_selection.set((
+                current_selection.0,
+                current_selection.1,
+                (current_selection.2 + PIXEL_KEYBOARD_MOVE / (height as f64)).clamp(0., 1. - current_selection.0),
+                current_selection.3,
+            ));
+
+            let current_selection = self.current_selection.get();
+
+            self.obj().emit_by_name::<()>(
+                "crop-box-changed",
+                &[
+                    &current_selection.0,
+                    &current_selection.1,
+                    &current_selection.2,
+                    &current_selection.3,
+                ],
+            );
+
+            self.obj().queue_allocate();
+        }
+
+        fn bring_left_right(&self) {
+            let (width, _height) = (self.obj().allocated_width(), self.obj().allocated_height());
+
+            let current_selection = self.current_selection.get();
+            
+            self.current_selection.set((
+                current_selection.0,
+                current_selection.1,
+                current_selection.2,
+                (current_selection.3 + PIXEL_KEYBOARD_MOVE / (width as f64)).clamp(0., 1. - current_selection.1),
+            ));
+
+            let current_selection = self.current_selection.get();
+
+            self.obj().emit_by_name::<()>(
+                "crop-box-changed",
+                &[
+                    &current_selection.0,
+                    &current_selection.1,
+                    &current_selection.2,
+                    &current_selection.3,
+                ],
+            );
+
+            self.obj().queue_allocate();
+        }
+
+        fn bring_left_left(&self) {
+            let (width, _height) = (self.obj().allocated_width(), self.obj().allocated_height());
+
+            let current_selection = self.current_selection.get();
+            
+            self.current_selection.set((
+                current_selection.0,
+                current_selection.1,
+                current_selection.2,
+                (current_selection.3 - PIXEL_KEYBOARD_MOVE / (width as f64)).clamp(0., 1. - current_selection.1),
+            ));
+
+            let current_selection = self.current_selection.get();
+
+            self.obj().emit_by_name::<()>(
+                "crop-box-changed",
+                &[
+                    &current_selection.0,
+                    &current_selection.1,
+                    &current_selection.2,
+                    &current_selection.3,
+                ],
+            );
+
+            self.obj().queue_allocate();
+        }
+
+        fn bring_right_right(&self) {
+            let (width, _height) = (self.obj().allocated_width(), self.obj().allocated_height());
+
+            let current_selection = self.current_selection.get();
+            
+            self.current_selection.set((
+                current_selection.0,
+                (current_selection.1 - PIXEL_KEYBOARD_MOVE / (width as f64)).clamp(0., 1. - current_selection.3),
+                current_selection.2,
+                current_selection.3,
+            ));
+
+            let current_selection = self.current_selection.get();
+
+            self.obj().emit_by_name::<()>(
+                "crop-box-changed",
+                &[
+                    &current_selection.0,
+                    &current_selection.1,
+                    &current_selection.2,
+                    &current_selection.3,
+                ],
+            );
+
+            self.obj().queue_allocate();
+        }
+
+        fn bring_right_left(&self) {
+            let (width, _height) = (self.obj().allocated_width(), self.obj().allocated_height());
+
+            let current_selection = self.current_selection.get();
+            
+            self.current_selection.set((
+                current_selection.0,
+                (current_selection.1 + PIXEL_KEYBOARD_MOVE / (width as f64)).clamp(0., 1. - current_selection.3),
+                current_selection.2,
+                current_selection.3,
+            ));
+
+            let current_selection = self.current_selection.get();
+
+            self.obj().emit_by_name::<()>(
+                "crop-box-changed",
+                &[
+                    &current_selection.0,
+                    &current_selection.1,
+                    &current_selection.2,
+                    &current_selection.3,
+                ],
+            );
+
+            self.obj().queue_allocate();
+        }
+
         fn on_motion(&self, x: f64, y: f64) {
             let drag_type = self.calculate_drag_type(x, y);
 
@@ -463,7 +796,8 @@ mod imp {
 
 glib::wrapper! {
     pub struct Crop(ObjectSubclass<imp::Crop>)
-        @extends gtk::Widget;
+        @extends gtk::Widget,
+        @implements gtk::Buildable, gtk::Accessible, gtk::ConstraintTarget, gio::ActionMap, gio::ActionGroup, gtk::Root;
 }
 
 impl Crop {

@@ -13,10 +13,12 @@ template $VideoPreview : Adw.Bin {
         halign: center;
         
         Picture paint {
-          halign: center;
-          valign: center;
+          halign: fill;
+          valign: fill;
           hexpand: true;
-          height-request: 120;
+          vexpand: false;
+
+          height-request: 240;
         }
 
         [overlay]

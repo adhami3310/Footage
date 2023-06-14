@@ -5,12 +5,18 @@ use gtk::glib;
 
 mod imp {
     use super::*;
-    use glib::subclass::Signal;
-    use gtk::{gdk, prelude::*, subclass::prelude::*, CompositeTemplate};
+    use glib::{clone, subclass::Signal};
+    use gtk::{
+        gdk::{self, Key},
+        prelude::*,
+        subclass::prelude::*,
+        CompositeTemplate,
+    };
     use once_cell::unsync::OnceCell;
     use std::cell::Cell;
 
     const TOLERANCE: f64 = 12.;
+    const TIMELINE_KEYBOARD_MOVE: i64 = 250;
 
     #[derive(Debug, Clone, Copy, Eq, PartialEq)]
     enum DragType {
@@ -41,6 +47,12 @@ mod imp {
         box_timeline_position: TemplateChild<gtk::Box>,
         #[template_child]
         box_timeline_selection: TemplateChild<gtk::Box>,
+        #[template_child]
+        box_wrapper: TemplateChild<gtk::Box>,
+        #[template_child]
+        left_handle: TemplateChild<gtk::Button>,
+        #[template_child]
+        right_handle: TemplateChild<gtk::Button>,
 
         position: Cell<u64>,
         duration: Cell<u64>,
@@ -71,6 +83,9 @@ mod imp {
             Self {
                 box_timeline_position: TemplateChild::default(),
                 box_timeline_selection: TemplateChild::default(),
+                box_wrapper: TemplateChild::default(),
+                left_handle: TemplateChild::default(),
+                right_handle: TemplateChild::default(),
 
                 position: Cell::new(0),
                 duration: Cell::new(0),
@@ -151,6 +166,38 @@ mod imp {
                 }
             });
             obj.add_controller(event_controller_motion);
+
+            let event_controller_keyboard = gtk::EventControllerKey::new();
+            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::signal::Inhibit(true), move |_, k, _, _| {
+                match k {
+                    Key::Left => {
+                        this.bring_start_back();
+                        glib::signal::Inhibit(true)
+                    }
+                    Key::Right => {
+                        this.bring_start_forward();
+                        glib::signal::Inhibit(true)
+                    }
+                    _ => glib::signal::Inhibit(false)
+                }
+            }));
+            self.left_handle.add_controller(event_controller_keyboard);
+
+            let event_controller_keyboard = gtk::EventControllerKey::new();
+            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::signal::Inhibit(true), move |_, k, _, _| {
+                match k {
+                    Key::Left => {
+                        this.bring_end_back();
+                        glib::signal::Inhibit(true)
+                    }
+                    Key::Right => {
+                        this.bring_end_forward();
+                        glib::signal::Inhibit(true)
+                    }
+                    _ => glib::signal::Inhibit(false)
+                }
+            }));
+            self.right_handle.add_controller(event_controller_keyboard);
         }
 
         fn dispose(&self) {
@@ -308,11 +355,56 @@ mod imp {
             };
         }
 
+        fn bring_start_forward(&self) {
+            let (start, end) = self.range.get().unwrap();
+            self.range.set(Some((
+                (start + TIMELINE_KEYBOARD_MOVE as u64).min(end),
+                end,
+            )));
+            let (start, end) = self.range.get().unwrap();
+            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
+            self.set_position(start);
+        }
+
+        fn bring_start_back(&self) {
+            let (start, end) = self.range.get().unwrap();
+            self.range.set(Some((
+                (start as i64 - TIMELINE_KEYBOARD_MOVE).max(0) as u64,
+                end,
+            )));
+            let (start, end) = self.range.get().unwrap();
+            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
+            self.set_position(start);
+        }
+
+        fn bring_end_forward(&self) {
+            let (start, end) = self.range.get().unwrap();
+            self.range.set(Some((
+                start,
+                (end + TIMELINE_KEYBOARD_MOVE as u64).min(self.duration.get()),
+            )));
+            let (start, end) = self.range.get().unwrap();
+            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
+            self.set_position(start);
+        }
+
+        fn bring_end_back(&self) {
+            let (start, end) = self.range.get().unwrap();
+            self.range.set(Some((
+                start,
+                (end as i64 - TIMELINE_KEYBOARD_MOVE).max(start as i64) as u64,
+            )));
+            let (start, end) = self.range.get().unwrap();
+            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
+            self.set_position(start);
+        }
+
         fn on_drag_end(&self) {
             let (start, end) = self.range.get().unwrap();
             self.obj()
                 .emit_by_name::<()>("set-position", &[&self.position.get()]);
             self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
+            self.set_position(start);
         }
 
         pub fn set_duration(&self, duration: u64) {

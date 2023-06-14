@@ -8,14 +8,13 @@ template $Timeline : Widget {
     can-target: false;
     overflow: hidden;
     
-    Box {
+    Box box_wrapper {
       hexpand: true;
       vexpand: true;
 
-      Box {
+      Button left_handle {
         halign: start;
         vexpand: true;
-        orientation: vertical;
 
         Box {
           vexpand: true;
@@ -39,17 +38,16 @@ template $Timeline : Widget {
           }
         }
 
-        styles ["handle"]
+        styles ["timeline-handle"]
       }
 
       Box {
         hexpand: true;
       }
 
-      Box {
+      Button right_handle {
         halign: start;
         vexpand: true;
-        orientation: vertical;
 
         Box {
           vexpand: true;
@@ -73,16 +71,16 @@ template $Timeline : Widget {
           }
         }
 
-        styles ["handle"]
+        styles ["timeline-handle"]
       }
     }
 
-    styles ["selection"]
+    styles ["timeline-selection"]
   }
 
   Box box_timeline_position {
     can-target: false;
 
-    styles ["position"]
+    styles ["timeline-position"]
   }
 }

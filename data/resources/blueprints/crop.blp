@@ -3,6 +3,7 @@ using Gtk 4.0;
 template $Crop: Widget {
     hexpand: true;
     vexpand: true;
+    can-focus: true;
 
     Box container {
         hexpand: true;
@@ -12,11 +13,12 @@ template $Crop: Widget {
             hexpand: true;
             vexpand: true;
 
-            Box {
+            Box inner_crop_box {
                 orientation: vertical;
-                Box {
+                
+                Box top {
 
-                    Box {
+                    Button top_left {
                         halign: start;
                         valign: start;
 
@@ -25,9 +27,10 @@ template $Crop: Widget {
                     Box {
                         hexpand: true;
                     }
-                    Box {
+                    Button top_right {
                         halign: end;
                         valign: start;
+
 
                         styles ["crop-handle"]
                     }
@@ -37,8 +40,8 @@ template $Crop: Widget {
                     vexpand: true;
                 }
 
-                Box {
-                    Box {
+                Box bottom {
+                    Button bottom_left {
                         halign: start;
                         valign: end;
 
@@ -47,7 +50,7 @@ template $Crop: Widget {
                     Box {
                         hexpand: true;
                     }
-                    Box {
+                    Button bottom_right {
                         halign: end;
                         valign: end;
 

@@ -45,7 +45,7 @@ impl ContainerFormat {
                 vec![Av1, Vp9, Vp8, H264, H265],
                 vec![Vorbis, Opus, Aac, Ac3, Flac],
             ),
-            Mpeg => (vec![Av1, Vp9, Vp8, H264, H265], vec![Opus, Aac, Ac3, Flac]),
+            Mpeg => (vec![Av1, Vp9, Vp8, H264], vec![Opus, Aac, Ac3, Flac]),
             WebM => (vec![Av1, Vp8, Vp9], vec![Vorbis, Opus]),
             GifContainer => (vec![VideoEncoding::Gif], vec![]),
         }
@@ -102,8 +102,8 @@ impl VideoEncoding {
             Av1 => "svtav1enc",
             Vp8 => "vp8enc",
             Vp9 => "vp9enc",
-            H264 => "vah264enc",
-            H265 => "vah265enc",
+            H264 => "vaapih264enc",
+            H265 => "vaapih265enc",
             Gif => "gifenc",
         }
     }
