@@ -12,7 +12,7 @@ Polish your videos.
 
 ## About
 
-Trim, flip, rotate and crop individual clips. Footage is a useful tool for quickly editing short videos and screencasts. It's also capable of exporting any video into a format of your choice.
+Trim, flip, rotate and crop individual clips. Footage is a useful tool for quickly editing short videos and screencasts. It's also capable of exporting any video into a format of your choice. See [Press](PRESS.md) for content mentioning Footage from various writers, content creators, etc.
 
 <img src="data/resources/screenshots/0.png" alt="Main screen with a chosen ISO and one USB memory">
 
@@ -50,7 +50,7 @@ ninja -C build
 sudo ninja -C build install
 ```
 
-### Credits
+## Credits
 
 Actively developed by Khaleel Al-Adhami.
 
