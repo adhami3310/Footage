@@ -6,7 +6,11 @@ data/io.gitlab.adhami3310.Footage.gschema.xml.in
 data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in
 # UI files
 data/resources/blueprints/help-overlay.blp
+data/resources/blueprints/crop.blp
 data/resources/blueprints/window.blp
+data/resources/blueprints/timeline.blp
+data/resources/blueprints/video-preview.blp
 # Rust files
 src/main.rs
 src/window.rs
+src/profiles.rs

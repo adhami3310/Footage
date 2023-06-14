@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-13 08:12-0400\n"
+"POT-Creation-Date: 2023-06-13 23:29-0400\n"
 "PO-Revision-Date: 2023-06-14 00:00+0200\n"
 "Last-Translator: Irénée Thirion <irenee.thirion@e.email>\n"
 "Language-Team: \n"
@@ -114,6 +114,22 @@ msgstr "Afficher les raccourcis"
 msgctxt "shortcut window"
 msgid "Quit"
 msgstr "Quitter"
+
+#: data/resources/blueprints/crop.blp:24
+msgid "Top left crop corner"
+msgstr ""
+
+#: data/resources/blueprints/crop.blp:34
+msgid "Top right crop corner"
+msgstr ""
+
+#: data/resources/blueprints/crop.blp:49
+msgid "Bottom left crop corner"
+msgstr ""
+
+#: data/resources/blueprints/crop.blp:59
+msgid "Bottom right crop corner"
+msgstr ""
 
 #: data/resources/blueprints/window.blp:27
 msgid "Primary Menu"
@@ -240,6 +256,14 @@ msgstr "Raccourcis clavier"
 msgid "About Footage"
 msgstr "À propos de Métrage"
 
+#: data/resources/blueprints/timeline.blp:18
+msgid "Left trimming handle"
+msgstr ""
+
+#: data/resources/blueprints/timeline.blp:52
+msgid "Right trimming handle"
+msgstr ""
+
 #: src/window.rs:454 src/window.rs:479
 msgid "Stop rendering?"
 msgstr "Interrompre le rendu ?"
@@ -251,3 +275,16 @@ msgstr "Vous perdrez toute la progression."
 #: src/window.rs:459 src/window.rs:484
 msgid "_Stop"
 msgstr "_Arrêter"
+
+#. Translators: Replace "translator-credits" with your names, one name per line
+#: src/window.rs:719
+msgid "translator-credits"
+msgstr ""
+
+#: src/profiles.rs:78
+msgid "Recommended (WEBM, AV1, Opus)"
+msgstr ""
+
+#: src/profiles.rs:79
+msgid "Keep as-is"
+msgstr ""

@@ -715,6 +715,8 @@ impl AppWindow {
             .issue_url("https://gitlab.com/adhami3310/Footage/-/issues")
             .developers(vec!["Khaleel Al-Adhami"])
             .artists(vec!["kramo https://kramo.hu"])
+            // Translators: Replace "translator-credits" with your names, one name per line
+            .translator_credits(gettext("translator-credits"))
             .license_type(gtk::License::Gpl30)
             .version(VERSION)
             .build();
