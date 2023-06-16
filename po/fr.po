@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-13 23:29-0400\n"
+"POT-Creation-Date: 2023-06-16 04:53-0400\n"
 "PO-Revision-Date: 2023-06-14 00:00+0200\n"
 "Last-Translator: Irénée Thirion <irenee.thirion@e.email>\n"
 "Language-Team: \n"
@@ -92,6 +92,12 @@ msgid "Editing screen with default options"
 msgstr "Écran d’édition avec les options par défaut"
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:68
+msgid ""
+"This minor release introduces a couple of bug fixes and enhances keyboard "
+"accessibility."
+msgstr ""
+
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:73
 msgid "Initial version."
 msgstr "Version initiale."
 
@@ -140,7 +146,7 @@ msgid "Choose a video to edit"
 msgstr "Choisissez une vidéo à éditer"
 
 #: data/resources/blueprints/window.blp:55
-#: data/resources/blueprints/window.blp:364
+#: data/resources/blueprints/window.blp:363
 msgid "Open File…"
 msgstr "Ouvrir un fichier…"
 
@@ -212,47 +218,43 @@ msgstr "Enregistrer la vidéo"
 msgid "Video Exported"
 msgstr "Vidéo exportée"
 
-#: data/resources/blueprints/window.blp:255
-msgid "Have a nice day!"
-msgstr "Passez une bonne journée !"
-
-#: data/resources/blueprints/window.blp:265
+#: data/resources/blueprints/window.blp:264
 msgid "Open Video"
 msgstr "Ouvrir la vidéo"
 
-#: data/resources/blueprints/window.blp:277
+#: data/resources/blueprints/window.blp:276
 msgid "Finish"
 msgstr "Terminer"
 
-#: data/resources/blueprints/window.blp:299
+#: data/resources/blueprints/window.blp:298
 msgid "Exporting Video Unsuccessful"
 msgstr "Échec de l’export de la vidéo"
 
-#: data/resources/blueprints/window.blp:308
+#: data/resources/blueprints/window.blp:307
 msgid "Retry"
 msgstr "Réessayer"
 
-#: data/resources/blueprints/window.blp:328
+#: data/resources/blueprints/window.blp:327
 msgid "Rendering…"
 msgstr "Rendu…"
 
-#: data/resources/blueprints/window.blp:330
+#: data/resources/blueprints/window.blp:329
 msgid "This may take a while"
 msgstr "Cela peut prendre du temps"
 
-#: data/resources/blueprints/window.blp:345 src/window.rs:458 src/window.rs:484
+#: data/resources/blueprints/window.blp:344 src/window.rs:458 src/window.rs:484
 msgid "_Cancel"
 msgstr "A_nnuler"
 
-#: data/resources/blueprints/window.blp:369
+#: data/resources/blueprints/window.blp:368
 msgid "New Window"
 msgstr "Nouvelle fenêtre"
 
-#: data/resources/blueprints/window.blp:376
+#: data/resources/blueprints/window.blp:375
 msgid "Keyboard Shortcuts"
 msgstr "Raccourcis clavier"
 
-#: data/resources/blueprints/window.blp:381
+#: data/resources/blueprints/window.blp:380
 msgid "About Footage"
 msgstr "À propos de Métrage"
 
@@ -288,3 +290,6 @@ msgstr ""
 #: src/profiles.rs:79
 msgid "Keep as-is"
 msgstr ""
+
+#~ msgid "Have a nice day!"
+#~ msgstr "Passez une bonne journée !"
