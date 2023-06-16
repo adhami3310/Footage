@@ -56,4 +56,4 @@ Actively developed by Khaleel Al-Adhami.
 
 Logo desgined by kramo.
 
-Huge thanks to all of the translators who brought Impression to many other languages!
+Huge thanks to all of the translators who brought Footage to many other languages!
