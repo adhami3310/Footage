@@ -123,11 +123,11 @@ impl VideoEncoding {
 impl AudioEncoding {
     pub fn get_format(&self) -> &str {
         match self {
-            Aac => "audio/aac",
+            Aac => "audio/mpeg",
             Ac3 => "audio/x-ac3",
             Opus => "audio/x-opus",
             Vorbis => "audio/x-vorbis",
-            Flac => "audio/flac",
+            Flac => "audio/x-flac",
         }
     }
 

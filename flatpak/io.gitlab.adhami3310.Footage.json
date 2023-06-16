@@ -6,14 +6,6 @@
     "sdk-extensions": [
         "org.freedesktop.Sdk.Extension.rust-stable"
     ],
-    "add-extensions": {
-        "org.pitivi.Pitivi.Codecs": {
-            "directory": "lib/codecs",
-            "add-ld-path": "lib",
-            "bundle": true,
-            "autodelete": true
-        }
-    },
     "cleanup-commands": [
         "mkdir -p ${FLATPAK_DEST}/lib/ffmpeg"
     ],
