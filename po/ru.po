@@ -1,14 +1,14 @@
-# SOME DESCRIPTIVE TITLE.
+# Russian translation for Footage.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the footage package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Сергей Ворон <voron@duck.com>, 2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-06-23 00:24-0400\n"
-"PO-Revision-Date: 2023-06-16 20:09+0300\n"
+"PO-Revision-Date: 2023-06-23 15:05+0300\n"
 "Last-Translator: Сергей Ворон <voron@duck.com>\n"
 "Language-Team: \n"
 "Language: ru_RU\n"
@@ -22,7 +22,7 @@ msgstr ""
 #: data/resources/blueprints/window.blp:9
 #: data/resources/blueprints/window.blp:43 src/main.rs:48 src/window.rs:807
 msgid "Footage"
-msgstr "Footage"
+msgstr "Футаж"
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:4
 msgid "Video Editor"
@@ -97,6 +97,8 @@ msgid ""
 "This minor release introduces a fix for X11 and additional translation "
 "support."
 msgstr ""
+"В этом выпуске представлено исправление для X11 и дополнительная поддержка "
+"перевода."
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:73
 msgid ""
@@ -116,10 +118,9 @@ msgid "General"
 msgstr "Общие"
 
 #: data/resources/blueprints/help-overlay.blp:14
-#, fuzzy
 msgctxt "shortcut window"
 msgid "Open File"
-msgstr "Открыть файл…"
+msgstr "Открыть файл"
 
 #: data/resources/blueprints/help-overlay.blp:19
 msgctxt "shortcut window"
@@ -154,7 +155,7 @@ msgstr "Нижний правый угол обрезки"
 
 #: data/resources/blueprints/window.blp:27
 msgid "Main Menu"
-msgstr ""
+msgstr "Главное меню"
 
 #: data/resources/blueprints/window.blp:44
 msgid "Choose a video to edit"
@@ -176,23 +177,23 @@ msgstr ""
 
 #: data/resources/blueprints/window.blp:115
 msgid "Rotate Left"
-msgstr ""
+msgstr "Повернуть влево"
 
 #: data/resources/blueprints/window.blp:120
 msgid "Rotate Right"
-msgstr ""
+msgstr "Повернуть вправо"
 
 #: data/resources/blueprints/window.blp:125
 msgid "Flip Horizontally"
-msgstr ""
+msgstr "Перевернуть по горизонтали"
 
 #: data/resources/blueprints/window.blp:130
 msgid "Flip Vertically"
-msgstr ""
+msgstr "Перевернуть вертикально"
 
 #: data/resources/blueprints/window.blp:135 src/window.rs:274
 msgid "Disable Audio"
-msgstr ""
+msgstr "Отключить звук"
 
 #: data/resources/blueprints/window.blp:142
 msgid "Resize"
@@ -292,7 +293,7 @@ msgstr "Комбинации клавиш"
 
 #: data/resources/blueprints/window.blp:399
 msgid "About Footage"
-msgstr "О Footage"
+msgstr "О программе"
 
 #: data/resources/blueprints/timeline.blp:18
 msgid "Left trimming handle"
@@ -304,7 +305,7 @@ msgstr "Правый указатель обрезки"
 
 #: src/window.rs:270
 msgid "Enable Audio"
-msgstr ""
+msgstr "Включить звук"
 
 #: src/window.rs:543 src/window.rs:568
 msgid "Stop rendering?"
@@ -319,9 +320,8 @@ msgid "_Stop"
 msgstr "_Остановить"
 
 #: src/window.rs:595
-#, fuzzy
 msgid "Video Files"
-msgstr "Видео редактор"
+msgstr "Видео файлы"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
 #: src/window.rs:814
@@ -335,6 +335,3 @@ msgstr "Рекомендуется (WEBM, AV1, Opus)"
 #: src/profiles.rs:79
 msgid "Keep as-is"
 msgstr "Оставить как есть"
-
-#~ msgid "Primary Menu"
-#~ msgstr "Основное меню"
