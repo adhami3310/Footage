@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-16 04:53-0400\n"
+"POT-Creation-Date: 2023-06-23 00:18-0400\n"
 "PO-Revision-Date: 2023-06-21 22:22+0200\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -20,7 +20,7 @@ msgstr ""
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
 #: data/resources/blueprints/window.blp:9
-#: data/resources/blueprints/window.blp:43 src/main.rs:48 src/window.rs:712
+#: data/resources/blueprints/window.blp:43 src/main.rs:48 src/window.rs:804
 msgid "Footage"
 msgstr "Footage"
 
@@ -92,13 +92,19 @@ msgstr "Bewerkvenster met standaardopties"
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:68
 msgid ""
+"This minor release introduces a fix for X11 and additional translation "
+"support."
+msgstr ""
+
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:73
+msgid ""
 "This minor release introduces a couple of bug fixes and enhances keyboard "
 "accessibility."
 msgstr ""
 "In deze kleine uitgave zijn enkele bugs opgelost en is de "
 "toetsenbordnavigatie verbeterd."
 
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:73
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:78
 msgid "Initial version."
 msgstr "Eerste versie."
 
@@ -108,16 +114,22 @@ msgid "General"
 msgstr "Algemeen"
 
 #: data/resources/blueprints/help-overlay.blp:14
+#, fuzzy
+msgctxt "shortcut window"
+msgid "Open File"
+msgstr "Bestand openen…"
+
+#: data/resources/blueprints/help-overlay.blp:19
 msgctxt "shortcut window"
 msgid "New Window"
 msgstr "Nieuw venster"
 
-#: data/resources/blueprints/help-overlay.blp:19
+#: data/resources/blueprints/help-overlay.blp:24
 msgctxt "shortcut window"
 msgid "Show Shortcuts"
 msgstr "Sneltoetsen tonen"
 
-#: data/resources/blueprints/help-overlay.blp:24
+#: data/resources/blueprints/help-overlay.blp:29
 msgctxt "shortcut window"
 msgid "Quit"
 msgstr "Afsluiten"
@@ -139,15 +151,15 @@ msgid "Bottom right crop corner"
 msgstr "Bijsnijdhoek: rechtsonder"
 
 #: data/resources/blueprints/window.blp:27
-msgid "Primary Menu"
-msgstr "Hoofdmenu"
+msgid "Main Menu"
+msgstr ""
 
 #: data/resources/blueprints/window.blp:44
 msgid "Choose a video to edit"
 msgstr "Kies een te bewerken video"
 
 #: data/resources/blueprints/window.blp:55
-#: data/resources/blueprints/window.blp:363
+#: data/resources/blueprints/window.blp:382
 msgid "Open File…"
 msgstr "Bestand openen…"
 
@@ -161,102 +173,122 @@ msgstr ""
 "De video is mogelijk beschadigd of het bestandsformaat wordt niet "
 "ondersteund."
 
-#: data/resources/blueprints/window.blp:124
+#: data/resources/blueprints/window.blp:115
+msgid "Rotate Left"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:120
+msgid "Rotate Right"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:125
+msgid "Flip Horizontally"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:130
+msgid "Flip Vertically"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:135
+msgid "Mute"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:142
 msgid "Resize"
 msgstr "Grootte aanpassen"
 
-#: data/resources/blueprints/window.blp:129
-#: data/resources/blueprints/window.blp:130
-#: data/resources/blueprints/window.blp:138
-#: data/resources/blueprints/window.blp:140
+#: data/resources/blueprints/window.blp:147
+#: data/resources/blueprints/window.blp:148
+#: data/resources/blueprints/window.blp:156
+#: data/resources/blueprints/window.blp:158
 msgid "Width"
 msgstr "Breedte"
 
-#: data/resources/blueprints/window.blp:147
+#: data/resources/blueprints/window.blp:165
 msgid "Preserve aspect ratio"
 msgstr "Beeldverhouding behouden"
 
-#: data/resources/blueprints/window.blp:152
-#: data/resources/blueprints/window.blp:153
-#: data/resources/blueprints/window.blp:161
-#: data/resources/blueprints/window.blp:162
+#: data/resources/blueprints/window.blp:170
+#: data/resources/blueprints/window.blp:171
+#: data/resources/blueprints/window.blp:179
+#: data/resources/blueprints/window.blp:180
 msgid "Height"
 msgstr "Hoogte"
 
-#: data/resources/blueprints/window.blp:173
+#: data/resources/blueprints/window.blp:191
 msgid "Choose between resizing with percentages or using exact pixels"
 msgstr ""
 "Kies tussen grootte aanpassen op basis van percentages en exacte pixels"
 
-#: data/resources/blueprints/window.blp:177
+#: data/resources/blueprints/window.blp:195
 msgid "%"
 msgstr "%"
 
-#: data/resources/blueprints/window.blp:177
+#: data/resources/blueprints/window.blp:195
 msgid "px"
 msgstr "px"
 
-#: data/resources/blueprints/window.blp:186
+#: data/resources/blueprints/window.blp:204
 msgid "Framerate"
 msgstr "Framesnelheid"
 
-#: data/resources/blueprints/window.blp:204
+#: data/resources/blueprints/window.blp:222
 msgid "Container Format"
 msgstr "Containerformaat"
 
-#: data/resources/blueprints/window.blp:210
+#: data/resources/blueprints/window.blp:228
 msgid "Video Encoding"
 msgstr "Video-encodering"
 
-#: data/resources/blueprints/window.blp:216
+#: data/resources/blueprints/window.blp:234
 msgid "Audio Encoding"
 msgstr "Audio-encodering"
 
-#: data/resources/blueprints/window.blp:227
+#: data/resources/blueprints/window.blp:245
 msgid "Save Video"
 msgstr "Video opslaan"
 
-#: data/resources/blueprints/window.blp:254
+#: data/resources/blueprints/window.blp:273
 msgid "Video Exported"
 msgstr "Exporteren voltooid"
 
-#: data/resources/blueprints/window.blp:264
+#: data/resources/blueprints/window.blp:283
 msgid "Open Video"
 msgstr "Video openen"
 
-#: data/resources/blueprints/window.blp:276
+#: data/resources/blueprints/window.blp:295
 msgid "Finish"
 msgstr "Afronden"
 
-#: data/resources/blueprints/window.blp:298
+#: data/resources/blueprints/window.blp:317
 msgid "Exporting Video Unsuccessful"
 msgstr "Het exporteren is mislukt"
 
-#: data/resources/blueprints/window.blp:307
+#: data/resources/blueprints/window.blp:326
 msgid "Retry"
 msgstr "Opnieuw proberen"
 
-#: data/resources/blueprints/window.blp:327
+#: data/resources/blueprints/window.blp:346
 msgid "Rendering…"
 msgstr "Bezig met renderen…"
 
-#: data/resources/blueprints/window.blp:329
+#: data/resources/blueprints/window.blp:348
 msgid "This may take a while"
 msgstr "Dit kan even duren"
 
-#: data/resources/blueprints/window.blp:344 src/window.rs:458 src/window.rs:484
+#: data/resources/blueprints/window.blp:363 src/window.rs:545 src/window.rs:571
 msgid "_Cancel"
 msgstr "_Annuleren"
 
-#: data/resources/blueprints/window.blp:368
+#: data/resources/blueprints/window.blp:387
 msgid "New Window"
 msgstr "Nieuw venster"
 
-#: data/resources/blueprints/window.blp:375
+#: data/resources/blueprints/window.blp:394
 msgid "Keyboard Shortcuts"
 msgstr "Sneltoetsen"
 
-#: data/resources/blueprints/window.blp:380
+#: data/resources/blueprints/window.blp:399
 msgid "About Footage"
 msgstr "Over Footage"
 
@@ -268,20 +300,25 @@ msgstr "Linker inkortgreep"
 msgid "Right trimming handle"
 msgstr "Rechter inkortgreep"
 
-#: src/window.rs:454 src/window.rs:479
+#: src/window.rs:541 src/window.rs:566
 msgid "Stop rendering?"
 msgstr "Renderen afbreken?"
 
-#: src/window.rs:455 src/window.rs:480
+#: src/window.rs:542 src/window.rs:567
 msgid "You will lose all progress."
 msgstr "Alle voortgang wordt gewist."
 
-#: src/window.rs:459 src/window.rs:484
+#: src/window.rs:546 src/window.rs:571
 msgid "_Stop"
 msgstr "_Stoppen"
 
+#: src/window.rs:593
+#, fuzzy
+msgid "Video Files"
+msgstr "Videobewerker"
+
 #. Translators: Replace "translator-credits" with your names, one name per line
-#: src/window.rs:719
+#: src/window.rs:811
 msgid "translator-credits"
 msgstr "Heimen Stoffels <vistausss@fastmail.com>"
 
@@ -292,3 +329,6 @@ msgstr "Aanbevolen (webm, av1, opus)"
 #: src/profiles.rs:79
 msgid "Keep as-is"
 msgstr "Behouden"
+
+#~ msgid "Primary Menu"
+#~ msgstr "Hoofdmenu"
