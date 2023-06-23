@@ -87,145 +87,159 @@ template $AppWindow : Adw.ApplicationWindow {
       StackPage {
         name: "editing";
         child: 
-        Adw.PreferencesPage {
-          Adw.PreferencesGroup {
-            $VideoPreview video_preview {}
-          }
-
-          Adw.PreferencesGroup {
-            Box {
-              halign: center;
-              spacing: 12;
-              Button rotate_left_button {
-                halign: center;
-                icon-name: 'object-rotate-left-symbolic';
+        Box {
+          orientation: vertical;
+          spacing: 12;
+          Adw.PreferencesPage {
+            Adw.PreferencesGroup {
+              Box {
+                spacing: 12;
+                orientation: vertical;
+                $VideoPreview video_preview {}
+                Box {
+                  spacing: 12;
+                  Button play_pause {
+                    icon-name: 'play-symbolic';
+                  }
+                  $Timeline timeline {}
+                }
               }
-              Button rotate_right_button {
-                halign: center;
-                icon-name: 'object-rotate-right-symbolic';
               }
-              Button horizontal_flip_button {
+            Adw.PreferencesGroup {
+              Box {
                 halign: center;
-                icon-name: 'horizontal-flip-symbolic';
-              }
-              Button vertical_flip_button {
-                halign: center;
-                icon-name: 'vertical-flip-symbolic';
-              }
-              ToggleButton audio_button {
-                halign: center;
-                icon-name: 'audio-volume-high-symbolic';
+                spacing: 12;
+                Button rotate_left_button {
+                  halign: center;
+                  icon-name: 'object-rotate-left-symbolic';
+                }
+                Button rotate_right_button {
+                  halign: center;
+                  icon-name: 'object-rotate-right-symbolic';
+                }
+                Button horizontal_flip_button {
+                  halign: center;
+                  icon-name: 'horizontal-flip-symbolic';
+                }
+                Button vertical_flip_button {
+                  halign: center;
+                  icon-name: 'vertical-flip-symbolic';
+                }
+                ToggleButton audio_button {
+                  halign: center;
+                  icon-name: 'audio-volume-high-symbolic';
+                }
               }
             }
-          }
 
-          Adw.PreferencesGroup {
-            $AdwActionRow resize_amount_row {
-              title: _("Resize");
-              Box {
-                spacing: 5;
-                Entry resize_width_value {
-                  valign: center;
-                  placeholder-text: _("Width");
-                  tooltip-text: _("Width");
-                  input-purpose: digits;
-                  max-width-chars: 6;
-                  visible: false;
-                  hexpand: false;
-                }
-                Entry resize_scale_width_value {
-                  valign: center;
-                  placeholder-text: _("Width");
-                  input-purpose: digits;
-                  tooltip-text: _("Width");
-                  max-width-chars: 6;
-                  hexpand: false;
-                }
-                Image link_axis {
-                  valign: center;
-                  icon-name: 'chain-link-symbolic';
-                  tooltip-text: _("Preserve aspect ratio");
-                  styles ['lock']
-                }
-                Entry resize_height_value {
-                  valign: center;
-                  placeholder-text: _("Height");
-                  tooltip-text: _("Height");
-                  input-purpose: digits;
-                  max-width-chars: 6;
-                  visible: false;
-                  hexpand: false;
-                }
-                Entry resize_scale_height_value {
-                  valign: center;
-                  placeholder-text: _("Height");
-                  tooltip-text: _("Height");
-                  input-purpose: digits;
-                  max-width-chars: 6;
-                  hexpand: false;
-                }
-              }
-              $AdwBin {
+            Adw.PreferencesGroup {
+              $AdwActionRow resize_amount_row {
+                title: _("Resize");
                 Box {
-                  DropDown resize_type {
+                  spacing: 5;
+                  Entry resize_width_value {
                     valign: center;
-                    accessibility {
-                      label: _("Choose between resizing with percentages or using exact pixels");
+                    placeholder-text: _("Width");
+                    tooltip-text: _("Width");
+                    input-purpose: digits;
+                    max-width-chars: 6;
+                    visible: false;
+                    hexpand: false;
+                  }
+                  Entry resize_scale_width_value {
+                    valign: center;
+                    placeholder-text: _("Width");
+                    input-purpose: digits;
+                    tooltip-text: _("Width");
+                    max-width-chars: 6;
+                    hexpand: false;
+                  }
+                  Image link_axis {
+                    valign: center;
+                    icon-name: 'chain-link-symbolic';
+                    tooltip-text: _("Preserve aspect ratio");
+                    styles ['lock']
+                  }
+                  Entry resize_height_value {
+                    valign: center;
+                    placeholder-text: _("Height");
+                    tooltip-text: _("Height");
+                    input-purpose: digits;
+                    max-width-chars: 6;
+                    visible: false;
+                    hexpand: false;
+                  }
+                  Entry resize_scale_height_value {
+                    valign: center;
+                    placeholder-text: _("Height");
+                    tooltip-text: _("Height");
+                    input-purpose: digits;
+                    max-width-chars: 6;
+                    hexpand: false;
+                  }
+                }
+                $AdwBin {
+                  Box {
+                    DropDown resize_type {
+                      valign: center;
+                      accessibility {
+                        label: _("Choose between resizing with percentages or using exact pixels");
+                      }
+                      model:
+                      StringList resize_types {
+                        strings [_("%"),_("px")]
+                      }
+                      ;
+                      styles ["flat", "unit-drop"]
                     }
-                    model:
-                    StringList resize_types {
-                      strings [_("%"),_("px")]
-                    }
-                    ;
-                    styles ["flat", "unit-drop"]
                   }
                 }
               }
-            }
-            Adw.ActionRow {
-              title: _("Framerate");
+              Adw.ActionRow {
+                title: _("Framerate");
 
-              SpinButton framerate_button {
-                adjustment: Adjustment {
-                  lower: 1;
-                  step-increment: 1;
-                  upper: 480;
+                SpinButton framerate_button {
+                  adjustment: Adjustment {
+                    lower: 1;
+                    step-increment: 1;
+                    upper: 480;
+                  }
+                  
+                  ;
+                  value: 30;
+                  valign: center;
                 }
-                
-                ;
-                value: 30;
-                valign: center;
               }
             }
-          }
 
-          Adw.PreferencesGroup {
-            Adw.ComboRow container_row {
-              title: _("Container Format");
-              use-subtitle: true;
-              model: StringList {};
-              styles ["property"]
+            Adw.PreferencesGroup {
+              Adw.ComboRow container_row {
+                title: _("Container Format");
+                use-subtitle: true;
+                model: StringList {};
+                styles ["property"]
+              }
+              Adw.ComboRow video_encoding {
+                title: _("Video Encoding");
+                use-subtitle: true;
+                model: StringList {};
+                styles ["property"]
+              }
+              Adw.ComboRow audio_encoding {
+                title: _("Audio Encoding");
+                use-subtitle: true;
+                model: StringList {};
+                styles ["property"]
+              }
             }
-            Adw.ComboRow video_encoding {
-              title: _("Video Encoding");
-              use-subtitle: true;
-              model: StringList {};
-              styles ["property"]
-            }
-            Adw.ComboRow audio_encoding {
-              title: _("Audio Encoding");
-              use-subtitle: true;
-              model: StringList {};
-              styles ["property"]
-            }
-          }
 
-          Adw.PreferencesGroup {
-            Box {
-              halign: center;
-              Button save_button {
-                label: _("Save Video");
-                styles ["suggested-action", "pill"]
+            Adw.PreferencesGroup {
+              Box {
+                halign: center;
+                Button save_button {
+                  label: _("Save Video");
+                  styles ["suggested-action", "pill"]
+                }
               }
             }
           }

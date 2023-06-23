@@ -8,6 +8,8 @@ use crate::info::get_debug_info;
 use crate::window::AppWindow;
 
 mod imp {
+    use crate::spawn;
+
     use super::*;
     use adw::subclass::prelude::AdwApplicationImpl;
 
@@ -55,10 +57,22 @@ mod imp {
             gtk::Window::set_default_icon_name(APP_ID);
         }
 
-        // fn open(&self, files: &[gio::File], _hint: &str) {
-
-        //     debug!("Application::open");
-        // }
+        fn open(&self, files: &[gio::File], _hint: &str) {
+            if let Some(file) = files.first() {
+                let application = self.obj();
+                application.present_main_window();
+                if let Some(window) = application.active_window() {
+                    let file_path = file.path().unwrap();
+                    spawn!(async move {
+                        window
+                            .downcast_ref::<AppWindow>()
+                            .unwrap()
+                            .open_file(file_path);
+                    });
+                }
+            }
+            debug!("Application::open");
+        }
     }
 
     impl gtk::subclass::prelude::GtkApplicationImpl for App {}

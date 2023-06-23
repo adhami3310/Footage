@@ -259,6 +259,10 @@ mod imp {
     impl Timeline {
         pub fn set_range(&self, range: Option<(u64, u64)>) {
             self.range.set(range);
+            // if let Some((start, end)) = range {
+            //     self.left_handle.set_tooltip_text(Some(&format_time(start)));
+            //     self.right_handle.set_tooltip_text(Some(&format_time(end)));
+            // }
             self.refresh();
         }
 
@@ -350,7 +354,8 @@ mod imp {
                 };
 
                 self.range.set(Some((start, end)));
-
+                // self.left_handle.set_tooltip_text(Some(&format_time(start)));
+                // self.right_handle.set_tooltip_text(Some(&format_time(end)));
                 self.refresh();
             };
         }
@@ -363,6 +368,8 @@ mod imp {
             )));
             let (start, end) = self.range.get().unwrap();
             self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
+            // self.left_handle.set_tooltip_text(Some(&format_time(start)));
+            // self.right_handle.set_tooltip_text(Some(&format_time(end)));
             self.set_position(start);
         }
 
@@ -374,6 +381,8 @@ mod imp {
             )));
             let (start, end) = self.range.get().unwrap();
             self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
+            // self.left_handle.set_tooltip_text(Some(&format_time(start)));
+            // self.right_handle.set_tooltip_text(Some(&format_time(end)));
             self.set_position(start);
         }
 
@@ -396,6 +405,8 @@ mod imp {
             )));
             let (start, end) = self.range.get().unwrap();
             self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
+            // self.left_handle.set_tooltip_text(Some(&format_time(start)));
+            // self.right_handle.set_tooltip_text(Some(&format_time(end)));
             self.set_position(start);
         }
 
@@ -404,6 +415,8 @@ mod imp {
             self.obj()
                 .emit_by_name::<()>("set-position", &[&self.position.get()]);
             self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
+            // self.left_handle.set_tooltip_text(Some(&format_time(start)));
+            // self.right_handle.set_tooltip_text(Some(&format_time(end)));
             self.set_position(start);
         }
 
@@ -470,3 +483,13 @@ impl Timeline {
         self.imp().set_position(position);
     }
 }
+
+// fn format_time(time: u64) -> String {
+//     dbg!(time);
+
+//     let minutes = time / 60 / 1000;
+//     let seconds = time / 60 % 60;
+//     let cmseconds = time % 1000 / 10;
+
+//     format!("{minutes}:{seconds}.{cmseconds}")
+// }

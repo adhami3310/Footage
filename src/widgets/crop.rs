@@ -6,7 +6,10 @@ use gtk::{gio, glib};
 mod imp {
     use super::*;
     use glib::{clone, subclass::Signal};
-    use gtk::{gdk::{RGBA, Key}, graphene, CompositeTemplate};
+    use gtk::{
+        gdk::{Key, RGBA},
+        graphene, CompositeTemplate,
+    };
     use itertools::Itertools;
     use once_cell::unsync::OnceCell;
     use ordered_float::NotNan;
@@ -306,7 +309,6 @@ mod imp {
         }
 
         fn snapshot(&self, snapshot: &gtk::Snapshot) {
-            let p = self.positons();
             let c = RGBA::builder()
                 .red(0.)
                 .green(0.)
@@ -319,26 +321,23 @@ mod imp {
                 self.obj().allocated_height() as f32,
             );
 
-            snapshot.append_color(&c, &graphene::Rect::new(0., 0., width, p.0 as f32));
+            let crop = self.current_selection.get();
+
+            let top = (height as f64 * crop.0).round() as f32;
+            let left = (width as f64 * crop.3).round() as f32;
+            let bottom = top + (height as f64 * (1. - crop.2 - crop.0)).round() as f32;
+            let right = left + (width as f64 * (1. - crop.3 - crop.1)).round() as f32;
+
+            snapshot.append_color(&c, &graphene::Rect::new(0., 0., width, top));
+            snapshot.append_color(&c, &graphene::Rect::new(0., top, left, bottom - top));
+            snapshot.append_color(&c, &graphene::Rect::new(0., bottom, width, height - bottom));
             snapshot.append_color(
                 &c,
-                &graphene::Rect::new(0., p.0 as f32, p.3 as f32, (p.2 - p.0) as f32),
-            );
-            snapshot.append_color(
-                &c,
-                &graphene::Rect::new(0., p.2 as f32, width, height - p.2 as f32),
-            );
-            snapshot.append_color(
-                &c,
-                &graphene::Rect::new(
-                    p.1 as f32,
-                    p.0 as f32,
-                    width - p.1 as f32,
-                    (p.2 - p.0) as f32,
-                ),
+                &graphene::Rect::new(right, top, width - right, bottom - top),
             );
 
-            self.obj().snapshot_child(&self.obj().first_child().unwrap(), snapshot);
+            self.obj()
+                .snapshot_child(&self.obj().first_child().unwrap(), snapshot);
         }
     }
 
@@ -558,9 +557,10 @@ mod imp {
             let (_width, height) = (self.obj().allocated_width(), self.obj().allocated_height());
 
             let current_selection = self.current_selection.get();
-            
+
             self.current_selection.set((
-                (current_selection.0 + PIXEL_KEYBOARD_MOVE / (height as f64)).clamp(0., 1. - current_selection.2),
+                (current_selection.0 + PIXEL_KEYBOARD_MOVE / (height as f64))
+                    .clamp(0., 1. - current_selection.2),
                 current_selection.1,
                 current_selection.2,
                 current_selection.3,
@@ -585,9 +585,10 @@ mod imp {
             let (_width, height) = (self.obj().allocated_width(), self.obj().allocated_height());
 
             let current_selection = self.current_selection.get();
-            
+
             self.current_selection.set((
-                (current_selection.0 - PIXEL_KEYBOARD_MOVE / (height as f64)).clamp(0., 1. - current_selection.2),
+                (current_selection.0 - PIXEL_KEYBOARD_MOVE / (height as f64))
+                    .clamp(0., 1. - current_selection.2),
                 current_selection.1,
                 current_selection.2,
                 current_selection.3,
@@ -612,11 +613,12 @@ mod imp {
             let (_width, height) = (self.obj().allocated_width(), self.obj().allocated_height());
 
             let current_selection = self.current_selection.get();
-            
+
             self.current_selection.set((
                 current_selection.0,
                 current_selection.1,
-                (current_selection.2 - PIXEL_KEYBOARD_MOVE / (height as f64)).clamp(0., 1. - current_selection.0),
+                (current_selection.2 - PIXEL_KEYBOARD_MOVE / (height as f64))
+                    .clamp(0., 1. - current_selection.0),
                 current_selection.3,
             ));
 
@@ -639,11 +641,12 @@ mod imp {
             let (_width, height) = (self.obj().allocated_width(), self.obj().allocated_height());
 
             let current_selection = self.current_selection.get();
-            
+
             self.current_selection.set((
                 current_selection.0,
                 current_selection.1,
-                (current_selection.2 + PIXEL_KEYBOARD_MOVE / (height as f64)).clamp(0., 1. - current_selection.0),
+                (current_selection.2 + PIXEL_KEYBOARD_MOVE / (height as f64))
+                    .clamp(0., 1. - current_selection.0),
                 current_selection.3,
             ));
 
@@ -666,12 +669,13 @@ mod imp {
             let (width, _height) = (self.obj().allocated_width(), self.obj().allocated_height());
 
             let current_selection = self.current_selection.get();
-            
+
             self.current_selection.set((
                 current_selection.0,
                 current_selection.1,
                 current_selection.2,
-                (current_selection.3 + PIXEL_KEYBOARD_MOVE / (width as f64)).clamp(0., 1. - current_selection.1),
+                (current_selection.3 + PIXEL_KEYBOARD_MOVE / (width as f64))
+                    .clamp(0., 1. - current_selection.1),
             ));
 
             let current_selection = self.current_selection.get();
@@ -693,12 +697,13 @@ mod imp {
             let (width, _height) = (self.obj().allocated_width(), self.obj().allocated_height());
 
             let current_selection = self.current_selection.get();
-            
+
             self.current_selection.set((
                 current_selection.0,
                 current_selection.1,
                 current_selection.2,
-                (current_selection.3 - PIXEL_KEYBOARD_MOVE / (width as f64)).clamp(0., 1. - current_selection.1),
+                (current_selection.3 - PIXEL_KEYBOARD_MOVE / (width as f64))
+                    .clamp(0., 1. - current_selection.1),
             ));
 
             let current_selection = self.current_selection.get();
@@ -720,10 +725,11 @@ mod imp {
             let (width, _height) = (self.obj().allocated_width(), self.obj().allocated_height());
 
             let current_selection = self.current_selection.get();
-            
+
             self.current_selection.set((
                 current_selection.0,
-                (current_selection.1 - PIXEL_KEYBOARD_MOVE / (width as f64)).clamp(0., 1. - current_selection.3),
+                (current_selection.1 - PIXEL_KEYBOARD_MOVE / (width as f64))
+                    .clamp(0., 1. - current_selection.3),
                 current_selection.2,
                 current_selection.3,
             ));
@@ -747,10 +753,11 @@ mod imp {
             let (width, _height) = (self.obj().allocated_width(), self.obj().allocated_height());
 
             let current_selection = self.current_selection.get();
-            
+
             self.current_selection.set((
                 current_selection.0,
-                (current_selection.1 + PIXEL_KEYBOARD_MOVE / (width as f64)).clamp(0., 1. - current_selection.3),
+                (current_selection.1 + PIXEL_KEYBOARD_MOVE / (width as f64))
+                    .clamp(0., 1. - current_selection.3),
                 current_selection.2,
                 current_selection.3,
             ));

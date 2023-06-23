@@ -19,7 +19,10 @@ mod imp {
         sync::{atomic::AtomicBool, Arc},
     };
 
-    use crate::{config::APP_ID, widgets::preview::VideoPreview};
+    use crate::{
+        config::APP_ID,
+        widgets::{preview::VideoPreview, timeline::Timeline},
+    };
 
     use super::*;
 
@@ -81,6 +84,10 @@ mod imp {
         pub back_edit: TemplateChild<gtk::Button>,
         #[template_child]
         pub success_status: TemplateChild<adw::StatusPage>,
+        #[template_child]
+        pub timeline: TemplateChild<Timeline>,
+        #[template_child]
+        pub play_pause: TemplateChild<gtk::Button>,
 
         pub running_flag: Arc<AtomicBool>,
         pub video_width: Cell<Option<usize>>,
@@ -135,6 +142,8 @@ mod imp {
                 resize_height_value: TemplateChild::default(),
                 cancel_button: TemplateChild::default(),
                 success_status: TemplateChild::default(),
+                timeline: TemplateChild::default(),
+                play_pause: TemplateChild::default(),
 
                 running_flag: Arc::new(AtomicBool::new(false)),
                 video_width: Default::default(),
@@ -228,7 +237,7 @@ impl AppWindow {
             gio::ActionEntry::builder("open")
                 .activate(clone!(@weak self as window => move |_, _, _| {
                     spawn!(async move {
-                        window.open_dialog().await.ok();
+                        window.open_dialog().await;
                     });
                 }))
                 .build(),
@@ -267,7 +276,7 @@ impl AppWindow {
         imp.save_button
             .connect_clicked(clone!(@weak self as this => move |_| {
                 spawn!(async move {
-                    this.save_dialog().await.ok();
+                    this.save_dialog().await;
                 });
             }));
         imp.try_again_button
@@ -370,12 +379,90 @@ impl AppWindow {
             None
         }));
 
-        imp.video_preview.connect_local("orientation-flipped", true, clone!(@weak self as this => @default-return None, move |_| {
-            let (height, width) = (this.imp().video_height.get(), this.imp().video_width.get());
-            this.imp().video_width.set(height);
-            this.imp().video_height.set(width);
-            None
-        }));
+        imp.video_preview.connect_local(
+            "orientation-flipped",
+            true,
+            clone!(@weak self as this => @default-return None, move |_| {
+                let (height, width) = (this.imp().video_height.get(), this.imp().video_width.get());
+                this.imp().video_width.set(height);
+                this.imp().video_height.set(width);
+                None
+            }),
+        );
+
+        imp.timeline.connect_local(
+            "set-range",
+            true,
+            clone!(@weak self as this => @default-return None, move |values| {
+                let values = values.to_vec();
+                let start: u64 = values.get(1).unwrap().get().expect("Expected a U64");
+                let end: u64 = values.get(2).unwrap().get().expect("Expected a U64");
+                if this.imp().video_preview.imp().inpoint.get() != start || this.imp().video_preview.imp().outpoint.get() != end {
+                    this.imp().video_preview.set_range(start, end);
+                }
+                None
+            }),
+        );
+
+        imp.timeline.connect_local(
+            "moving",
+            true,
+            clone!(@weak self as this => @default-return None, move |_| {
+                this.imp().video_preview.pause();
+                None
+            }),
+        );
+
+        imp.timeline.connect_local(
+            "set-position",
+            true,
+            clone!(@weak self as this => @default-return None, move |values| {
+                let position: u64 = values[1].get().expect("Expected a U64");
+
+                this.imp().video_preview.seek(position);
+
+                None
+            }),
+        );
+
+        imp.video_preview.connect_local(
+            "mode-changed",
+            true,
+            clone!(@weak self as this => @default-return None, move |values| {
+                let playing: bool = values[1].get().expect("Expected a U64");
+
+                if playing {
+                    this.imp().play_pause.set_icon_name("pause-symbolic");
+                } else {
+                    this.imp().play_pause.set_icon_name("play-symbolic");
+                }
+
+                None
+            }),
+        );
+
+        imp.video_preview.connect_local(
+            "set-position",
+            true,
+            clone!(@weak self as this => @default-return None, move |values| {
+                let position: u64 = values[1].get().expect("Expected a U64");
+
+                this.imp().timeline.set_position(position);
+
+                None
+            }),
+        );
+
+        imp.play_pause
+            .connect_clicked(clone!(@weak self as this => move |b| {
+                if b.icon_name().unwrap() == "play-symbolic" {
+                    this.imp().video_preview.play();
+                } else {
+                    this.imp().video_preview.pause();
+                }
+            }));
+
+        
     }
 
     fn update_width_from_height(&self) {
@@ -500,26 +587,28 @@ impl AppWindow {
         stop_converting_dialog.present();
     }
 
-    async fn open_dialog(&self) -> ashpd::Result<()> {
-        let files = ashpd::desktop::file_chooser::SelectedFiles::open_file()
+    async fn open_dialog(&self) {
+        let filter = gtk::FileFilter::new();
+        filter.add_mime_type("video/*");
+        filter.set_name(Some(&gettext("Video Files")));
+
+        let model = gio::ListStore::new(gtk::FileFilter::static_type());
+        model.append(&filter);
+
+        if let Ok(file) = gtk::FileDialog::builder()
             .modal(true)
-            .identifier(ashpd::WindowIdentifier::from_native(&self.native().unwrap()).await)
-            .multiple(Some(false))
-            .filter(
-                ashpd::desktop::file_chooser::FileFilter::new("Video Files").mimetype("video/*"),
-            )
-            .send()
-            .await?
-            .response()?;
+            .filters(&model)
+            .build()
+            .open_future(Some(self))
+            .await
+        {
+            let path = file.path().unwrap();
 
-        let path = files.uris().first().unwrap().to_file_path().unwrap();
-
-        self.open_file(path);
-
-        Ok(())
+            self.open_file(path);
+        }
     }
 
-    async fn save_dialog(&self) -> ashpd::Result<()> {
+    async fn save_dialog(&self) {
         let input_path = self.imp().selected_video_path.borrow().to_owned().unwrap();
 
         let input_path_stem = input_path.file_stem().unwrap().to_str().unwrap().to_owned();
@@ -529,19 +618,15 @@ impl AppWindow {
             x => x.extension().to_owned(),
         };
 
-        let files = ashpd::desktop::file_chooser::SelectedFiles::save_file()
+        if let Ok(file) = gtk::FileDialog::builder()
             .modal(true)
-            .identifier(ashpd::WindowIdentifier::from_native(&self.native().unwrap()).await)
-            .current_name(Some(format!("{}.{}", input_path_stem, extension).as_ref()))
-            .send()
-            .await?
-            .response()?;
-
-        let path = files.uris().first().unwrap().to_file_path().unwrap();
-
-        self.save_file(path);
-
-        Ok(())
+            .initial_name(format!("{}.{}", input_path_stem, extension))
+            .build()
+            .save_future(Some(self))
+            .await
+        {
+            self.save_file(file.path().unwrap());
+        }
     }
 
     fn selected_container(&self) -> ContainerFormat {
@@ -638,6 +723,8 @@ impl AppWindow {
         let running_flag = self.imp().running_flag.clone();
         running_flag.store(true, std::sync::atomic::Ordering::SeqCst);
 
+        self.imp().progress_bar.set_fraction(0.);
+
         let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
         self.imp().video_preview.save(
             path,
@@ -676,10 +763,13 @@ impl AppWindow {
 
     fn create_ui(&self, path: PathBuf) {
         glib::MainContext::default().iteration(true);
-        let Ok((width, height, framerate)) = self.imp().video_preview.load_path(path) else {
+        let Ok((width, height, duration, framerate)) = self.imp().video_preview.load_path(path) else {
             self.imp().stack.set_visible_child_name("invalid");
             return;
         };
+        self.imp().timeline.set_position(0);
+        self.imp().timeline.set_duration(duration);
+        self.imp().timeline.set_range(Some((0, duration)));
         self.imp().video_width.set(Some(width));
         self.imp().video_height.set(Some(height));
         self.imp().selected_video_width.set(Some(width));
@@ -697,6 +787,8 @@ impl AppWindow {
     }
 
     pub fn open_file(&self, path: PathBuf) {
+        dbg!(&path);
+
         self.imp().selected_video_path.replace(Some(path.clone()));
 
         self.imp().stack.set_visible_child_name("loading");
@@ -717,6 +809,10 @@ impl AppWindow {
             .artists(vec!["kramo https://kramo.hu"])
             // Translators: Replace "translator-credits" with your names, one name per line
             .translator_credits(gettext("translator-credits"))
+            .release_notes_version("1.2")
+            .release_notes(
+                "This minor release introduces a fix for X11 and additional translation support.",
+            )
             .license_type(gtk::License::Gpl30)
             .version(VERSION)
             .build();

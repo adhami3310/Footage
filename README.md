@@ -5,10 +5,22 @@ Polish your videos.
 
 <img src="data/resources/icons/hicolor/scalable/apps/io.gitlab.adhami3310.Footage.svg" width="128" height="128" alt="Footage icon">
 
+[![Installs](https://img.shields.io/flathub/downloads/io.gitlab.adhami3310.Footage?style=for-the-badge)](https://flathub.org/apps/details/io.gitlab.adhami3310.Footage)
 [![Latest Tag](https://img.shields.io/gitlab/v/tag/adhami3310/Footage?sort=date&style=for-the-badge)](https://gitlab.com/adhami3310/Footage/-/tags)
 [![License](https://img.shields.io/gitlab/license/adhami3310/Footage?style=for-the-badge)](https://gitlab.com/adhami3310/Footage/-/raw/main/COPYING)
 
 </div>
+
+
+## Installation
+<a href='https://flathub.org/apps/details/io.gitlab.adhami3310.Footage'><img width='240' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>
+
+
+### Third Party Packages
+You may also be able to obtain Footage from your distribution's package manager. Note these packages are maintained independently and thus may differ from the official version on Flathub. Please report any issues experienced to the package maintainer.
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/footage.svg)](https://repology.org/project/footage/versions)
+
 
 ## About
 
@@ -56,4 +68,4 @@ Actively developed by Khaleel Al-Adhami.
 
 Logo desgined by kramo.
 
-Huge thanks to all of the translators who brought Impression to many other languages!
+Huge thanks to all of the translators who brought Footage to many other languages!
