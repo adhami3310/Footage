@@ -267,9 +267,11 @@ impl AppWindow {
             .connect_toggled(clone!(@weak self as this => move |b| {
                 if b.is_active() {
                     b.set_icon_name("audio-volume-muted-symbolic");
+                    b.set_tooltip_text(Some(&gettext("Enable Audio")));
                     this.imp().video_preview.mute();
                 } else {
                     b.set_icon_name("audio-volume-high-symbolic");
+                    b.set_tooltip_text(Some(&gettext("Disable Audio")));
                     this.imp().video_preview.unmute();
                 }
             }));
@@ -767,6 +769,7 @@ impl AppWindow {
             self.imp().stack.set_visible_child_name("invalid");
             return;
         };
+        self.imp().audio_button.set_active(false);
         self.imp().timeline.set_position(0);
         self.imp().timeline.set_duration(duration);
         self.imp().timeline.set_range(Some((0, duration)));

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-23 00:18-0400\n"
+"POT-Creation-Date: 2023-06-23 00:24-0400\n"
 "PO-Revision-Date: 2023-06-21 22:22+0200\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -20,7 +20,7 @@ msgstr ""
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
 #: data/resources/blueprints/window.blp:9
-#: data/resources/blueprints/window.blp:43 src/main.rs:48 src/window.rs:804
+#: data/resources/blueprints/window.blp:43 src/main.rs:48 src/window.rs:807
 msgid "Footage"
 msgstr "Footage"
 
@@ -189,8 +189,8 @@ msgstr ""
 msgid "Flip Vertically"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:135
-msgid "Mute"
+#: data/resources/blueprints/window.blp:135 src/window.rs:274
+msgid "Disable Audio"
 msgstr ""
 
 #: data/resources/blueprints/window.blp:142
@@ -276,7 +276,7 @@ msgstr "Bezig met renderen…"
 msgid "This may take a while"
 msgstr "Dit kan even duren"
 
-#: data/resources/blueprints/window.blp:363 src/window.rs:545 src/window.rs:571
+#: data/resources/blueprints/window.blp:363 src/window.rs:547 src/window.rs:573
 msgid "_Cancel"
 msgstr "_Annuleren"
 
@@ -300,25 +300,29 @@ msgstr "Linker inkortgreep"
 msgid "Right trimming handle"
 msgstr "Rechter inkortgreep"
 
-#: src/window.rs:541 src/window.rs:566
+#: src/window.rs:270
+msgid "Enable Audio"
+msgstr ""
+
+#: src/window.rs:543 src/window.rs:568
 msgid "Stop rendering?"
 msgstr "Renderen afbreken?"
 
-#: src/window.rs:542 src/window.rs:567
+#: src/window.rs:544 src/window.rs:569
 msgid "You will lose all progress."
 msgstr "Alle voortgang wordt gewist."
 
-#: src/window.rs:546 src/window.rs:571
+#: src/window.rs:548 src/window.rs:573
 msgid "_Stop"
 msgstr "_Stoppen"
 
-#: src/window.rs:593
+#: src/window.rs:595
 #, fuzzy
 msgid "Video Files"
 msgstr "Videobewerker"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
-#: src/window.rs:811
+#: src/window.rs:814
 msgid "translator-credits"
 msgstr "Heimen Stoffels <vistausss@fastmail.com>"
 
