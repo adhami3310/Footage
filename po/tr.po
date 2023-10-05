@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-23 00:24-0400\n"
-"PO-Revision-Date: 2023-06-16 23:59+0300\n"
+"POT-Creation-Date: 2023-09-30 23:51+0300\n"
+"PO-Revision-Date: 2023-09-30 23:53+0300\n"
 "Last-Translator: Sabri Ünal <libreajans@gmail.com>\n"
 "Language-Team: Turkish <takim@gnome.org.tr>\n"
 "Language: tr\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.3.2\n"
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
@@ -92,34 +92,15 @@ msgstr "dönüştür"
 msgid "Editing screen with default options"
 msgstr "Öntanımlı seçeneklerle düzenleme ekranı"
 
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:68
-msgid ""
-"This minor release introduces a fix for X11 and additional translation "
-"support."
-msgstr ""
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:73
-msgid ""
-"This minor release introduces a couple of bug fixes and enhances keyboard "
-"accessibility."
-msgstr ""
-"Bu ara sürüm, birkaç hata düzeltmesi sunar ve klavye erişilebilirliğini "
-"iyileştirir."
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:78
-msgid "Initial version."
-msgstr "İlk sürüm."
-
 #: data/resources/blueprints/help-overlay.blp:11
 msgctxt "shortcut window"
 msgid "General"
 msgstr "Genel"
 
 #: data/resources/blueprints/help-overlay.blp:14
-#, fuzzy
 msgctxt "shortcut window"
 msgid "Open File"
-msgstr "Dosya Aç…"
+msgstr "Dosya Aç"
 
 #: data/resources/blueprints/help-overlay.blp:19
 msgctxt "shortcut window"
@@ -154,7 +135,7 @@ msgstr "Sağ alt kırpma köşesi"
 
 #: data/resources/blueprints/window.blp:27
 msgid "Main Menu"
-msgstr ""
+msgstr "Ana Menü"
 
 #: data/resources/blueprints/window.blp:44
 msgid "Choose a video to edit"
@@ -177,23 +158,23 @@ msgstr ""
 
 #: data/resources/blueprints/window.blp:115
 msgid "Rotate Left"
-msgstr ""
+msgstr "Sola Döndür"
 
 #: data/resources/blueprints/window.blp:120
 msgid "Rotate Right"
-msgstr ""
+msgstr "Sağa Döndür"
 
 #: data/resources/blueprints/window.blp:125
 msgid "Flip Horizontally"
-msgstr ""
+msgstr "Yatay Döndür"
 
 #: data/resources/blueprints/window.blp:130
 msgid "Flip Vertically"
-msgstr ""
+msgstr "Dikey Döndür"
 
 #: data/resources/blueprints/window.blp:135 src/window.rs:274
 msgid "Disable Audio"
-msgstr ""
+msgstr "Sesi Devre Dışı Bırak"
 
 #: data/resources/blueprints/window.blp:142
 msgid "Resize"
@@ -305,7 +286,7 @@ msgstr "Sağ kırpma tutamacı"
 
 #: src/window.rs:270
 msgid "Enable Audio"
-msgstr ""
+msgstr "Sesi Etkinleştir"
 
 #: src/window.rs:543 src/window.rs:568
 msgid "Stop rendering?"
@@ -320,9 +301,8 @@ msgid "_Stop"
 msgstr "_Durdur"
 
 #: src/window.rs:595
-#, fuzzy
 msgid "Video Files"
-msgstr "Video Düzenleyici"
+msgstr "Video Dosyalar"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
 #: src/window.rs:814
@@ -336,6 +316,3 @@ msgstr "Tavsiye Edilen (WEBM, AV1, Opus)"
 #: src/profiles.rs:79
 msgid "Keep as-is"
 msgstr "Olduğu gibi koru"
-
-#~ msgid "Primary Menu"
-#~ msgstr "Birincil Menü"

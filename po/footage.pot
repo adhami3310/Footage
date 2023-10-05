@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-23 00:24-0400\n"
+"POT-Creation-Date: 2023-09-30 23:51+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -85,22 +85,6 @@ msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:48
 msgid "Editing screen with default options"
-msgstr ""
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:68
-msgid ""
-"This minor release introduces a fix for X11 and additional translation "
-"support."
-msgstr ""
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:73
-msgid ""
-"This minor release introduces a couple of bug fixes and enhances keyboard "
-"accessibility."
-msgstr ""
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:78
-msgid "Initial version."
 msgstr ""
 
 #: data/resources/blueprints/help-overlay.blp:11
