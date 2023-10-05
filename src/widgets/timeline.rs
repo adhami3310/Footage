@@ -343,7 +343,7 @@ mod imp {
                     }
                     DragType::End => {
                         if time >= start {
-                            self.set_position(start);
+                            // self.set_position(start);
                             (start, time)
                         } else {
                             self.drag_type.set(Some(DragType::Start));
@@ -367,10 +367,12 @@ mod imp {
                 end,
             )));
             let (start, end) = self.range.get().unwrap();
+            self.set_position(start);
             self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
+            self.obj()
+                .emit_by_name::<()>("set-position", &[&self.position.get()]);
             // self.left_handle.set_tooltip_text(Some(&format_time(start)));
             // self.right_handle.set_tooltip_text(Some(&format_time(end)));
-            self.set_position(start);
         }
 
         fn bring_start_back(&self) {
@@ -380,10 +382,12 @@ mod imp {
                 end,
             )));
             let (start, end) = self.range.get().unwrap();
+            self.set_position(start);
             self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
+            self.obj()
+                .emit_by_name::<()>("set-position", &[&self.position.get()]);
             // self.left_handle.set_tooltip_text(Some(&format_time(start)));
             // self.right_handle.set_tooltip_text(Some(&format_time(end)));
-            self.set_position(start);
         }
 
         fn bring_end_forward(&self) {
@@ -393,8 +397,10 @@ mod imp {
                 (end + TIMELINE_KEYBOARD_MOVE as u64).min(self.duration.get()),
             )));
             let (start, end) = self.range.get().unwrap();
+            self.set_position(end);
             self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
-            self.set_position(start);
+            self.obj()
+                .emit_by_name::<()>("set-position", &[&self.position.get()]);
         }
 
         fn bring_end_back(&self) {
@@ -404,20 +410,23 @@ mod imp {
                 (end as i64 - TIMELINE_KEYBOARD_MOVE).max(start as i64) as u64,
             )));
             let (start, end) = self.range.get().unwrap();
+            self.set_position(end);
             self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
+            self.obj()
+                .emit_by_name::<()>("set-position", &[&self.position.get()]);
             // self.left_handle.set_tooltip_text(Some(&format_time(start)));
             // self.right_handle.set_tooltip_text(Some(&format_time(end)));
-            self.set_position(start);
         }
 
         fn on_drag_end(&self) {
             let (start, end) = self.range.get().unwrap();
+            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
             self.obj()
                 .emit_by_name::<()>("set-position", &[&self.position.get()]);
-            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
+            // self.refresh();
             // self.left_handle.set_tooltip_text(Some(&format_time(start)));
             // self.right_handle.set_tooltip_text(Some(&format_time(end)));
-            self.set_position(start);
+            // self.set_position(start);
         }
 
         pub fn set_duration(&self, duration: u64) {

@@ -48,6 +48,7 @@ mod imp {
         pub pipeline: RefCell<Option<ges::Pipeline>>,
         pub clip: RefCell<Option<ges::UriClip>>,
         pub path: RefCell<PathBuf>,
+        pub ended: Cell<bool>,
         pub bus_watch: RefCell<Option<glib::SourceId>>,
     }
 
@@ -151,13 +152,17 @@ impl VideoPreview {
     }
 
     pub fn quiet_seek(&self, position: u64) {
+        if position == self.imp().outpoint.get() {
+            self.imp().ended.set(true);
+        }
+
         let position = position.max(self.imp().inpoint.get()) - self.imp().inpoint.get();
 
         let op = self.imp().pipeline.borrow();
 
         if let Some(p) = op.as_ref() {
             p.seek_simple(
-                SeekFlags::ACCURATE | SeekFlags::FLUSH,
+                SeekFlags::empty(),
                 ClockTime::from_mseconds(position),
             )
             .ok();
@@ -243,8 +248,9 @@ impl VideoPreview {
                     match msg.view() {
                         MessageView::Eos(..) => {
                             this.pause();
-                            this.emit_by_name::<()>("set-position", &[&this.imp().inpoint.get()]);
-                            this.seek(0);
+                            this.imp().ended.set(true);
+                            // this.emit_by_name::<()>("set-position", &[&this.imp().inpoint.get()]);
+                            // this.seek(0);
                         }
                         MessageView::Error(err) => {
                             println!(
@@ -290,6 +296,12 @@ impl VideoPreview {
     pub fn play(&self) {
         let orig_p = self.imp().pipeline.borrow();
         let p = orig_p.as_ref().unwrap();
+
+        if self.imp().ended.get() {
+            self.imp().ended.set(false);
+            self.quiet_seek(0);
+        }
+
         p.set_state(gst::State::Playing).unwrap();
         self.emit_by_name::<()>("mode-changed", &[&true]);
         // self.imp().play_pause.set_icon_name("pause-symbolic");

@@ -435,8 +435,10 @@ impl AppWindow {
 
                 if playing {
                     this.imp().play_pause.set_icon_name("pause-symbolic");
+                    this.imp().play_pause.set_tooltip_text(Some(&gettext("Pause")));
                 } else {
                     this.imp().play_pause.set_icon_name("play-symbolic");
+                    this.imp().play_pause.set_tooltip_text(Some(&gettext("Play")));
                 }
 
                 None
