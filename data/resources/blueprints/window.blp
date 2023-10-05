@@ -90,22 +90,27 @@ template $AppWindow : Adw.ApplicationWindow {
         Box {
           orientation: vertical;
           spacing: 12;
-          Adw.PreferencesPage {
-            Adw.PreferencesGroup {
+          Adw.Clamp {
+            tightening-threshold: 400;
+            maximum-size: 600;
+            Box {
+              margin-top: 24;
+              margin-start: 12;
+              margin-end: 12;
+              spacing: 12;
+              orientation: vertical;
+              $VideoPreview video_preview {}
               Box {
                 spacing: 12;
-                orientation: vertical;
-                $VideoPreview video_preview {}
-                Box {
-                  spacing: 12;
-                  Button play_pause {
-                    icon-name: 'play-symbolic';
-                    tooltip-text: 'Play';
-                  }
-                  $Timeline timeline {}
+                Button play_pause {
+                  icon-name: 'play-symbolic';
+                  tooltip-text: 'Play';
                 }
+                $Timeline timeline {}
               }
             }
+          }
+          Adw.PreferencesPage {
             Adw.PreferencesGroup {
               Box {
                 halign: center;
