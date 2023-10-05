@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-30 23:51+0300\n"
+"POT-Creation-Date: 2023-10-05 04:38-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
 #: data/resources/blueprints/window.blp:9
-#: data/resources/blueprints/window.blp:43 src/main.rs:48 src/window.rs:807
+#: data/resources/blueprints/window.blp:43 src/main.rs:48 src/window.rs:809
 msgid "Footage"
 msgstr ""
 
@@ -137,7 +137,7 @@ msgid "Choose a video to edit"
 msgstr ""
 
 #: data/resources/blueprints/window.blp:55
-#: data/resources/blueprints/window.blp:382
+#: data/resources/blueprints/window.blp:388
 msgid "Open File…"
 msgstr ""
 
@@ -149,121 +149,121 @@ msgstr ""
 msgid "This video could be corrupted or may use an unsupported file format."
 msgstr ""
 
-#: data/resources/blueprints/window.blp:115
+#: data/resources/blueprints/window.blp:121
 msgid "Rotate Left"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:120
+#: data/resources/blueprints/window.blp:126
 msgid "Rotate Right"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:125
+#: data/resources/blueprints/window.blp:131
 msgid "Flip Horizontally"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:130
+#: data/resources/blueprints/window.blp:136
 msgid "Flip Vertically"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:135 src/window.rs:274
+#: data/resources/blueprints/window.blp:141 src/window.rs:274
 msgid "Disable Audio"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:142
+#: data/resources/blueprints/window.blp:148
 msgid "Resize"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:147
-#: data/resources/blueprints/window.blp:148
-#: data/resources/blueprints/window.blp:156
-#: data/resources/blueprints/window.blp:158
+#: data/resources/blueprints/window.blp:153
+#: data/resources/blueprints/window.blp:154
+#: data/resources/blueprints/window.blp:162
+#: data/resources/blueprints/window.blp:164
 msgid "Width"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:165
+#: data/resources/blueprints/window.blp:171
 msgid "Preserve aspect ratio"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:170
-#: data/resources/blueprints/window.blp:171
-#: data/resources/blueprints/window.blp:179
-#: data/resources/blueprints/window.blp:180
+#: data/resources/blueprints/window.blp:176
+#: data/resources/blueprints/window.blp:177
+#: data/resources/blueprints/window.blp:185
+#: data/resources/blueprints/window.blp:186
 msgid "Height"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:191
+#: data/resources/blueprints/window.blp:197
 msgid "Choose between resizing with percentages or using exact pixels"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:195
+#: data/resources/blueprints/window.blp:201
 msgid "%"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:195
+#: data/resources/blueprints/window.blp:201
 msgid "px"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:204
+#: data/resources/blueprints/window.blp:210
 msgid "Framerate"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:222
+#: data/resources/blueprints/window.blp:228
 msgid "Container Format"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:228
+#: data/resources/blueprints/window.blp:234
 msgid "Video Encoding"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:234
+#: data/resources/blueprints/window.blp:240
 msgid "Audio Encoding"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:245
+#: data/resources/blueprints/window.blp:251
 msgid "Save Video"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:273
+#: data/resources/blueprints/window.blp:279
 msgid "Video Exported"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:283
+#: data/resources/blueprints/window.blp:289
 msgid "Open Video"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:295
+#: data/resources/blueprints/window.blp:301
 msgid "Finish"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:317
+#: data/resources/blueprints/window.blp:323
 msgid "Exporting Video Unsuccessful"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:326
+#: data/resources/blueprints/window.blp:332
 msgid "Retry"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:346
+#: data/resources/blueprints/window.blp:352
 msgid "Rendering…"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:348
+#: data/resources/blueprints/window.blp:354
 msgid "This may take a while"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:363 src/window.rs:547 src/window.rs:573
+#: data/resources/blueprints/window.blp:369 src/window.rs:549 src/window.rs:575
 msgid "_Cancel"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:387
+#: data/resources/blueprints/window.blp:393
 msgid "New Window"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:394
+#: data/resources/blueprints/window.blp:400
 msgid "Keyboard Shortcuts"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:399
+#: data/resources/blueprints/window.blp:405
 msgid "About Footage"
 msgstr ""
 
@@ -279,24 +279,32 @@ msgstr ""
 msgid "Enable Audio"
 msgstr ""
 
-#: src/window.rs:543 src/window.rs:568
+#: src/window.rs:438
+msgid "Pause"
+msgstr ""
+
+#: src/window.rs:441
+msgid "Play"
+msgstr ""
+
+#: src/window.rs:545 src/window.rs:570
 msgid "Stop rendering?"
 msgstr ""
 
-#: src/window.rs:544 src/window.rs:569
+#: src/window.rs:546 src/window.rs:571
 msgid "You will lose all progress."
 msgstr ""
 
-#: src/window.rs:548 src/window.rs:573
+#: src/window.rs:550 src/window.rs:575
 msgid "_Stop"
 msgstr ""
 
-#: src/window.rs:595
+#: src/window.rs:597
 msgid "Video Files"
 msgstr ""
 
 #. Translators: Replace "translator-credits" with your names, one name per line
-#: src/window.rs:814
+#: src/window.rs:816
 msgid "translator-credits"
 msgstr ""
 

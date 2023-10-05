@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-23 00:24-0400\n"
+"POT-Creation-Date: 2023-10-05 04:38-0400\n"
 "PO-Revision-Date: 2023-06-21 11:20+0200\n"
 "Last-Translator: Amerey.eu <info@amerey.eu>\n"
 "Language-Team: \n"
@@ -20,7 +20,7 @@ msgstr ""
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
 #: data/resources/blueprints/window.blp:9
-#: data/resources/blueprints/window.blp:43 src/main.rs:48 src/window.rs:807
+#: data/resources/blueprints/window.blp:43 src/main.rs:48 src/window.rs:809
 msgid "Footage"
 msgstr "Footage"
 
@@ -90,22 +90,6 @@ msgstr "převést"
 msgid "Editing screen with default options"
 msgstr "Obrazovka úprav s výchozími možnostmi"
 
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:68
-msgid ""
-"This minor release introduces a fix for X11 and additional translation "
-"support."
-msgstr ""
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:73
-msgid ""
-"This minor release introduces a couple of bug fixes and enhances keyboard "
-"accessibility."
-msgstr "Tato verze přináší několik oprav chyb a zlepšuje práci s klávesnicí."
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:78
-msgid "Initial version."
-msgstr "První verze."
-
 #: data/resources/blueprints/help-overlay.blp:11
 msgctxt "shortcut window"
 msgid "General"
@@ -157,7 +141,7 @@ msgid "Choose a video to edit"
 msgstr "Vyberte video, které chcete upravit"
 
 #: data/resources/blueprints/window.blp:55
-#: data/resources/blueprints/window.blp:382
+#: data/resources/blueprints/window.blp:388
 msgid "Open File…"
 msgstr "Otevřít soubor…"
 
@@ -171,121 +155,121 @@ msgstr ""
 "Toto video může být poškozeno nebo může používat nepodporovaný formát "
 "souboru."
 
-#: data/resources/blueprints/window.blp:115
+#: data/resources/blueprints/window.blp:121
 msgid "Rotate Left"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:120
+#: data/resources/blueprints/window.blp:126
 msgid "Rotate Right"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:125
+#: data/resources/blueprints/window.blp:131
 msgid "Flip Horizontally"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:130
+#: data/resources/blueprints/window.blp:136
 msgid "Flip Vertically"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:135 src/window.rs:274
+#: data/resources/blueprints/window.blp:141 src/window.rs:274
 msgid "Disable Audio"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:142
+#: data/resources/blueprints/window.blp:148
 msgid "Resize"
 msgstr "Změnit velikost"
 
-#: data/resources/blueprints/window.blp:147
-#: data/resources/blueprints/window.blp:148
-#: data/resources/blueprints/window.blp:156
-#: data/resources/blueprints/window.blp:158
+#: data/resources/blueprints/window.blp:153
+#: data/resources/blueprints/window.blp:154
+#: data/resources/blueprints/window.blp:162
+#: data/resources/blueprints/window.blp:164
 msgid "Width"
 msgstr "Šířka"
 
-#: data/resources/blueprints/window.blp:165
+#: data/resources/blueprints/window.blp:171
 msgid "Preserve aspect ratio"
 msgstr "Zachovat poměr stran"
 
-#: data/resources/blueprints/window.blp:170
-#: data/resources/blueprints/window.blp:171
-#: data/resources/blueprints/window.blp:179
-#: data/resources/blueprints/window.blp:180
+#: data/resources/blueprints/window.blp:176
+#: data/resources/blueprints/window.blp:177
+#: data/resources/blueprints/window.blp:185
+#: data/resources/blueprints/window.blp:186
 msgid "Height"
 msgstr "Výška"
 
-#: data/resources/blueprints/window.blp:191
+#: data/resources/blueprints/window.blp:197
 msgid "Choose between resizing with percentages or using exact pixels"
 msgstr "Vyberte si mezi změnou velikosti pomocí procent nebo pomocí pixelů"
 
-#: data/resources/blueprints/window.blp:195
+#: data/resources/blueprints/window.blp:201
 msgid "%"
 msgstr "%"
 
-#: data/resources/blueprints/window.blp:195
+#: data/resources/blueprints/window.blp:201
 msgid "px"
 msgstr "px"
 
-#: data/resources/blueprints/window.blp:204
+#: data/resources/blueprints/window.blp:210
 msgid "Framerate"
 msgstr "Snímková frekvence"
 
-#: data/resources/blueprints/window.blp:222
+#: data/resources/blueprints/window.blp:228
 msgid "Container Format"
 msgstr "Formát"
 
-#: data/resources/blueprints/window.blp:228
+#: data/resources/blueprints/window.blp:234
 msgid "Video Encoding"
 msgstr "Kódování videa"
 
-#: data/resources/blueprints/window.blp:234
+#: data/resources/blueprints/window.blp:240
 msgid "Audio Encoding"
 msgstr "Kódování zvuku"
 
-#: data/resources/blueprints/window.blp:245
+#: data/resources/blueprints/window.blp:251
 msgid "Save Video"
 msgstr "Uložit video"
 
-#: data/resources/blueprints/window.blp:273
+#: data/resources/blueprints/window.blp:279
 msgid "Video Exported"
 msgstr "Video exportováno"
 
-#: data/resources/blueprints/window.blp:283
+#: data/resources/blueprints/window.blp:289
 msgid "Open Video"
 msgstr "Otevřít video"
 
-#: data/resources/blueprints/window.blp:295
+#: data/resources/blueprints/window.blp:301
 msgid "Finish"
 msgstr "Dokončit"
 
-#: data/resources/blueprints/window.blp:317
+#: data/resources/blueprints/window.blp:323
 msgid "Exporting Video Unsuccessful"
 msgstr "Export videa se nezdařil"
 
-#: data/resources/blueprints/window.blp:326
+#: data/resources/blueprints/window.blp:332
 msgid "Retry"
 msgstr "Opakovat"
 
-#: data/resources/blueprints/window.blp:346
+#: data/resources/blueprints/window.blp:352
 msgid "Rendering…"
 msgstr "Vykreslování…"
 
-#: data/resources/blueprints/window.blp:348
+#: data/resources/blueprints/window.blp:354
 msgid "This may take a while"
 msgstr "Může to chvíli trvat"
 
-#: data/resources/blueprints/window.blp:363 src/window.rs:547 src/window.rs:573
+#: data/resources/blueprints/window.blp:369 src/window.rs:549 src/window.rs:575
 msgid "_Cancel"
 msgstr "_Zrušit"
 
-#: data/resources/blueprints/window.blp:387
+#: data/resources/blueprints/window.blp:393
 msgid "New Window"
 msgstr "Nové okno"
 
-#: data/resources/blueprints/window.blp:394
+#: data/resources/blueprints/window.blp:400
 msgid "Keyboard Shortcuts"
 msgstr "Klávesové zkratky"
 
-#: data/resources/blueprints/window.blp:399
+#: data/resources/blueprints/window.blp:405
 msgid "About Footage"
 msgstr "O aplikaci Footage"
 
@@ -301,25 +285,33 @@ msgstr "Ořezání zprava"
 msgid "Enable Audio"
 msgstr ""
 
-#: src/window.rs:543 src/window.rs:568
+#: src/window.rs:438
+msgid "Pause"
+msgstr ""
+
+#: src/window.rs:441
+msgid "Play"
+msgstr ""
+
+#: src/window.rs:545 src/window.rs:570
 msgid "Stop rendering?"
 msgstr "Zastavit převod?"
 
-#: src/window.rs:544 src/window.rs:569
+#: src/window.rs:546 src/window.rs:571
 msgid "You will lose all progress."
 msgstr "Přijdete o veškerý pokrok."
 
-#: src/window.rs:548 src/window.rs:573
+#: src/window.rs:550 src/window.rs:575
 msgid "_Stop"
 msgstr "_Zastavit"
 
-#: src/window.rs:595
+#: src/window.rs:597
 #, fuzzy
 msgid "Video Files"
 msgstr "Video Editor"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
-#: src/window.rs:814
+#: src/window.rs:816
 msgid "translator-credits"
 msgstr "Amerey.eu"
 
@@ -330,6 +322,15 @@ msgstr "Doporučeno (WEBM, AV1, Opus)"
 #: src/profiles.rs:79
 msgid "Keep as-is"
 msgstr "Nechat původní formát"
+
+#~ msgid ""
+#~ "This minor release introduces a couple of bug fixes and enhances keyboard "
+#~ "accessibility."
+#~ msgstr ""
+#~ "Tato verze přináší několik oprav chyb a zlepšuje práci s klávesnicí."
+
+#~ msgid "Initial version."
+#~ msgstr "První verze."
 
 #~ msgid "Primary Menu"
 #~ msgstr "Hlavní nabídka"

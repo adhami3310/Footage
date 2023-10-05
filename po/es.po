@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-23 00:24-0400\n"
+"POT-Creation-Date: 2023-10-05 04:38-0400\n"
 "PO-Revision-Date: 2023-06-16 12:29-0600\n"
 "Last-Translator: Daniel Espinoza Cortés <danielespinoza0109@gmail.com>\n"
 "Language-Team: \n"
@@ -20,7 +20,7 @@ msgstr ""
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
 #: data/resources/blueprints/window.blp:9
-#: data/resources/blueprints/window.blp:43 src/main.rs:48 src/window.rs:807
+#: data/resources/blueprints/window.blp:43 src/main.rs:48 src/window.rs:809
 msgid "Footage"
 msgstr "Footage"
 
@@ -90,24 +90,6 @@ msgstr "convertir"
 msgid "Editing screen with default options"
 msgstr "Editar pantalla con opciones por defecto"
 
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:68
-msgid ""
-"This minor release introduces a fix for X11 and additional translation "
-"support."
-msgstr ""
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:73
-msgid ""
-"This minor release introduces a couple of bug fixes and enhances keyboard "
-"accessibility."
-msgstr ""
-"Este lanzamiento menor corrige algunos fallos y mejora la accesibilidad con "
-"el teclado."
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:78
-msgid "Initial version."
-msgstr "Versión inicial."
-
 #: data/resources/blueprints/help-overlay.blp:11
 msgctxt "shortcut window"
 msgid "General"
@@ -159,7 +141,7 @@ msgid "Choose a video to edit"
 msgstr "Elija un video para editar"
 
 #: data/resources/blueprints/window.blp:55
-#: data/resources/blueprints/window.blp:382
+#: data/resources/blueprints/window.blp:388
 msgid "Open File…"
 msgstr "Abrir archivo…"
 
@@ -171,121 +153,121 @@ msgstr "No se pudo cargar video"
 msgid "This video could be corrupted or may use an unsupported file format."
 msgstr "Este video podría estar corrupto o utiliza un formato no soportado."
 
-#: data/resources/blueprints/window.blp:115
+#: data/resources/blueprints/window.blp:121
 msgid "Rotate Left"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:120
+#: data/resources/blueprints/window.blp:126
 msgid "Rotate Right"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:125
+#: data/resources/blueprints/window.blp:131
 msgid "Flip Horizontally"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:130
+#: data/resources/blueprints/window.blp:136
 msgid "Flip Vertically"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:135 src/window.rs:274
+#: data/resources/blueprints/window.blp:141 src/window.rs:274
 msgid "Disable Audio"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:142
+#: data/resources/blueprints/window.blp:148
 msgid "Resize"
 msgstr "Redimensionar"
 
-#: data/resources/blueprints/window.blp:147
-#: data/resources/blueprints/window.blp:148
-#: data/resources/blueprints/window.blp:156
-#: data/resources/blueprints/window.blp:158
+#: data/resources/blueprints/window.blp:153
+#: data/resources/blueprints/window.blp:154
+#: data/resources/blueprints/window.blp:162
+#: data/resources/blueprints/window.blp:164
 msgid "Width"
 msgstr "Ancho"
 
-#: data/resources/blueprints/window.blp:165
+#: data/resources/blueprints/window.blp:171
 msgid "Preserve aspect ratio"
 msgstr "Mantener relación de aspecto"
 
-#: data/resources/blueprints/window.blp:170
-#: data/resources/blueprints/window.blp:171
-#: data/resources/blueprints/window.blp:179
-#: data/resources/blueprints/window.blp:180
+#: data/resources/blueprints/window.blp:176
+#: data/resources/blueprints/window.blp:177
+#: data/resources/blueprints/window.blp:185
+#: data/resources/blueprints/window.blp:186
 msgid "Height"
 msgstr "Altura"
 
-#: data/resources/blueprints/window.blp:191
+#: data/resources/blueprints/window.blp:197
 msgid "Choose between resizing with percentages or using exact pixels"
 msgstr "Elija entre redimensionar con porcentajes o con pixeles exactos"
 
-#: data/resources/blueprints/window.blp:195
+#: data/resources/blueprints/window.blp:201
 msgid "%"
 msgstr "%"
 
-#: data/resources/blueprints/window.blp:195
+#: data/resources/blueprints/window.blp:201
 msgid "px"
 msgstr "px"
 
-#: data/resources/blueprints/window.blp:204
+#: data/resources/blueprints/window.blp:210
 msgid "Framerate"
 msgstr "Fotogramas por segundo"
 
-#: data/resources/blueprints/window.blp:222
+#: data/resources/blueprints/window.blp:228
 msgid "Container Format"
 msgstr "Formato contenedor"
 
-#: data/resources/blueprints/window.blp:228
+#: data/resources/blueprints/window.blp:234
 msgid "Video Encoding"
 msgstr "Codificación de video"
 
-#: data/resources/blueprints/window.blp:234
+#: data/resources/blueprints/window.blp:240
 msgid "Audio Encoding"
 msgstr "Codificación de audio"
 
-#: data/resources/blueprints/window.blp:245
+#: data/resources/blueprints/window.blp:251
 msgid "Save Video"
 msgstr "Guardar video"
 
-#: data/resources/blueprints/window.blp:273
+#: data/resources/blueprints/window.blp:279
 msgid "Video Exported"
 msgstr "Video exportado"
 
-#: data/resources/blueprints/window.blp:283
+#: data/resources/blueprints/window.blp:289
 msgid "Open Video"
 msgstr "Abrir video"
 
-#: data/resources/blueprints/window.blp:295
+#: data/resources/blueprints/window.blp:301
 msgid "Finish"
 msgstr "Terminar"
 
-#: data/resources/blueprints/window.blp:317
+#: data/resources/blueprints/window.blp:323
 msgid "Exporting Video Unsuccessful"
 msgstr "Exportación del video no exitoso"
 
-#: data/resources/blueprints/window.blp:326
+#: data/resources/blueprints/window.blp:332
 msgid "Retry"
 msgstr "Reintentar"
 
-#: data/resources/blueprints/window.blp:346
+#: data/resources/blueprints/window.blp:352
 msgid "Rendering…"
 msgstr "Renderizando…"
 
-#: data/resources/blueprints/window.blp:348
+#: data/resources/blueprints/window.blp:354
 msgid "This may take a while"
 msgstr "Esto podría tardar"
 
-#: data/resources/blueprints/window.blp:363 src/window.rs:547 src/window.rs:573
+#: data/resources/blueprints/window.blp:369 src/window.rs:549 src/window.rs:575
 msgid "_Cancel"
 msgstr "Cancelar"
 
-#: data/resources/blueprints/window.blp:387
+#: data/resources/blueprints/window.blp:393
 msgid "New Window"
 msgstr "Nueva ventana"
 
-#: data/resources/blueprints/window.blp:394
+#: data/resources/blueprints/window.blp:400
 msgid "Keyboard Shortcuts"
 msgstr "Atajos del teclado"
 
-#: data/resources/blueprints/window.blp:399
+#: data/resources/blueprints/window.blp:405
 msgid "About Footage"
 msgstr "Acerca de Footage"
 
@@ -301,25 +283,33 @@ msgstr "Manija de acortar derecha"
 msgid "Enable Audio"
 msgstr ""
 
-#: src/window.rs:543 src/window.rs:568
+#: src/window.rs:438
+msgid "Pause"
+msgstr ""
+
+#: src/window.rs:441
+msgid "Play"
+msgstr ""
+
+#: src/window.rs:545 src/window.rs:570
 msgid "Stop rendering?"
 msgstr "¿Detener renderización?"
 
-#: src/window.rs:544 src/window.rs:569
+#: src/window.rs:546 src/window.rs:571
 msgid "You will lose all progress."
 msgstr "Perderás todo el progreso."
 
-#: src/window.rs:548 src/window.rs:573
+#: src/window.rs:550 src/window.rs:575
 msgid "_Stop"
 msgstr "Detener"
 
-#: src/window.rs:595
+#: src/window.rs:597
 #, fuzzy
 msgid "Video Files"
 msgstr "Editor de video"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
-#: src/window.rs:814
+#: src/window.rs:816
 msgid "translator-credits"
 msgstr "Daniel Espinoza Cortés"
 
@@ -330,6 +320,16 @@ msgstr "Recomendado (WEBM, AV1, Opus)"
 #: src/profiles.rs:79
 msgid "Keep as-is"
 msgstr ""
+
+#~ msgid ""
+#~ "This minor release introduces a couple of bug fixes and enhances keyboard "
+#~ "accessibility."
+#~ msgstr ""
+#~ "Este lanzamiento menor corrige algunos fallos y mejora la accesibilidad "
+#~ "con el teclado."
+
+#~ msgid "Initial version."
+#~ msgstr "Versión inicial."
 
 #~ msgid "Primary Menu"
 #~ msgstr "Menú primario"
