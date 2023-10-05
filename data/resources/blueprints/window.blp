@@ -91,8 +91,8 @@ template $AppWindow : Adw.ApplicationWindow {
           orientation: vertical;
           spacing: 12;
           Adw.Clamp {
-            tightening-threshold: 400;
-            maximum-size: 600;
+            tightening-threshold: 600;
+            maximum-size: 1200;
             Box {
               margin-top: 24;
               margin-start: 12;
@@ -144,7 +144,7 @@ template $AppWindow : Adw.ApplicationWindow {
             }
 
             Adw.PreferencesGroup {
-              $AdwActionRow resize_amount_row {
+              Adw.ActionRow resize_amount_row {
                 title: _("Resize");
                 Box {
                   spacing: 5;
@@ -189,7 +189,7 @@ template $AppWindow : Adw.ApplicationWindow {
                     hexpand: false;
                   }
                 }
-                $AdwBin {
+                Adw.Bin {
                   Box {
                     DropDown resize_type {
                       valign: center;
@@ -348,7 +348,7 @@ template $AppWindow : Adw.ApplicationWindow {
       StackPage {
         name: "exporting";
         child:
-        $AdwStatusPage exporting_page {
+        Adw.StatusPage exporting_page {
           title: _("Rendering…");
           icon-name: "camera-video-symbolic";
           description: _("This may take a while");
