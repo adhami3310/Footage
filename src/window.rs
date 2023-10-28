@@ -813,9 +813,9 @@ impl AppWindow {
             .artists(vec!["kramo https://kramo.hu"])
             // Translators: Replace "translator-credits" with your names, one name per line
             .translator_credits(gettext("translator-credits"))
-            .release_notes_version("1.2")
+            .release_notes_version("1.3")
             .release_notes(
-                "This minor release introduces a fix for X11 and additional translation support.",
+                "This minor release introduces various bug fixes.",
             )
             .license_type(gtk::License::Gpl30)
             .version(VERSION)
