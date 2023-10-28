@@ -43,7 +43,7 @@
     </recommends>
 
     <screenshots>
-        <screenshot>
+        <screenshot type="default">
             <image>https://gitlab.com/adhami3310/Footage/-/raw/main/data/resources/screenshots/0.png</image>
             <caption>Editing screen with default options</caption>
         </screenshot>
