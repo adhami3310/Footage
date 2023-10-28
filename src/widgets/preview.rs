@@ -28,6 +28,7 @@ mod imp {
 
     use adw::subclass::prelude::BinImpl;
     use glib::subclass::Signal;
+    use gst::bus::BusWatchGuard;
     use gtk::CompositeTemplate;
 
     #[derive(Debug, CompositeTemplate, Default)]
@@ -49,7 +50,7 @@ mod imp {
         pub clip: RefCell<Option<ges::UriClip>>,
         pub path: RefCell<PathBuf>,
         pub ended: Cell<bool>,
-        pub bus_watch: RefCell<Option<glib::SourceId>>,
+        pub bus_watch: RefCell<Option<BusWatchGuard>>,
     }
 
     #[glib::object_subclass]
@@ -161,11 +162,8 @@ impl VideoPreview {
         let op = self.imp().pipeline.borrow();
 
         if let Some(p) = op.as_ref() {
-            p.seek_simple(
-                SeekFlags::empty(),
-                ClockTime::from_mseconds(position),
-            )
-            .ok();
+            p.seek_simple(SeekFlags::empty(), ClockTime::from_mseconds(position))
+                .ok();
         }
     }
 
@@ -176,7 +174,7 @@ impl VideoPreview {
         if let Some(t) = timeline.tracks().first() {
             t.set_restriction_caps(
                 &gst::Caps::builder("video/x-raw")
-                    .field("framerate", gst::Fraction::new(30 as i32, 1))
+                    .field("framerate", gst::Fraction::new(30, 1))
                     .build(),
             );
         }
@@ -207,9 +205,9 @@ impl VideoPreview {
         sink.add(&gtksink).unwrap();
         convert.link(&gtksink).unwrap();
 
-        let pad = &gst::GhostPad::with_target(None, &convert.static_pad("sink").unwrap()).unwrap();
+        let pad = &gst::GhostPad::with_target(&convert.static_pad("sink").unwrap()).unwrap();
 
-        let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_HIGH);
+        let (sender, receiver) = glib::MainContext::channel(glib::Priority::HIGH);
 
         pad.add_probe(PadProbeType::DATA_DOWNSTREAM, move |_, info| {
             if let Some(PadProbeData::Buffer(data)) = &info.data {
@@ -222,11 +220,11 @@ impl VideoPreview {
 
         receiver.attach(
             None,
-            clone!(@weak self as this => @default-return Continue(true), move |p| {
+            clone!(@weak self as this => @default-return glib::ControlFlow::Break, move |p| {
                 if this.is_playing() {
                     this.emit_by_name::<()>("set-position", &[&(p + this.imp().inpoint.get())]);
                 }
-                Continue(true)
+                glib::ControlFlow::Continue
             }),
         );
 
@@ -242,7 +240,7 @@ impl VideoPreview {
 
         let bus_watch = bus
             .add_watch_local(
-                clone!(@weak self as this => @default-return glib::Continue(false), move |_, msg| {
+                clone!(@weak self as this => @default-return glib::ControlFlow::Break, move |_, msg| {
                     use gst::MessageView;
 
                     match msg.view() {
@@ -263,7 +261,7 @@ impl VideoPreview {
                         _ => (),
                     };
 
-                    glib::Continue(true)
+                    glib::ControlFlow::Continue
                 }),
             )
             .expect("Failed to add bus watch");
@@ -579,20 +577,59 @@ impl VideoPreview {
                     )
                     .unwrap();
             } else if container == ContainerFormat::Same {
-                pipeline
-                    .set_render_settings(
-                        url::Url::from_file_path(output_path.clone())
-                            .unwrap()
-                            .as_str(),
-                        &gstreamer_pbutils::EncodingProfile::from_discoverer(
-                            &Discoverer::new(gst::ClockTime::SECOND)
+                let profile = gstreamer_pbutils::EncodingProfile::from_discoverer(
+                    &Discoverer::new(gst::ClockTime::SECOND)
+                        .unwrap()
+                        .discover_uri(
+                            url::Url::from_file_path(input_path.clone())
                                 .unwrap()
-                                .discover_uri(
-                                    url::Url::from_file_path(input_path).unwrap().as_str(),
-                                )
-                                .unwrap(),
+                                .as_str(),
                         )
                         .unwrap(),
+                )
+                .unwrap();
+
+                let (video_caps, audio_caps): (Vec<_>, Vec<_>) = profile
+                    .input_caps()
+                    .iter()
+                    .map(|ic| {
+                        let mut ic = ic.to_owned();
+                        ic.remove_fields(["width", "height", "framerate"]);
+
+                        let mut caps = gst::Caps::builder(ic.name());
+
+                        for (name, value) in ic.into_iter() {
+                            caps = caps.field(name, value.clone());
+                        }
+
+                        caps.build()
+                    })
+                    .partition(|c| c.to_string().starts_with("video"));
+
+                let profile_format = profile.format();
+
+                let mut container_profile =
+                    gstreamer_pbutils::EncodingContainerProfile::builder(&profile_format)
+                        .name("container");
+
+                if let Some(video_cap) = video_caps.first() {
+                    let video_profile =
+                        gstreamer_pbutils::EncodingVideoProfile::builder(video_cap).build();
+
+                    container_profile = container_profile.add_profile(video_profile);
+                }
+
+                if let Some(audio_cap) = audio_caps.first() {
+                    let audio_profile =
+                        gstreamer_pbutils::EncodingAudioProfile::builder(audio_cap).build();
+
+                    container_profile = container_profile.add_profile(audio_profile);
+                }
+
+                pipeline
+                    .set_render_settings(
+                        url::Url::from_file_path(output_path).unwrap().as_str(),
+                        &container_profile.build(),
                     )
                     .unwrap();
             } else {

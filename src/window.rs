@@ -169,7 +169,7 @@ mod imp {
 
     impl WidgetImpl for AppWindow {}
     impl WindowImpl for AppWindow {
-        fn close_request(&self) -> gtk::Inhibit {
+        fn close_request(&self) -> glib::Propagation {
             let obj = self.obj();
 
             if let Err(err) = obj.save_window_size() {
@@ -178,7 +178,7 @@ mod imp {
 
             if self.running_flag.load(std::sync::atomic::Ordering::SeqCst) {
                 self.obj().close_dialog();
-                glib::signal::Inhibit(true)
+                glib::Propagation::Stop
             } else {
                 // Pass close request on to the parent
                 self.parent_close_request()
@@ -465,8 +465,6 @@ impl AppWindow {
                     this.imp().video_preview.pause();
                 }
             }));
-
-        
     }
 
     fn update_width_from_height(&self) {
@@ -596,7 +594,7 @@ impl AppWindow {
         filter.add_mime_type("video/*");
         filter.set_name(Some(&gettext("Video Files")));
 
-        let model = gio::ListStore::new(gtk::FileFilter::static_type());
+        let model = gio::ListStore::new::<gtk::FileFilter>();
         model.append(&filter);
 
         if let Ok(file) = gtk::FileDialog::builder()
@@ -729,7 +727,7 @@ impl AppWindow {
 
         self.imp().progress_bar.set_fraction(0.);
 
-        let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+        let (sender, receiver) = glib::MainContext::channel(glib::Priority::DEFAULT);
         self.imp().video_preview.save(
             path,
             sender,
@@ -743,22 +741,22 @@ impl AppWindow {
         );
         receiver.attach(
             None,
-            clone!(@weak self as this => @default-return Continue(false), move |p| {
+            clone!(@weak self as this => @default-return glib::ControlFlow::Break, move |p| {
                 match p {
                     Ok(p) if p == 1.0 => {
                         this.imp().stack.set_visible_child_name("success");
                         this.imp().back_edit.set_visible(true);
                         this.imp().running_flag.store(false, std::sync::atomic::Ordering::SeqCst);
-                        Continue(false)
+                        glib::ControlFlow::Break
                     }
                     Ok(p) => {
                         this.imp().progress_bar.set_fraction(p);
-                        Continue(true)
+                        glib::ControlFlow::Continue
                     }
                     _ => {
                         this.imp().stack.set_visible_child_name("failure");
                         this.imp().running_flag.store(false, std::sync::atomic::Ordering::SeqCst);
-                        Continue(false)
+                        glib::ControlFlow::Break
                     }
                 }
             }),
@@ -767,7 +765,8 @@ impl AppWindow {
 
     fn create_ui(&self, path: PathBuf) {
         glib::MainContext::default().iteration(true);
-        let Ok((width, height, duration, framerate)) = self.imp().video_preview.load_path(path) else {
+        let Ok((width, height, duration, framerate)) = self.imp().video_preview.load_path(path)
+        else {
             self.imp().stack.set_visible_child_name("invalid");
             return;
         };

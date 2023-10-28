@@ -168,33 +168,33 @@ mod imp {
             obj.add_controller(event_controller_motion);
 
             let event_controller_keyboard = gtk::EventControllerKey::new();
-            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::signal::Inhibit(true), move |_, k, _, _| {
+            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::Propagation::Stop, move |_, k, _, _| {
                 match k {
                     Key::Left => {
                         this.bring_start_back();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Right => {
                         this.bring_start_forward();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
-                    _ => glib::signal::Inhibit(false)
+                    _ => glib::Propagation::Proceed
                 }
             }));
             self.left_handle.add_controller(event_controller_keyboard);
 
             let event_controller_keyboard = gtk::EventControllerKey::new();
-            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::signal::Inhibit(true), move |_, k, _, _| {
+            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::Propagation::Stop, move |_, k, _, _| {
                 match k {
                     Key::Left => {
                         this.bring_end_back();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Right => {
                         this.bring_end_forward();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
-                    _ => glib::signal::Inhibit(false)
+                    _ => glib::Propagation::Proceed
                 }
             }));
             self.right_handle.add_controller(event_controller_keyboard);
@@ -290,7 +290,10 @@ mod imp {
             self.drag_type.set(Some(DragType::Playback));
 
             if self.range.get().is_some() {
-                let allocation = self.box_timeline_selection.allocation();
+                let allocation = self
+                    .box_timeline_selection
+                    .compute_bounds(&self.box_timeline_selection.parent().unwrap())
+                    .unwrap();
                 let start = allocation.x() as f64;
                 let end = (allocation.x() + allocation.width()) as f64;
 
@@ -310,7 +313,7 @@ mod imp {
             let obj = self.obj();
 
             let x = self.drag_start.get() + offset_x;
-            let width = obj.allocated_width() as f64;
+            let width = obj.width() as f64;
 
             // Sanitize (this can get weird values when resizing the window while dragging).
             let x = x.clamp(0., width);
@@ -450,7 +453,10 @@ mod imp {
             }
 
             let resizing_cursor = if self.range.get().is_some() {
-                let allocation = self.box_timeline_selection.allocation();
+                let allocation = self
+                    .box_timeline_selection
+                    .compute_bounds(&self.box_timeline_selection.parent().unwrap())
+                    .unwrap();
                 let start = allocation.x() as f64;
                 let end = (allocation.x() + allocation.width()) as f64;
 

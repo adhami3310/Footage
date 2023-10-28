@@ -102,7 +102,7 @@ impl VideoEncoding {
             Av1 => "svtav1enc",
             Vp8 => "vp8enc",
             Vp9 => "vp9enc",
-            H264 => "vaapih264enc",
+            H264 => "x264enc",
             H265 => "x265enc",
             Gif => "gifenc",
         }

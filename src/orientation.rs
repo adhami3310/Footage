@@ -8,7 +8,7 @@ pub enum VideoOrientation {
     FlippedIdentity,
     FR90,
     FR180,
-    FR270
+    FR270,
 }
 
 use VideoOrientation::*;

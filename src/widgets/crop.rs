@@ -173,97 +173,97 @@ mod imp {
             obj.add_controller(event_controller_motion);
 
             let event_controller_keyboard = gtk::EventControllerKey::new();
-            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::signal::Inhibit(true), move |_, k, _, _| {
+            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::Propagation::Stop, move |_, k, _, _| {
                 match k {
                     Key::Down => {
                         this.bring_top_down();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Up => {
                         this.bring_top_up();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Left => {
                         this.bring_left_left();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Right => {
                         this.bring_left_right();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
-                    _ => glib::signal::Inhibit(false)
+                    _ => glib::Propagation::Proceed
                 }
             }));
             self.top_left.add_controller(event_controller_keyboard);
 
             let event_controller_keyboard = gtk::EventControllerKey::new();
-            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::signal::Inhibit(true), move |_, k, _, _| {
+            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::Propagation::Stop, move |_, k, _, _| {
                 match k {
                     Key::Down => {
                         this.bring_bottom_down();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Up => {
                         this.bring_bottom_up();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Left => {
                         this.bring_left_left();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Right => {
                         this.bring_left_right();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
-                    _ => glib::signal::Inhibit(false)
+                    _ => glib::Propagation::Proceed
                 }
             }));
             self.bottom_left.add_controller(event_controller_keyboard);
 
             let event_controller_keyboard = gtk::EventControllerKey::new();
-            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::signal::Inhibit(true), move |_, k, _, _| {
+            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::Propagation::Stop, move |_, k, _, _| {
                 match k {
                     Key::Down => {
                         this.bring_top_down();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Up => {
                         this.bring_top_up();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Left => {
                         this.bring_right_left();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Right => {
                         this.bring_right_right();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
-                    _ => glib::signal::Inhibit(false)
+                    _ => glib::Propagation::Proceed
                 }
             }));
             self.top_right.add_controller(event_controller_keyboard);
 
             let event_controller_keyboard = gtk::EventControllerKey::new();
-            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::signal::Inhibit(true), move |_, k, _, _| {
+            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::Propagation::Stop, move |_, k, _, _| {
                 match k {
                     Key::Down => {
                         this.bring_bottom_down();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Up => {
                         this.bring_bottom_up();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Left => {
                         this.bring_right_left();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Right => {
                         this.bring_right_right();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
-                    _ => glib::signal::Inhibit(false)
+                    _ => glib::Propagation::Proceed
                 }
             }));
             self.bottom_right.add_controller(event_controller_keyboard);
@@ -316,10 +316,7 @@ mod imp {
                 .alpha(0.5)
                 .build();
 
-            let (width, height) = (
-                self.obj().allocated_width() as f32,
-                self.obj().allocated_height() as f32,
-            );
+            let (width, height) = (self.obj().width() as f32, self.obj().height() as f32);
 
             let crop = self.current_selection.get();
 
@@ -344,7 +341,7 @@ mod imp {
     impl Crop {
         fn positons(&self) -> (f64, f64, f64, f64) {
             let crop = self.current_selection.get();
-            let (width, height) = (self.obj().allocated_width(), self.obj().allocated_height());
+            let (width, height) = (self.obj().width(), self.obj().height());
             (
                 (height as f64 * crop.0),
                 (width as f64 * (1. - crop.1)),
@@ -445,8 +442,8 @@ mod imp {
             let width = 1. - current_selection.1 - current_selection.3 - min_size;
             let height = 1. - current_selection.0 - current_selection.2 - min_size;
 
-            let offset_x = offset_x / (self.obj().allocated_width() as f64);
-            let offset_y = offset_y / (self.obj().allocated_height() as f64);
+            let offset_x = offset_x / (self.obj().width() as f64);
+            let offset_y = offset_y / (self.obj().height() as f64);
 
             let actual_offset_y = offset_y - (current_selection.0 - old_selection.0)
                 + (current_selection.2 - old_selection.2);
@@ -554,7 +551,7 @@ mod imp {
         }
 
         fn bring_top_down(&self) {
-            let (_width, height) = (self.obj().allocated_width(), self.obj().allocated_height());
+            let (_width, height) = (self.obj().width(), self.obj().height());
 
             let current_selection = self.current_selection.get();
 
@@ -582,7 +579,7 @@ mod imp {
         }
 
         fn bring_top_up(&self) {
-            let (_width, height) = (self.obj().allocated_width(), self.obj().allocated_height());
+            let (_width, height) = (self.obj().width(), self.obj().height());
 
             let current_selection = self.current_selection.get();
 
@@ -610,7 +607,7 @@ mod imp {
         }
 
         fn bring_bottom_down(&self) {
-            let (_width, height) = (self.obj().allocated_width(), self.obj().allocated_height());
+            let (_width, height) = (self.obj().width(), self.obj().height());
 
             let current_selection = self.current_selection.get();
 
@@ -638,7 +635,7 @@ mod imp {
         }
 
         fn bring_bottom_up(&self) {
-            let (_width, height) = (self.obj().allocated_width(), self.obj().allocated_height());
+            let (_width, height) = (self.obj().width(), self.obj().height());
 
             let current_selection = self.current_selection.get();
 
@@ -666,7 +663,7 @@ mod imp {
         }
 
         fn bring_left_right(&self) {
-            let (width, _height) = (self.obj().allocated_width(), self.obj().allocated_height());
+            let (width, _height) = (self.obj().width(), self.obj().height());
 
             let current_selection = self.current_selection.get();
 
@@ -694,7 +691,7 @@ mod imp {
         }
 
         fn bring_left_left(&self) {
-            let (width, _height) = (self.obj().allocated_width(), self.obj().allocated_height());
+            let (width, _height) = (self.obj().width(), self.obj().height());
 
             let current_selection = self.current_selection.get();
 
@@ -722,7 +719,7 @@ mod imp {
         }
 
         fn bring_right_right(&self) {
-            let (width, _height) = (self.obj().allocated_width(), self.obj().allocated_height());
+            let (width, _height) = (self.obj().width(), self.obj().height());
 
             let current_selection = self.current_selection.get();
 
@@ -750,7 +747,7 @@ mod imp {
         }
 
         fn bring_right_left(&self) {
-            let (width, _height) = (self.obj().allocated_width(), self.obj().allocated_height());
+            let (width, _height) = (self.obj().width(), self.obj().height());
 
             let current_selection = self.current_selection.get();
 
