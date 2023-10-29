@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-10-28 03:58-0400\n"
-"PO-Revision-Date: 2023-09-30 23:53+0300\n"
+"PO-Revision-Date: 2023-10-28 12:31+0300\n"
 "Last-Translator: Sabri Ünal <libreajans@gmail.com>\n"
 "Language-Team: Turkish <takim@gnome.org.tr>\n"
 "Language: tr\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.3.2\n"
+"X-Generator: Poedit 3.4.1\n"
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
@@ -143,9 +143,8 @@ msgstr "Düzenlemek için video seçin"
 
 #: data/resources/blueprints/window.blp:54
 #: data/resources/blueprints/window.blp:379
-#, fuzzy
 msgid "Open Video…"
-msgstr "Video Aç"
+msgstr "Video Aç…"
 
 #: data/resources/blueprints/window.blp:76
 msgid "Could not Load Video"
@@ -239,7 +238,7 @@ msgstr "Video Dışa Aktarıldı"
 
 #: data/resources/blueprints/window.blp:278
 msgid "View Result"
-msgstr ""
+msgstr "Sonucu Göster"
 
 #: data/resources/blueprints/window.blp:290
 msgid "Finish"
@@ -291,11 +290,11 @@ msgstr "Sesi Etkinleştir"
 
 #: src/window.rs:438
 msgid "Pause"
-msgstr ""
+msgstr "Duraklat"
 
 #: src/window.rs:441
 msgid "Play"
-msgstr ""
+msgstr "Oynat"
 
 #: src/window.rs:543 src/window.rs:568
 msgid "Stop rendering?"
