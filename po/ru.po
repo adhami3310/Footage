@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-10-28 03:58-0400\n"
-"PO-Revision-Date: 2023-09-11 15:16+0300\n"
-"Last-Translator: Aleksandr Melman <Alexmelman88@gmail.com>\n"
+"PO-Revision-Date: 2023-10-28 11:10+0300\n"
+"Last-Translator: Сергей Ворон <voron@duck.com>\n"
 "Language-Team: \n"
 "Language: ru_RU\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
-"X-Generator: Poedit 3.3.2\n"
+"X-Generator: Poedit 3.4\n"
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
@@ -145,9 +145,8 @@ msgstr "Выберите видео для редактирования"
 
 #: data/resources/blueprints/window.blp:54
 #: data/resources/blueprints/window.blp:379
-#, fuzzy
 msgid "Open Video…"
-msgstr "Открыть видео"
+msgstr "Открыть видео..."
 
 #: data/resources/blueprints/window.blp:76
 msgid "Could not Load Video"
@@ -240,7 +239,7 @@ msgstr "Видео экспортировано"
 
 #: data/resources/blueprints/window.blp:278
 msgid "View Result"
-msgstr ""
+msgstr "Показать результат"
 
 #: data/resources/blueprints/window.blp:290
 msgid "Finish"
@@ -292,11 +291,11 @@ msgstr "Включить звук"
 
 #: src/window.rs:438
 msgid "Pause"
-msgstr ""
+msgstr "Приостановить"
 
 #: src/window.rs:441
 msgid "Play"
-msgstr ""
+msgstr "Воспроизвести"
 
 #: src/window.rs:543 src/window.rs:568
 msgid "Stop rendering?"
