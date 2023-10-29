@@ -2,20 +2,22 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the footage package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Irénée THIRION <irenee.thirion@e.email>, 2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-10-28 03:58-0400\n"
-"PO-Revision-Date: 2023-06-14 00:00+0200\n"
-"Last-Translator: Irénée Thirion <irenee.thirion@e.email>\n"
-"Language-Team: \n"
+"PO-Revision-Date: 2023-10-28 11:22+0200\n"
+"Last-Translator: Irénée THIRION <irenee.thirion@e.email>\n"
+"Language-Team: French <gnomefr@traduc.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.3.1\n"
+"X-Generator: Gtranslator 45.3\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
@@ -97,10 +99,9 @@ msgid "General"
 msgstr "Général"
 
 #: data/resources/blueprints/help-overlay.blp:14
-#, fuzzy
 msgctxt "shortcut window"
 msgid "Open File"
-msgstr "Ouvrir un fichier…"
+msgstr "Ouvrir un fichier"
 
 #: data/resources/blueprints/help-overlay.blp:19
 msgctxt "shortcut window"
@@ -119,23 +120,23 @@ msgstr "Quitter"
 
 #: data/resources/blueprints/crop.blp:24
 msgid "Top left crop corner"
-msgstr ""
+msgstr "Coin supérieur gauche de rognage"
 
 #: data/resources/blueprints/crop.blp:34
 msgid "Top right crop corner"
-msgstr ""
+msgstr "Coin supérieur droit de rognage"
 
 #: data/resources/blueprints/crop.blp:49
 msgid "Bottom left crop corner"
-msgstr ""
+msgstr "Coin inférieur gauche de rognage"
 
 #: data/resources/blueprints/crop.blp:59
 msgid "Bottom right crop corner"
-msgstr ""
+msgstr "Coin inférieur droit de rognage"
 
 #: data/resources/blueprints/window.blp:26
 msgid "Main Menu"
-msgstr ""
+msgstr "Menu principal"
 
 #: data/resources/blueprints/window.blp:43
 msgid "Choose a video to edit"
@@ -143,9 +144,8 @@ msgstr "Choisissez une vidéo à éditer"
 
 #: data/resources/blueprints/window.blp:54
 #: data/resources/blueprints/window.blp:379
-#, fuzzy
 msgid "Open Video…"
-msgstr "Ouvrir la vidéo"
+msgstr "Ouvrir une vidéo…"
 
 #: data/resources/blueprints/window.blp:76
 msgid "Could not Load Video"
@@ -159,23 +159,23 @@ msgstr ""
 
 #: data/resources/blueprints/window.blp:110
 msgid "Rotate Left"
-msgstr ""
+msgstr "Pivoter vers la gauche"
 
 #: data/resources/blueprints/window.blp:115
 msgid "Rotate Right"
-msgstr ""
+msgstr "Pivoter vers la droite"
 
 #: data/resources/blueprints/window.blp:120
 msgid "Flip Horizontally"
-msgstr ""
+msgstr "Retourner horizontalement"
 
 #: data/resources/blueprints/window.blp:125
 msgid "Flip Vertically"
-msgstr ""
+msgstr "Retourner verticalement"
 
 #: data/resources/blueprints/window.blp:130 src/window.rs:274
 msgid "Disable Audio"
-msgstr ""
+msgstr "Désactiver l’audio"
 
 #: data/resources/blueprints/window.blp:137
 msgid "Resize"
@@ -237,7 +237,7 @@ msgstr "Vidéo exportée"
 
 #: data/resources/blueprints/window.blp:278
 msgid "View Result"
-msgstr ""
+msgstr "Afficher le résultat"
 
 #: data/resources/blueprints/window.blp:290
 msgid "Finish"
@@ -277,23 +277,23 @@ msgstr "À propos de Métrage"
 
 #: data/resources/blueprints/timeline.blp:18
 msgid "Left trimming handle"
-msgstr ""
+msgstr "Curseur de coupe de gauche"
 
 #: data/resources/blueprints/timeline.blp:52
 msgid "Right trimming handle"
-msgstr ""
+msgstr "Curseur de coupe de droite"
 
 #: src/window.rs:270
 msgid "Enable Audio"
-msgstr ""
+msgstr "Activer l’audio"
 
 #: src/window.rs:438
 msgid "Pause"
-msgstr ""
+msgstr "Mettre en Pause"
 
 #: src/window.rs:441
 msgid "Play"
-msgstr ""
+msgstr "Lecture"
 
 #: src/window.rs:543 src/window.rs:568
 msgid "Stop rendering?"
@@ -308,22 +308,21 @@ msgid "_Stop"
 msgstr "_Arrêter"
 
 #: src/window.rs:595
-#, fuzzy
 msgid "Video Files"
-msgstr "Éditeur vidéo"
+msgstr "Fichiers vidéo"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
 #: src/window.rs:815
 msgid "translator-credits"
-msgstr ""
+msgstr "Irénée Thirion"
 
 #: src/profiles.rs:78
 msgid "Recommended (WEBM, AV1, Opus)"
-msgstr ""
+msgstr "Recommandé (WEBM, AV1, Opus)"
 
 #: src/profiles.rs:79
 msgid "Keep as-is"
-msgstr ""
+msgstr "Conserver tel quel"
 
 #~ msgid "Open File…"
 #~ msgstr "Ouvrir un fichier…"
