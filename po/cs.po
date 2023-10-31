@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-10-28 03:58-0400\n"
-"PO-Revision-Date: 2023-06-21 11:20+0200\n"
+"PO-Revision-Date: 2023-10-31 08:27+0100\n"
 "Last-Translator: Amerey.eu <info@amerey.eu>\n"
 "Language-Team: \n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.3.1\n"
+"X-Generator: Poedit 3.4.1\n"
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
@@ -96,10 +96,9 @@ msgid "General"
 msgstr "Obecné"
 
 #: data/resources/blueprints/help-overlay.blp:14
-#, fuzzy
 msgctxt "shortcut window"
 msgid "Open File"
-msgstr "Otevřít soubor…"
+msgstr "Otevřít soubor"
 
 #: data/resources/blueprints/help-overlay.blp:19
 msgctxt "shortcut window"
@@ -134,7 +133,7 @@ msgstr "Pravý dolní roh oříznutí"
 
 #: data/resources/blueprints/window.blp:26
 msgid "Main Menu"
-msgstr ""
+msgstr "Hlavní menu"
 
 #: data/resources/blueprints/window.blp:43
 msgid "Choose a video to edit"
@@ -142,9 +141,8 @@ msgstr "Vyberte video, které chcete upravit"
 
 #: data/resources/blueprints/window.blp:54
 #: data/resources/blueprints/window.blp:379
-#, fuzzy
 msgid "Open Video…"
-msgstr "Otevřít video"
+msgstr "Otevřít video…"
 
 #: data/resources/blueprints/window.blp:76
 msgid "Could not Load Video"
@@ -158,23 +156,23 @@ msgstr ""
 
 #: data/resources/blueprints/window.blp:110
 msgid "Rotate Left"
-msgstr ""
+msgstr "Otočit doleva"
 
 #: data/resources/blueprints/window.blp:115
 msgid "Rotate Right"
-msgstr ""
+msgstr "Otočit doprava"
 
 #: data/resources/blueprints/window.blp:120
 msgid "Flip Horizontally"
-msgstr ""
+msgstr "Překlopit vodorovně"
 
 #: data/resources/blueprints/window.blp:125
 msgid "Flip Vertically"
-msgstr ""
+msgstr "Převrátit svisle"
 
 #: data/resources/blueprints/window.blp:130 src/window.rs:274
 msgid "Disable Audio"
-msgstr ""
+msgstr "Zakázat zvuk"
 
 #: data/resources/blueprints/window.blp:137
 msgid "Resize"
@@ -236,7 +234,7 @@ msgstr "Video exportováno"
 
 #: data/resources/blueprints/window.blp:278
 msgid "View Result"
-msgstr ""
+msgstr "Zobrazit výsledek"
 
 #: data/resources/blueprints/window.blp:290
 msgid "Finish"
@@ -284,15 +282,15 @@ msgstr "Ořezání zprava"
 
 #: src/window.rs:270
 msgid "Enable Audio"
-msgstr ""
+msgstr "Povolit zvuk"
 
 #: src/window.rs:438
 msgid "Pause"
-msgstr ""
+msgstr "Pozastavit"
 
 #: src/window.rs:441
 msgid "Play"
-msgstr ""
+msgstr "Přehrát"
 
 #: src/window.rs:543 src/window.rs:568
 msgid "Stop rendering?"
@@ -307,9 +305,8 @@ msgid "_Stop"
 msgstr "_Zastavit"
 
 #: src/window.rs:595
-#, fuzzy
 msgid "Video Files"
-msgstr "Video Editor"
+msgstr "Video Soubory"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
 #: src/window.rs:815
