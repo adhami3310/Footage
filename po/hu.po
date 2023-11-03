@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-10-28 03:58-0400\n"
-"PO-Revision-Date: 2023-06-16 14:14+0200\n"
+"PO-Revision-Date: 2023-11-03 13:41+0100\n"
 "Last-Translator: Meskó Balázs <mesko.balazs@fsf.hu>\n"
 "Language-Team: \n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.3.1\n"
+"X-Generator: Poedit 3.4.1\n"
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
@@ -64,8 +64,7 @@ msgid ""
 msgstr ""
 "Vágja össze, forgassa el és vágja le az egyes videóklipeket. A Filmszalag "
 "egy hasznos eszköz a rövid videók és képernyőfelvételek gyors "
-"szerkesztéséhez. Az Ön által választott videóformátumba történő exportálásra "
-"is képes."
+"szerkesztéséhez. A választott videóformátumba történő exportálásra is képes."
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:28
 msgid "video"
@@ -97,10 +96,9 @@ msgid "General"
 msgstr "Általános"
 
 #: data/resources/blueprints/help-overlay.blp:14
-#, fuzzy
 msgctxt "shortcut window"
 msgid "Open File"
-msgstr "Fájl megnyitása…"
+msgstr "Fájl megnyitása"
 
 #: data/resources/blueprints/help-overlay.blp:19
 msgctxt "shortcut window"
@@ -135,7 +133,7 @@ msgstr "Jobb alsó levágási sarok"
 
 #: data/resources/blueprints/window.blp:26
 msgid "Main Menu"
-msgstr ""
+msgstr "Főmenü"
 
 #: data/resources/blueprints/window.blp:43
 msgid "Choose a video to edit"
@@ -143,9 +141,8 @@ msgstr "Szerkesztendő videó kiválasztása"
 
 #: data/resources/blueprints/window.blp:54
 #: data/resources/blueprints/window.blp:379
-#, fuzzy
 msgid "Open Video…"
-msgstr "Videó megnyitása"
+msgstr "Videó megnyitása…"
 
 #: data/resources/blueprints/window.blp:76
 msgid "Could not Load Video"
@@ -158,23 +155,23 @@ msgstr ""
 
 #: data/resources/blueprints/window.blp:110
 msgid "Rotate Left"
-msgstr ""
+msgstr "Forgatás balra"
 
 #: data/resources/blueprints/window.blp:115
 msgid "Rotate Right"
-msgstr ""
+msgstr "Forgatás jobbra"
 
 #: data/resources/blueprints/window.blp:120
 msgid "Flip Horizontally"
-msgstr ""
+msgstr "Tükrözés vízszintesen"
 
 #: data/resources/blueprints/window.blp:125
 msgid "Flip Vertically"
-msgstr ""
+msgstr "Tükrözés függőlegesen"
 
 #: data/resources/blueprints/window.blp:130 src/window.rs:274
 msgid "Disable Audio"
-msgstr ""
+msgstr "Hang letiltása"
 
 #: data/resources/blueprints/window.blp:137
 msgid "Resize"
@@ -237,7 +234,7 @@ msgstr "Videó exportálva"
 
 #: data/resources/blueprints/window.blp:278
 msgid "View Result"
-msgstr ""
+msgstr "Eredmény megtekintése"
 
 #: data/resources/blueprints/window.blp:290
 msgid "Finish"
@@ -285,15 +282,15 @@ msgstr "Jobb oldali vágási fogantyú"
 
 #: src/window.rs:270
 msgid "Enable Audio"
-msgstr ""
+msgstr "Hang engedélyezése"
 
 #: src/window.rs:438
 msgid "Pause"
-msgstr ""
+msgstr "Szüneteltetés"
 
 #: src/window.rs:441
 msgid "Play"
-msgstr ""
+msgstr "Lejátszás"
 
 #: src/window.rs:543 src/window.rs:568
 msgid "Stop rendering?"
@@ -308,9 +305,8 @@ msgid "_Stop"
 msgstr "_Leállítás"
 
 #: src/window.rs:595
-#, fuzzy
 msgid "Video Files"
-msgstr "Videószerkesztő"
+msgstr "Videófájlok"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
 #: src/window.rs:815
