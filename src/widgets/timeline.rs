@@ -168,33 +168,33 @@ mod imp {
             obj.add_controller(event_controller_motion);
 
             let event_controller_keyboard = gtk::EventControllerKey::new();
-            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::signal::Inhibit(true), move |_, k, _, _| {
+            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::Propagation::Stop, move |_, k, _, _| {
                 match k {
                     Key::Left => {
                         this.bring_start_back();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Right => {
                         this.bring_start_forward();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
-                    _ => glib::signal::Inhibit(false)
+                    _ => glib::Propagation::Proceed
                 }
             }));
             self.left_handle.add_controller(event_controller_keyboard);
 
             let event_controller_keyboard = gtk::EventControllerKey::new();
-            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::signal::Inhibit(true), move |_, k, _, _| {
+            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::Propagation::Stop, move |_, k, _, _| {
                 match k {
                     Key::Left => {
                         this.bring_end_back();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
                     Key::Right => {
                         this.bring_end_forward();
-                        glib::signal::Inhibit(true)
+                        glib::Propagation::Stop
                     }
-                    _ => glib::signal::Inhibit(false)
+                    _ => glib::Propagation::Proceed
                 }
             }));
             self.right_handle.add_controller(event_controller_keyboard);
@@ -259,6 +259,10 @@ mod imp {
     impl Timeline {
         pub fn set_range(&self, range: Option<(u64, u64)>) {
             self.range.set(range);
+            // if let Some((start, end)) = range {
+            //     self.left_handle.set_tooltip_text(Some(&format_time(start)));
+            //     self.right_handle.set_tooltip_text(Some(&format_time(end)));
+            // }
             self.refresh();
         }
 
@@ -286,7 +290,10 @@ mod imp {
             self.drag_type.set(Some(DragType::Playback));
 
             if self.range.get().is_some() {
-                let allocation = self.box_timeline_selection.allocation();
+                let allocation = self
+                    .box_timeline_selection
+                    .compute_bounds(&self.box_timeline_selection.parent().unwrap())
+                    .unwrap();
                 let start = allocation.x() as f64;
                 let end = (allocation.x() + allocation.width()) as f64;
 
@@ -306,7 +313,7 @@ mod imp {
             let obj = self.obj();
 
             let x = self.drag_start.get() + offset_x;
-            let width = obj.allocated_width() as f64;
+            let width = obj.width() as f64;
 
             // Sanitize (this can get weird values when resizing the window while dragging).
             let x = x.clamp(0., width);
@@ -339,7 +346,7 @@ mod imp {
                     }
                     DragType::End => {
                         if time >= start {
-                            self.set_position(start);
+                            // self.set_position(start);
                             (start, time)
                         } else {
                             self.drag_type.set(Some(DragType::Start));
@@ -350,7 +357,8 @@ mod imp {
                 };
 
                 self.range.set(Some((start, end)));
-
+                // self.left_handle.set_tooltip_text(Some(&format_time(start)));
+                // self.right_handle.set_tooltip_text(Some(&format_time(end)));
                 self.refresh();
             };
         }
@@ -362,8 +370,12 @@ mod imp {
                 end,
             )));
             let (start, end) = self.range.get().unwrap();
-            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
             self.set_position(start);
+            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
+            self.obj()
+                .emit_by_name::<()>("set-position", &[&self.position.get()]);
+            // self.left_handle.set_tooltip_text(Some(&format_time(start)));
+            // self.right_handle.set_tooltip_text(Some(&format_time(end)));
         }
 
         fn bring_start_back(&self) {
@@ -373,8 +385,12 @@ mod imp {
                 end,
             )));
             let (start, end) = self.range.get().unwrap();
-            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
             self.set_position(start);
+            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
+            self.obj()
+                .emit_by_name::<()>("set-position", &[&self.position.get()]);
+            // self.left_handle.set_tooltip_text(Some(&format_time(start)));
+            // self.right_handle.set_tooltip_text(Some(&format_time(end)));
         }
 
         fn bring_end_forward(&self) {
@@ -384,8 +400,10 @@ mod imp {
                 (end + TIMELINE_KEYBOARD_MOVE as u64).min(self.duration.get()),
             )));
             let (start, end) = self.range.get().unwrap();
+            self.set_position(end);
             self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
-            self.set_position(start);
+            self.obj()
+                .emit_by_name::<()>("set-position", &[&self.position.get()]);
         }
 
         fn bring_end_back(&self) {
@@ -395,16 +413,23 @@ mod imp {
                 (end as i64 - TIMELINE_KEYBOARD_MOVE).max(start as i64) as u64,
             )));
             let (start, end) = self.range.get().unwrap();
+            self.set_position(end);
             self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
-            self.set_position(start);
+            self.obj()
+                .emit_by_name::<()>("set-position", &[&self.position.get()]);
+            // self.left_handle.set_tooltip_text(Some(&format_time(start)));
+            // self.right_handle.set_tooltip_text(Some(&format_time(end)));
         }
 
         fn on_drag_end(&self) {
             let (start, end) = self.range.get().unwrap();
+            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
             self.obj()
                 .emit_by_name::<()>("set-position", &[&self.position.get()]);
-            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
-            self.set_position(start);
+            // self.refresh();
+            // self.left_handle.set_tooltip_text(Some(&format_time(start)));
+            // self.right_handle.set_tooltip_text(Some(&format_time(end)));
+            // self.set_position(start);
         }
 
         pub fn set_duration(&self, duration: u64) {
@@ -428,7 +453,10 @@ mod imp {
             }
 
             let resizing_cursor = if self.range.get().is_some() {
-                let allocation = self.box_timeline_selection.allocation();
+                let allocation = self
+                    .box_timeline_selection
+                    .compute_bounds(&self.box_timeline_selection.parent().unwrap())
+                    .unwrap();
                 let start = allocation.x() as f64;
                 let end = (allocation.x() + allocation.width()) as f64;
 
@@ -470,3 +498,13 @@ impl Timeline {
         self.imp().set_position(position);
     }
 }
+
+// fn format_time(time: u64) -> String {
+//     dbg!(time);
+
+//     let minutes = time / 60 / 1000;
+//     let seconds = time / 60 % 60;
+//     let cmseconds = time % 1000 / 10;
+
+//     format!("{minutes}:{seconds}.{cmseconds}")
+// }

@@ -1,60 +1,62 @@
-# SOME DESCRIPTIVE TITLE.
+# ITALIAN TRANSLATION.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the footage package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# ALBANO BATTISTELLA <ALBANOBATTISTELLA@GMAIL.COM>, 2023.
+# Alessandro <alessandrocarion94@gmail.com>, 2023.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-10-28 03:58-0400\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2023-10-29 15:25+0100\n"
+"Last-Translator: Alessandro <alessandrocarion94@gmail.com>\n"
+"Language-Team: Italian <alessandrocarion94@gmail.com>\n"
+"Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.4\n"
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
 #: data/resources/blueprints/window.blp:9
 #: data/resources/blueprints/window.blp:42 src/main.rs:48 src/window.rs:808
 msgid "Footage"
-msgstr ""
+msgstr "Footage"
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:4
 msgid "Video Editor"
-msgstr ""
+msgstr "Editor Video"
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:5
 msgid "Polish Your Videos"
-msgstr ""
+msgstr "Rifinisci i tuoi video"
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:11
 msgid "video;edit;trim;crop;convert"
-msgstr ""
+msgstr "video;modifica;taglia;ritaglia;converti"
 
 #: data/io.gitlab.adhami3310.Footage.gschema.xml.in:6
 msgid "Window width"
-msgstr ""
+msgstr "Larghezza della finestra"
 
 #: data/io.gitlab.adhami3310.Footage.gschema.xml.in:10
 msgid "Window height"
-msgstr ""
+msgstr "Altezza della finestra"
 
 #: data/io.gitlab.adhami3310.Footage.gschema.xml.in:14
 msgid "Window maximized state"
-msgstr ""
+msgstr "Stato ingrandito della finestra"
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:6
 msgid "Khaleel Al-Adhami"
-msgstr ""
+msgstr "Khaleel Al-Adhami"
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:7
 msgid "Polish your videos"
-msgstr ""
+msgstr "Rifinisci i tuoi video"
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:13
 msgid ""
@@ -62,256 +64,285 @@ msgid ""
 "quickly editing short videos and screencasts. It's also capable of exporting "
 "any video into a format of your choice."
 msgstr ""
+"Taglia, capovolgi, ruota e ritaglia singole clip. Footage è uno strumento "
+"utile per modificare rapidamente brevi video e screencast. È anche in grado "
+"di esportare qualsiasi video in un formato a tua scelta."
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:28
 msgid "video"
-msgstr ""
+msgstr "video"
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:29
 msgid "edit"
-msgstr ""
+msgstr "modifica"
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:30
 msgid "trim"
-msgstr ""
+msgstr "taglia"
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:31
 msgid "crop"
-msgstr ""
+msgstr "ritaglia"
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:32
 msgid "convert"
-msgstr ""
+msgstr "converti"
 
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:48
 msgid "Editing screen with default options"
-msgstr ""
+msgstr "Schermata di modifica con opzioni predefinite"
 
 #: data/resources/blueprints/help-overlay.blp:11
 msgctxt "shortcut window"
 msgid "General"
-msgstr ""
+msgstr "Generale"
 
 #: data/resources/blueprints/help-overlay.blp:14
 msgctxt "shortcut window"
 msgid "Open File"
-msgstr ""
+msgstr "Apri file"
 
 #: data/resources/blueprints/help-overlay.blp:19
 msgctxt "shortcut window"
 msgid "New Window"
-msgstr ""
+msgstr "Nuova finestra"
 
 #: data/resources/blueprints/help-overlay.blp:24
 msgctxt "shortcut window"
 msgid "Show Shortcuts"
-msgstr ""
+msgstr "Mostra scorciatoie"
 
 #: data/resources/blueprints/help-overlay.blp:29
 msgctxt "shortcut window"
 msgid "Quit"
-msgstr ""
+msgstr "Esci"
 
 #: data/resources/blueprints/crop.blp:24
 msgid "Top left crop corner"
-msgstr ""
+msgstr "Angolo di ritaglio in alto a sinistra"
 
 #: data/resources/blueprints/crop.blp:34
 msgid "Top right crop corner"
-msgstr ""
+msgstr "Angolo di ritaglio in alto a destra"
 
 #: data/resources/blueprints/crop.blp:49
 msgid "Bottom left crop corner"
-msgstr ""
+msgstr "Angolo di ritaglio in basso a sinistra"
 
 #: data/resources/blueprints/crop.blp:59
 msgid "Bottom right crop corner"
-msgstr ""
+msgstr "Angolo di ritaglio in basso a destra"
 
 #: data/resources/blueprints/window.blp:26
 msgid "Main Menu"
-msgstr ""
+msgstr "Menù principale"
 
 #: data/resources/blueprints/window.blp:43
 msgid "Choose a video to edit"
-msgstr ""
+msgstr "Scegli un video da modificare"
 
 #: data/resources/blueprints/window.blp:54
 #: data/resources/blueprints/window.blp:379
 msgid "Open Video…"
-msgstr ""
+msgstr "Apri video..."
 
 #: data/resources/blueprints/window.blp:76
 msgid "Could not Load Video"
-msgstr ""
+msgstr "Impossibile caricare il video"
 
 #: data/resources/blueprints/window.blp:77
 msgid "This video could be corrupted or may use an unsupported file format."
 msgstr ""
+"Questo video potrebbe essere danneggiato o utilizzare un formato di file non "
+"supportato."
 
 #: data/resources/blueprints/window.blp:110
 msgid "Rotate Left"
-msgstr ""
+msgstr "Ruota a sinistra"
 
 #: data/resources/blueprints/window.blp:115
 msgid "Rotate Right"
-msgstr ""
+msgstr "Ruota a destra"
 
 #: data/resources/blueprints/window.blp:120
 msgid "Flip Horizontally"
-msgstr ""
+msgstr "Capovolgi orizzontalmente"
 
 #: data/resources/blueprints/window.blp:125
 msgid "Flip Vertically"
-msgstr ""
+msgstr "Capovolgi verticalmente"
 
 #: data/resources/blueprints/window.blp:130 src/window.rs:274
 msgid "Disable Audio"
-msgstr ""
+msgstr "Disabilita l'audio"
 
 #: data/resources/blueprints/window.blp:137
 msgid "Resize"
-msgstr ""
+msgstr "Ridimensiona"
 
 #: data/resources/blueprints/window.blp:142
 #: data/resources/blueprints/window.blp:143
 #: data/resources/blueprints/window.blp:151
 #: data/resources/blueprints/window.blp:153
 msgid "Width"
-msgstr ""
+msgstr "Larghezza"
 
 #: data/resources/blueprints/window.blp:160
 msgid "Preserve aspect ratio"
-msgstr ""
+msgstr "Mantieni le proporzioni"
 
 #: data/resources/blueprints/window.blp:165
 #: data/resources/blueprints/window.blp:166
 #: data/resources/blueprints/window.blp:174
 #: data/resources/blueprints/window.blp:175
 msgid "Height"
-msgstr ""
+msgstr "Altezza"
 
 #: data/resources/blueprints/window.blp:186
 msgid "Choose between resizing with percentages or using exact pixels"
 msgstr ""
+"Scegli tra il ridimensionamento con percentuali o l'utilizzo di pixel esatti"
 
 #: data/resources/blueprints/window.blp:190
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: data/resources/blueprints/window.blp:190
 msgid "px"
-msgstr ""
+msgstr "px"
 
 #: data/resources/blueprints/window.blp:199
 msgid "Framerate"
-msgstr ""
+msgstr "Frequenza fotogrammi"
 
 #: data/resources/blueprints/window.blp:217
 msgid "Container Format"
-msgstr ""
+msgstr "Formato container"
 
 #: data/resources/blueprints/window.blp:223
 msgid "Video Encoding"
-msgstr ""
+msgstr "Codifica video"
 
 #: data/resources/blueprints/window.blp:229
 msgid "Audio Encoding"
-msgstr ""
+msgstr "Codifica audio"
 
 #: data/resources/blueprints/window.blp:240
 msgid "Save Video"
-msgstr ""
+msgstr "Salva video"
 
 #: data/resources/blueprints/window.blp:268
 msgid "Video Exported"
-msgstr ""
+msgstr "Video esportato"
 
 #: data/resources/blueprints/window.blp:278
 msgid "View Result"
-msgstr ""
+msgstr "Vedi il risultato"
 
 #: data/resources/blueprints/window.blp:290
 msgid "Finish"
-msgstr ""
+msgstr "Finito"
 
 #: data/resources/blueprints/window.blp:312
 msgid "Exporting Video Unsuccessful"
-msgstr ""
+msgstr "Esportazione del video non riuscita"
 
 #: data/resources/blueprints/window.blp:321
 msgid "Retry"
-msgstr ""
+msgstr "Riprova"
 
 #: data/resources/blueprints/window.blp:341
 msgid "Rendering…"
-msgstr ""
+msgstr "Renderizzando…"
 
 #: data/resources/blueprints/window.blp:343
 msgid "This may take a while"
-msgstr ""
+msgstr "Questo potrebbe richiedere del tempo"
 
 #: data/resources/blueprints/window.blp:358 src/window.rs:547 src/window.rs:573
 msgid "_Cancel"
-msgstr ""
+msgstr "_Cancella"
 
 #: data/resources/blueprints/window.blp:384
 msgid "New Window"
-msgstr ""
+msgstr "Nuova finestra"
 
 #: data/resources/blueprints/window.blp:391
 msgid "Keyboard Shortcuts"
-msgstr ""
+msgstr "Scorciatoie da tastiera"
 
 #: data/resources/blueprints/window.blp:396
 msgid "About Footage"
-msgstr ""
+msgstr "Informazioni su Footage"
 
 #: data/resources/blueprints/timeline.blp:18
 msgid "Left trimming handle"
-msgstr ""
+msgstr "Maniglia di accorciamento sinistra"
 
 #: data/resources/blueprints/timeline.blp:52
 msgid "Right trimming handle"
-msgstr ""
+msgstr "Maniglia di accorciamento destra"
 
 #: src/window.rs:270
 msgid "Enable Audio"
-msgstr ""
+msgstr "Abilita l'audio"
 
 #: src/window.rs:438
 msgid "Pause"
-msgstr ""
+msgstr "Pausa"
 
 #: src/window.rs:441
 msgid "Play"
-msgstr ""
+msgstr "Riproduci"
 
 #: src/window.rs:543 src/window.rs:568
 msgid "Stop rendering?"
-msgstr ""
+msgstr "Interrompere la renderizzazione?"
 
 #: src/window.rs:544 src/window.rs:569
 msgid "You will lose all progress."
-msgstr ""
+msgstr "Perderai tutti i progressi."
 
 #: src/window.rs:548 src/window.rs:573
 msgid "_Stop"
-msgstr ""
+msgstr "_Ferma"
 
 #: src/window.rs:595
 msgid "Video Files"
-msgstr ""
+msgstr "File video"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
 #: src/window.rs:815
 msgid "translator-credits"
-msgstr ""
+msgstr "Albano Battistella, Alessandro Carion"
 
 #: src/profiles.rs:78
 msgid "Recommended (WEBM, AV1, Opus)"
-msgstr ""
+msgstr "Consigliato (WEBM, AV1, Opus)"
 
 #: src/profiles.rs:79
 msgid "Keep as-is"
-msgstr ""
+msgstr "Mantieni così com'è"
+
+#~ msgid "Open File…"
+#~ msgstr "Apri file…"
+
+#~ msgid ""
+#~ "This minor release introduces a fix for X11 and additional translation "
+#~ "support."
+#~ msgstr ""
+#~ "Questa versione minore introduce una correzione per X11 e un supporto di "
+#~ "traduzione aggiuntivo."
+
+#~ msgid ""
+#~ "This minor release introduces a couple of bug fixes and enhances keyboard "
+#~ "accessibility."
+#~ msgstr ""
+#~ "Questa versione minore introduce un paio di correzioni di bug e migliora "
+#~ "la tastiera per l'accessibilità."
+
+#~ msgid "Initial version."
+#~ msgstr "Versione iniziale."
+
+#~ msgid "Primary Menu"
+#~ msgstr "Menu principale"

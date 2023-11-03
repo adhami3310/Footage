@@ -1,7 +1,7 @@
 {
     "id": "io.gitlab.adhami3310.Footage",
     "runtime": "org.gnome.Platform",
-    "runtime-version": "44",
+    "runtime-version": "45",
     "sdk": "org.gnome.Sdk",
     "sdk-extensions": [
         "org.freedesktop.Sdk.Extension.rust-stable"
@@ -32,6 +32,7 @@
     "cleanup": [
         "/include",
         "/lib/*.a",
+        "/lib/gstreamer-1.0/*.a",
         "/lib/*.la",
         "/lib/gstreamer-1.0/include",
         "/lib/pkgconfig",
@@ -48,16 +49,21 @@
                 {
                     "type": "git",
                     "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler.git",
-                    "tag": "v0.8.1",
-                    "commit": "aa7679618e864748f4f4d8f15283906e712752fe"
+                    "tag": "v0.10.0",
+                    "commit": "2a39a16391122af2f3d812e478c1c1398c98b972"
                 }
             ]
         },
         {
             "name": "liba52",
-            "config-opts": [ "--enable-shared", "--disable-static" ],
+            "config-opts": [
+                "--enable-shared",
+                "--disable-static"
+            ],
             "rm-configure": true,
-            "cleanup": [ "/bin/*a52*" ],
+            "cleanup": [
+                "/bin/*a52*"
+            ],
             "sources": [
                 {
                     "type": "archive",
@@ -81,19 +87,24 @@
                     "path": "patches/liba52-prefer-pic.patch"
                 },
                 {
-                    "type":"script",
-                    "commands":[
+                    "type": "script",
+                    "commands": [
                         "autoreconf -fiv"
                     ],
-                    "dest-filename":"autogen.sh"
+                    "dest-filename": "autogen.sh"
                 }
             ]
         },
         {
             "name": "libmpeg2",
-            "config-opts": [ "--enable-shared", "--disable-static" ],
+            "config-opts": [
+                "--enable-shared",
+                "--disable-static"
+            ],
             "rm-configure": true,
-            "cleanup": [ "/bin/*mpeg2*" ],
+            "cleanup": [
+                "/bin/*mpeg2*"
+            ],
             "sources": [
                 {
                     "type": "archive",
@@ -105,14 +116,14 @@
                     "path": "patches/libmpeg2-inline.patch"
                 },
                 {
-                    "type":"script",
-                    "commands":[
+                    "type": "script",
+                    "commands": [
                         "autoreconf -fiv"
                     ],
-                    "dest-filename":"autogen.sh"
+                    "dest-filename": "autogen.sh"
                 }
             ]
-        },        
+        },
         {
             "name": "x265",
             "buildsystem": "cmake-ninja",
@@ -195,7 +206,8 @@
                 {
                     "type": "git",
                     "url": "https://gitlab.com/AOMediaCodec/SVT-AV1",
-                    "commit": "ea296ef350714fb6f105b420fb0bc321d9997ffd"
+                    "tag": "v1.7.0",
+                    "commit": "6d5f2b4e1f04db677cdd4ab2b0d6831ab06a849c"
                 }
             ]
         },
@@ -209,8 +221,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/master/SVT-AV1-master.tar.gz?path=gstreamer-plugin",
-                    "sha256": "19a9f37baec61b805964a42e0123cd09838a27875f439d0336418fb1dbe7f524"
+                    "url": "https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v1.7.0/SVT-AV1-v1.7.0.tar.gz?path=gstreamer-plugin",
+                    "sha256": "234578efe62bd19d389472e62255d339ccd5d026a891e76d48fbcfd3adde399a"
                 }
             ]
         },
@@ -233,15 +245,16 @@
             "sources": [
                 {
                     "type": "git",
-                    "tag": "1.22.3",
+                    "tag": "1.22.6",
                     "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
-                    "commit": "ecd471f5ea4645102b206a43d863f0f0fe7d04ec",
+                    "commit": "ddb4fbe43149b157efb52b6472313f48308c1dbc",
                     "disable-submodules": false
                 },
                 {
                     "type": "git",
                     "url": "https://gitlab.freedesktop.org/gstreamer/orc.git",
-                    "commit": "887392103956a8733a750c4442e2664d5c26527d",
+                    "tag": "0.4.34",
+                    "commit": "7d5bbada3f1c6cf34182abccf47a34d79b83fa97",
                     "dest": "subprojects/orc"
                 }
             ]

@@ -25,9 +25,7 @@ pub fn get_width_height(path: String) -> Option<(usize, usize, Option<i32>)> {
 }
 
 pub fn get_debug_info() {
-    let o = Command::new("gst-inspect-1.0")
-        .output()
-        .unwrap();
+    let o = Command::new("gst-inspect-1.0").output().unwrap();
 
     let s = std::str::from_utf8(&o.stdout).unwrap();
 

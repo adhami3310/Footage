@@ -8,9 +8,8 @@ template $AppWindow : Adw.ApplicationWindow {
   height-request: 300;
   title: _("Footage");
 
-  Box {
-    orientation: vertical;
-
+  Adw.ToolbarView {
+    [top]
     Adw.HeaderBar headerbar {
       Button back_edit {
         icon-name: 'go-previous-symbolic';
@@ -24,14 +23,14 @@ template $AppWindow : Adw.ApplicationWindow {
       MenuButton {
         icon-name: "open-menu-symbolic";
         menu-model: primary_menu;
-        tooltip-text: _("Primary Menu");
+        tooltip-text: _("Main Menu");
         primary: true;
       }
 
       styles ["flat"]
     }
 
-
+    content:
     Stack stack {
       transition-type: crossfade;
 
@@ -52,7 +51,7 @@ template $AppWindow : Adw.ApplicationWindow {
             Button open_video_button {
               valign: center;
               halign: center;
-              label: _("Open File…");
+              label: _("Open Video…");
               action-name: "win.open";
               use-underline: true;
 
@@ -91,7 +90,16 @@ template $AppWindow : Adw.ApplicationWindow {
           Adw.PreferencesGroup {
             $VideoPreview video_preview {}
           }
-
+          Adw.PreferencesGroup {
+            Box {
+              spacing: 12;
+              Button play_pause {
+                icon-name: 'play-symbolic';
+                tooltip-text: 'Play';
+              }
+              $Timeline timeline {}
+            }
+          }
           Adw.PreferencesGroup {
             Box {
               halign: center;
@@ -99,28 +107,33 @@ template $AppWindow : Adw.ApplicationWindow {
               Button rotate_left_button {
                 halign: center;
                 icon-name: 'object-rotate-left-symbolic';
+                tooltip-text: _("Rotate Left");
               }
               Button rotate_right_button {
                 halign: center;
                 icon-name: 'object-rotate-right-symbolic';
+                tooltip-text: _("Rotate Right");
               }
               Button horizontal_flip_button {
                 halign: center;
                 icon-name: 'horizontal-flip-symbolic';
+                tooltip-text: _("Flip Horizontally");
               }
               Button vertical_flip_button {
                 halign: center;
                 icon-name: 'vertical-flip-symbolic';
+                tooltip-text: _("Flip Vertically");
               }
               ToggleButton audio_button {
                 halign: center;
                 icon-name: 'audio-volume-high-symbolic';
+                tooltip-text: _("Disable Audio");
               }
             }
           }
 
           Adw.PreferencesGroup {
-            $AdwActionRow resize_amount_row {
+            Adw.ActionRow resize_amount_row {
               title: _("Resize");
               Box {
                 spacing: 5;
@@ -165,7 +178,7 @@ template $AppWindow : Adw.ApplicationWindow {
                   hexpand: false;
                 }
               }
-              $AdwBin {
+              Adw.Bin {
                 Box {
                   DropDown resize_type {
                     valign: center;
@@ -230,6 +243,7 @@ template $AppWindow : Adw.ApplicationWindow {
             }
           }
         }
+
         ;
       }
 
@@ -261,7 +275,7 @@ template $AppWindow : Adw.ApplicationWindow {
             Button open_result {
               valign: center;
               halign: center;
-              label: _("Open Video");
+              label: _("View Result");
               use-underline: true;
               width-request: 175;
 
@@ -323,7 +337,7 @@ template $AppWindow : Adw.ApplicationWindow {
       StackPage {
         name: "exporting";
         child:
-        $AdwStatusPage exporting_page {
+        Adw.StatusPage exporting_page {
           title: _("Rendering…");
           icon-name: "camera-video-symbolic";
           description: _("This may take a while");
@@ -354,13 +368,15 @@ template $AppWindow : Adw.ApplicationWindow {
         ;
       }
     }
+
+    ;
   }
 }
 
 menu primary_menu {
   section {
     item {
-      label: _("Open File…");
+      label: _("Open Video…");
       action: "win.open";
     }
 

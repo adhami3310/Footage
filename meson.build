@@ -1,6 +1,6 @@
 project('footage',
   'rust',
-  version: '1.1',
+  version: '1.3',
   meson_version: '>= 0.59.0',
   license: 'GPLv3',
 )
@@ -16,7 +16,6 @@ dependency('libadwaita-1')
 glib_compile_resources = find_program('glib-compile-resources', required: true)
 glib_compile_schemas = find_program('glib-compile-schemas', required: true)
 desktop_file_validate = find_program('desktop-file-validate', required: false)
-appstream_util = find_program('appstream-util', required: false)
 cargo = find_program('cargo', required: true)
 
 version = meson.project_version()
@@ -48,8 +47,8 @@ endif
 
 meson.add_dist_script(
   'build-aux/dist-vendor.sh',
-  meson.project_source_root(),
-  meson.project_build_root() / 'meson-dist' / '@0@-@1@'.format(meson.project_name(), meson.project_version()),
+  meson.project_build_root() / 'meson-dist' / meson.project_name() + '-' + version,
+  meson.project_source_root()
 )
 
 subdir('data')

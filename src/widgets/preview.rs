@@ -7,7 +7,7 @@ use std::{
 use glib::clone;
 use gst::{ClockTime, PadProbeData, PadProbeType, SeekFlags};
 use gstreamer_pbutils::Discoverer;
-use gtk::{gdk, gio, glib, subclass::prelude::*, traits::ButtonExt};
+use gtk::{gdk, gio, glib, subclass::prelude::*};
 
 use ges::prelude::*;
 use ges::Effect;
@@ -20,19 +20,15 @@ use crate::{
 
 mod imp {
 
-    // use crate::widgets::timeline::Timeline;
-
     use std::cell::Cell;
 
-    use crate::{
-        orientation::VideoOrientation,
-        widgets::{crop::Crop, timeline::Timeline},
-    };
+    use crate::{orientation::VideoOrientation, widgets::crop::Crop};
 
     use super::*;
 
     use adw::subclass::prelude::BinImpl;
     use glib::subclass::Signal;
+    use gst::bus::BusWatchGuard;
     use gtk::CompositeTemplate;
 
     #[derive(Debug, CompositeTemplate, Default)]
@@ -40,10 +36,6 @@ mod imp {
     pub struct VideoPreview {
         #[template_child]
         pub paint: TemplateChild<gtk::Picture>,
-        #[template_child]
-        pub play_pause: TemplateChild<gtk::Button>,
-        #[template_child]
-        pub timeline: TemplateChild<Timeline>,
         #[template_child]
         pub crop_box: TemplateChild<Crop>,
 
@@ -57,7 +49,8 @@ mod imp {
         pub pipeline: RefCell<Option<ges::Pipeline>>,
         pub clip: RefCell<Option<ges::UriClip>>,
         pub path: RefCell<PathBuf>,
-        pub bus_watch: RefCell<Option<glib::SourceId>>,
+        pub ended: Cell<bool>,
+        pub bus_watch: RefCell<Option<BusWatchGuard>>,
     }
 
     #[glib::object_subclass]
@@ -80,58 +73,22 @@ mod imp {
     }
 
     impl ObjectImpl for VideoPreview {
-        fn constructed(&self) {
-            self.play_pause
-                .connect_clicked(clone!(@weak self as this => move |b| {
-                    if b.icon_name().unwrap() == "play-symbolic" {
-                        this.obj().play();
-                    } else {
-                        this.obj().pause();
-                    }
-                }));
-
-            self.timeline.connect_local(
-                "set-range",
-                true,
-                clone!(@weak self as this => @default-return None, move |values| {
-                    let values = values.to_vec();
-                    let start: u64 = values.get(1).unwrap().get().expect("Expected a U64");
-                    let end: u64 = values.get(2).unwrap().get().expect("Expected a U64");
-                    if this.inpoint.get() != start || this.outpoint.get() != end {
-                        this.obj().set_range(start, end);
-                    }
-                    None
-                }),
-            );
-
-            self.timeline.connect_local(
-                "moving",
-                true,
-                clone!(@weak self as this => @default-return None, move |_| {
-                    this.obj().pause();
-                    None
-                }),
-            );
-
-            self.timeline.connect_local(
-                "set-position",
-                true,
-                clone!(@weak self as this => @default-return None, move |values| {
-                    let position: u64 = values[1].get().expect("Expected a U64");
-
-                    this.obj().seek(position);
-
-                    None
-                }),
-            );
-        }
+        fn constructed(&self) {}
 
         fn signals() -> &'static [Signal] {
             use once_cell::sync::Lazy;
-            static SIGNALS: Lazy<[Signal; 1]> = Lazy::new(|| {
-                [Signal::builder("orientation-flipped")
-                    .param_types(std::iter::empty::<glib::Type>())
-                    .build()]
+            static SIGNALS: Lazy<[Signal; 3]> = Lazy::new(|| {
+                [
+                    Signal::builder("orientation-flipped")
+                        .param_types(std::iter::empty::<glib::Type>())
+                        .build(),
+                    Signal::builder("set-position")
+                        .param_types([glib::Type::U64])
+                        .build(),
+                    Signal::builder("mode-changed")
+                        .param_types([glib::Type::BOOL])
+                        .build(),
+                ]
             });
 
             SIGNALS.as_ref()
@@ -163,7 +120,7 @@ impl VideoPreview {
         bin
     }
 
-    pub fn load_path(&self, path: PathBuf) -> Result<(usize, usize, Option<i32>), ()> {
+    pub fn load_path(&self, path: PathBuf) -> Result<(usize, usize, u64, Option<i32>), ()> {
         gst::init().unwrap();
         ges::init().unwrap();
 
@@ -172,9 +129,7 @@ impl VideoPreview {
         let duration = clip.duration().mseconds();
         self.imp().clip.replace(Some(clip));
 
-        self.imp().timeline.set_duration(duration);
         self.imp().outpoint.set(duration);
-        self.imp().timeline.set_range(Some((0, duration)));
 
         let (width, height, framerate) =
             get_width_height(path.to_str().unwrap().to_owned()).ok_or(())?;
@@ -188,22 +143,27 @@ impl VideoPreview {
 
         self.refresh_ui();
 
-        Ok((width, height, framerate))
+        Ok((width, height, duration, framerate))
     }
 
-    fn seek(&self, position: u64) {
+    pub fn seek(&self, position: u64) {
+        self.pause();
+
+        self.quiet_seek(position);
+    }
+
+    pub fn quiet_seek(&self, position: u64) {
+        if position == self.imp().outpoint.get() {
+            self.imp().ended.set(true);
+        }
+
         let position = position.max(self.imp().inpoint.get()) - self.imp().inpoint.get();
 
         let op = self.imp().pipeline.borrow();
 
-        self.pause();
-
         if let Some(p) = op.as_ref() {
-            p.seek_simple(
-                SeekFlags::ACCURATE | SeekFlags::FLUSH,
-                ClockTime::from_mseconds(position),
-            )
-            .ok();
+            p.seek_simple(SeekFlags::empty(), ClockTime::from_mseconds(position))
+                .ok();
         }
     }
 
@@ -214,7 +174,7 @@ impl VideoPreview {
         if let Some(t) = timeline.tracks().first() {
             t.set_restriction_caps(
                 &gst::Caps::builder("video/x-raw")
-                    .field("framerate", gst::Fraction::new(30 as i32, 1))
+                    .field("framerate", gst::Fraction::new(30, 1))
                     .build(),
             );
         }
@@ -245,9 +205,9 @@ impl VideoPreview {
         sink.add(&gtksink).unwrap();
         convert.link(&gtksink).unwrap();
 
-        let pad = &gst::GhostPad::with_target(None, &convert.static_pad("sink").unwrap()).unwrap();
+        let pad = &gst::GhostPad::with_target(&convert.static_pad("sink").unwrap()).unwrap();
 
-        let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_HIGH);
+        let (sender, receiver) = glib::MainContext::channel(glib::Priority::HIGH);
 
         pad.add_probe(PadProbeType::DATA_DOWNSTREAM, move |_, info| {
             if let Some(PadProbeData::Buffer(data)) = &info.data {
@@ -260,11 +220,11 @@ impl VideoPreview {
 
         receiver.attach(
             None,
-            clone!(@weak self as this => @default-return Continue(true), move |p| {
+            clone!(@weak self as this => @default-return glib::ControlFlow::Break, move |p| {
                 if this.is_playing() {
-                    this.imp().timeline.set_position(p + this.imp().inpoint.get());
+                    this.emit_by_name::<()>("set-position", &[&(p + this.imp().inpoint.get())]);
                 }
-                Continue(true)
+                glib::ControlFlow::Continue
             }),
         );
 
@@ -280,14 +240,15 @@ impl VideoPreview {
 
         let bus_watch = bus
             .add_watch_local(
-                clone!(@weak self as this => @default-return glib::Continue(false), move |_, msg| {
+                clone!(@weak self as this => @default-return glib::ControlFlow::Break, move |_, msg| {
                     use gst::MessageView;
 
                     match msg.view() {
                         MessageView::Eos(..) => {
                             this.pause();
-                            this.imp().timeline.set_position(this.imp().inpoint.get());
-                            this.seek(0);
+                            this.imp().ended.set(true);
+                            // this.emit_by_name::<()>("set-position", &[&this.imp().inpoint.get()]);
+                            // this.seek(0);
                         }
                         MessageView::Error(err) => {
                             println!(
@@ -300,7 +261,7 @@ impl VideoPreview {
                         _ => (),
                     };
 
-                    glib::Continue(true)
+                    glib::ControlFlow::Continue
                 }),
             )
             .expect("Failed to add bus watch");
@@ -314,12 +275,13 @@ impl VideoPreview {
     //     self.imp().timeline.set_position(position);
     // }
 
-    fn pause(&self) {
+    pub fn pause(&self) {
         let orig_p = self.imp().pipeline.borrow();
         let p = orig_p.as_ref().unwrap();
 
         p.set_state(gst::State::Paused).unwrap();
-        self.imp().play_pause.set_icon_name("play-symbolic");
+        self.emit_by_name::<()>("mode-changed", &[&false]);
+        // self.imp().play_pause.set_icon_name("play-symbolic");
     }
 
     fn is_playing(&self) -> bool {
@@ -329,15 +291,21 @@ impl VideoPreview {
         matches!(p.current_state(), gst::State::Playing)
     }
 
-    fn play(&self) {
+    pub fn play(&self) {
         let orig_p = self.imp().pipeline.borrow();
         let p = orig_p.as_ref().unwrap();
 
+        if self.imp().ended.get() {
+            self.imp().ended.set(false);
+            self.quiet_seek(0);
+        }
+
         p.set_state(gst::State::Playing).unwrap();
-        self.imp().play_pause.set_icon_name("pause-symbolic");
+        self.emit_by_name::<()>("mode-changed", &[&true]);
+        // self.imp().play_pause.set_icon_name("pause-symbolic");
     }
 
-    fn set_range(&self, start: u64, end: u64) {
+    pub fn set_range(&self, start: u64, end: u64) {
         let original_clip = self.imp().clip.borrow();
         let clip = original_clip.as_ref();
         if let Some(clip) = clip {
@@ -357,7 +325,6 @@ impl VideoPreview {
             clip.add_top_effect(effect, 0).unwrap();
         }
         self.commit();
-        dbg!(self.imp().orientation.get());
     }
 
     fn commit(&self) {
@@ -506,10 +473,6 @@ impl VideoPreview {
         let full_scaled_height =
             height as f64 * (scaled_height as f64 / (height as f64 * (1. - top - bottom)));
 
-        dbg!(width, height);
-        dbg!(scaled_width, scaled_height);
-        dbg!(full_scaled_width, full_scaled_height);
-
         let mut effects = self.imp().effects.borrow().to_owned();
 
         if self.imp().mute.get() {
@@ -614,20 +577,59 @@ impl VideoPreview {
                     )
                     .unwrap();
             } else if container == ContainerFormat::Same {
-                pipeline
-                    .set_render_settings(
-                        url::Url::from_file_path(output_path.clone())
-                            .unwrap()
-                            .as_str(),
-                        &gstreamer_pbutils::EncodingProfile::from_discoverer(
-                            &Discoverer::new(gst::ClockTime::SECOND)
+                let profile = gstreamer_pbutils::EncodingProfile::from_discoverer(
+                    &Discoverer::new(gst::ClockTime::SECOND)
+                        .unwrap()
+                        .discover_uri(
+                            url::Url::from_file_path(input_path.clone())
                                 .unwrap()
-                                .discover_uri(
-                                    url::Url::from_file_path(input_path).unwrap().as_str(),
-                                )
-                                .unwrap(),
+                                .as_str(),
                         )
                         .unwrap(),
+                )
+                .unwrap();
+
+                let (video_caps, audio_caps): (Vec<_>, Vec<_>) = profile
+                    .input_caps()
+                    .iter()
+                    .map(|ic| {
+                        let mut ic = ic.to_owned();
+                        ic.remove_fields(["width", "height", "framerate"]);
+
+                        let mut caps = gst::Caps::builder(ic.name());
+
+                        for (name, value) in ic.into_iter() {
+                            caps = caps.field(name, value.clone());
+                        }
+
+                        caps.build()
+                    })
+                    .partition(|c| c.to_string().starts_with("video"));
+
+                let profile_format = profile.format();
+
+                let mut container_profile =
+                    gstreamer_pbutils::EncodingContainerProfile::builder(&profile_format)
+                        .name("container");
+
+                if let Some(video_cap) = video_caps.first() {
+                    let video_profile =
+                        gstreamer_pbutils::EncodingVideoProfile::builder(video_cap).build();
+
+                    container_profile = container_profile.add_profile(video_profile);
+                }
+
+                if let Some(audio_cap) = audio_caps.first() {
+                    let audio_profile =
+                        gstreamer_pbutils::EncodingAudioProfile::builder(audio_cap).build();
+
+                    container_profile = container_profile.add_profile(audio_profile);
+                }
+
+                pipeline
+                    .set_render_settings(
+                        url::Url::from_file_path(output_path).unwrap().as_str(),
+                        &container_profile.build(),
                     )
                     .unwrap();
             } else {
