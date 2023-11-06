@@ -25,3 +25,5 @@ url = "2.3.1"
 gstreamer-video = { version = "0.21.0", features = ["v1_22"] }
 ordered-float = "4.0.0"
 gstreamer-pbutils = { version = "0.21.0", features = ["v1_22"] }
+fraction = "0.14.0"
+derivative = "2.2.0"

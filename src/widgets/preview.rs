@@ -13,9 +13,9 @@ use ges::prelude::*;
 use ges::Effect;
 
 use crate::{
-    info::get_width_height,
+    info::{get_width_height, Dimensions, Framerate},
     orientation::VideoOrientation,
-    profiles::{AudioEncoding, ContainerFormat, VideoEncoding},
+    profiles::{ContainerFormat, OutputFormat},
 };
 
 mod imp {
@@ -31,7 +31,7 @@ mod imp {
     use gst::bus::BusWatchGuard;
     use gtk::CompositeTemplate;
 
-    #[derive(Debug, CompositeTemplate, Default)]
+    #[derive(CompositeTemplate, Default)]
     #[template(resource = "/io/gitlab/adhami3310/Footage/blueprints/video-preview.ui")]
     pub struct VideoPreview {
         #[template_child]
@@ -39,7 +39,7 @@ mod imp {
         #[template_child]
         pub crop_box: TemplateChild<Crop>,
 
-        pub current_dimensions: Cell<Option<(usize, usize)>>,
+        pub current_dimensions: Cell<Option<Dimensions<u32>>>,
         pub orientation: Cell<VideoOrientation>,
         pub audio_level: RefCell<Option<Effect>>,
         pub inpoint: Cell<u64>,
@@ -120,7 +120,10 @@ impl VideoPreview {
         bin
     }
 
-    pub fn load_path(&self, path: PathBuf) -> Result<(usize, usize, u64, Option<i32>), ()> {
+    pub fn load_path(
+        &self,
+        path: PathBuf,
+    ) -> Result<(Dimensions<u32>, u64, Option<Framerate>), ()> {
         gst::init().unwrap();
         ges::init().unwrap();
 
@@ -131,9 +134,9 @@ impl VideoPreview {
 
         self.imp().outpoint.set(duration);
 
-        let (width, height, framerate) =
+        let (dimensions, framerate) =
             get_width_height(path.to_str().unwrap().to_owned()).ok_or(())?;
-        self.imp().current_dimensions.set(Some((width, height)));
+        self.imp().current_dimensions.set(Some(dimensions));
 
         self.imp().path.replace(path);
         self.imp().effects.replace(vec![]);
@@ -143,7 +146,7 @@ impl VideoPreview {
 
         self.refresh_ui();
 
-        Ok((width, height, duration, framerate))
+        Ok((dimensions, duration, framerate))
     }
 
     pub fn seek(&self, position: u64) {
@@ -356,8 +359,8 @@ impl VideoPreview {
         self.imp()
             .crop_box
             .set_proportions(self.imp().crop_box.rotate_right_proportions());
-        let (width, height) = self.imp().current_dimensions.get().unwrap();
-        self.imp().current_dimensions.set(Some((height, width)));
+        let dimensions = self.imp().current_dimensions.get().unwrap();
+        self.imp().current_dimensions.set(Some(dimensions.swap()));
     }
 
     pub fn rotate_left(&self) {
@@ -374,8 +377,8 @@ impl VideoPreview {
             .crop_box
             .set_proportions(self.imp().crop_box.rotate_left_proportions());
 
-        let (width, height) = self.imp().current_dimensions.get().unwrap();
-        self.imp().current_dimensions.set(Some((height, width)));
+        let dimensions = self.imp().current_dimensions.get().unwrap();
+        self.imp().current_dimensions.set(Some(dimensions.swap()));
     }
 
     pub fn horizontal_flip(&self) {
@@ -446,12 +449,9 @@ impl VideoPreview {
         &self,
         output_path: PathBuf,
         sender: glib::Sender<Result<f64, ()>>,
-        container: ContainerFormat,
-        video_encoding: Option<VideoEncoding>,
-        audio_encoding: Option<AudioEncoding>,
-        framerate: f64,
-        scaled_width: usize,
-        scaled_height: usize,
+        output_format: OutputFormat,
+        framerate: Framerate,
+        scaled_dimension: Dimensions<u32>,
         running_flag: Arc<AtomicBool>,
     ) {
         self.kill();
@@ -459,25 +459,29 @@ impl VideoPreview {
         let input_path = self.imp().path.borrow().to_owned();
         let orientation = self.imp().orientation.get();
 
-        let (width, height, _) = get_width_height(input_path.to_str().unwrap().to_owned()).unwrap();
+        let (dimensions, _) = get_width_height(input_path.to_str().unwrap().to_owned()).unwrap();
 
-        let (width, height) = match orientation.is_width_height_swapped() {
-            false => (width, height),
-            true => (height, width),
+        let dimensions: Dimensions<f64> = dimensions.into();
+
+        let dimensions = match orientation.is_width_height_swapped() {
+            false => dimensions,
+            true => dimensions.swap(),
         };
 
         let (top, right, bottom, left) = self.imp().crop_box.proportions();
 
-        let full_scaled_width =
-            width as f64 * (scaled_width as f64 / (width as f64 * (1. - right - left)));
-        let full_scaled_height =
-            height as f64 * (scaled_height as f64 / (height as f64 * (1. - top - bottom)));
+        let full_scaled_width = dimensions.width
+            * (scaled_dimension.width_f64() / (dimensions.width * (1. - right - left)));
+        let full_scaled_height = dimensions.height
+            * (scaled_dimension.height_f64() / (dimensions.height * (1. - top - bottom)));
 
-        let mut effects = self.imp().effects.borrow().to_owned();
+        // let mut effects = self.imp().effects.borrow().to_owned();
 
-        if self.imp().mute.get() {
-            effects.push("volume volume=0".to_owned());
-        }
+        let mute = self.imp().mute.get();
+
+        // if self.imp().mute.get() {
+        //     effects.push("volume volume=0".to_owned());
+        // }
 
         let inpoint = self.imp().clip.borrow().as_ref().unwrap().inpoint();
         let duration = self.imp().clip.borrow().as_ref().unwrap().duration();
@@ -498,9 +502,15 @@ impl VideoPreview {
             if let Some(t) = timeline.tracks().first() {
                 t.set_restriction_caps(
                     &gst::Caps::builder("video/x-raw")
-                        .field("framerate", gst::Fraction::new(framerate as i32, 1))
-                        .field("width", scaled_width as i32)
-                        .field("height", scaled_height as i32)
+                        .field(
+                            "framerate",
+                            gst::Fraction::new(
+                                framerate.nominator as i32,
+                                framerate.denominator as i32,
+                            ),
+                        )
+                        .field("width", scaled_dimension.height as i32)
+                        .field("height", scaled_dimension.width as i32)
                         .build(),
                 );
                 t.elements().into_iter().for_each(|te| {
@@ -559,24 +569,30 @@ impl VideoPreview {
             clip.add_top_effect(&ges::Effect::new("videorate").unwrap(), 0)
                 .ok();
 
+            if mute {
+                clip.add_top_effect(&ges::Effect::new("volume volume=0").unwrap(), 0)
+                    .ok();
+            }
+
             clip.set_inpoint(inpoint);
             clip.set_duration(Some(duration));
 
             let pipeline = ges::Pipeline::new();
             pipeline.set_timeline(&timeline).unwrap();
 
-            if container == ContainerFormat::GifContainer {
+            if output_format.container_format == ContainerFormat::GifContainer {
                 pipeline
                     .set_render_settings(
                         url::Url::from_file_path(output_path).unwrap().as_str(),
                         &gstreamer_pbutils::EncodingVideoProfile::builder(
-                            &gst::Caps::builder(video_encoding.unwrap().get_format()).build(),
+                            &gst::Caps::builder(output_format.video_encoding.unwrap().get_format())
+                                .build(),
                         )
-                        .preset_name(video_encoding.unwrap().get_preset_name())
+                        .preset_name(output_format.video_encoding.unwrap().get_preset_name())
                         .build(),
                     )
                     .unwrap();
-            } else if container == ContainerFormat::Same {
+            } else if output_format.container_format == ContainerFormat::Same {
                 let profile = gstreamer_pbutils::EncodingProfile::from_discoverer(
                     &Discoverer::new(gst::ClockTime::SECOND)
                         .unwrap()
@@ -634,18 +650,18 @@ impl VideoPreview {
                     .unwrap();
             } else {
                 let video_profile = gstreamer_pbutils::EncodingVideoProfile::builder(
-                    &gst::Caps::builder(video_encoding.unwrap().get_format()).build(),
+                    &gst::Caps::builder(output_format.video_encoding.unwrap().get_format()).build(),
                 )
-                .preset_name(video_encoding.unwrap().get_preset_name())
+                .preset_name(output_format.video_encoding.unwrap().get_preset_name())
                 .build();
 
                 let audio_profile = gstreamer_pbutils::EncodingAudioProfile::builder(
-                    &gst::Caps::builder(audio_encoding.unwrap().get_format()).build(),
+                    &gst::Caps::builder(output_format.audio_encoding.unwrap().get_format()).build(),
                 )
                 .build();
 
                 let container_profile = gstreamer_pbutils::EncodingContainerProfile::builder(
-                    &gst::Caps::builder(container.format()).build(),
+                    &gst::Caps::builder(output_format.container_format.format()).build(),
                 )
                 .name("container")
                 .add_profile(video_profile)

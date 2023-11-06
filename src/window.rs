@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use adw::prelude::*;
+use fraction::Fraction;
 use gettextrs::gettext;
 use glib::clone;
 use gtk::{gio, glib, subclass::prelude::*};
@@ -8,7 +9,8 @@ use itertools::Itertools;
 
 use crate::{
     config::{APP_ID, VERSION},
-    profiles::{AudioEncoding, ContainerFormat, VideoEncoding},
+    info::{Dimensions, Framerate},
+    profiles::{AudioEncoding, ContainerFormat, OutputFormat, VideoEncoding},
     spawn, Listable,
 };
 
@@ -27,9 +29,11 @@ mod imp {
     use super::*;
 
     use adw::subclass::prelude::AdwApplicationWindowImpl;
+    use derivative::Derivative;
     use gtk::CompositeTemplate;
 
-    #[derive(Debug, CompositeTemplate)]
+    #[derive(CompositeTemplate, Derivative)]
+    #[derivative(Default)]
     #[template(resource = "/io/gitlab/adhami3310/Footage/blueprints/window.ui")]
     pub struct AppWindow {
         #[template_child]
@@ -90,13 +94,12 @@ mod imp {
         pub play_pause: TemplateChild<gtk::Button>,
 
         pub running_flag: Arc<AtomicBool>,
-        pub video_width: Cell<Option<usize>>,
-        pub video_height: Cell<Option<usize>>,
-        pub selected_video_width: Cell<Option<usize>>,
-        pub selected_video_height: Cell<Option<usize>>,
+        pub video_dimensions: Cell<Option<Dimensions<u32>>>,
+        pub selected_video_dimensions: Cell<Option<Dimensions<u32>>>,
         pub selected_video_path: RefCell<Option<PathBuf>>,
         pub result_video_path: RefCell<Option<PathBuf>>,
         pub provider: gtk::CssProvider,
+        #[derivative(Default(value = "gio::Settings::new(APP_ID)"))]
         pub settings: gio::Settings,
     }
 
@@ -115,46 +118,7 @@ mod imp {
         }
 
         fn new() -> Self {
-            Self {
-                video_preview: TemplateChild::default(),
-                rotate_left_button: TemplateChild::default(),
-                rotate_right_button: TemplateChild::default(),
-                horizontal_flip_button: TemplateChild::default(),
-                vertical_flip_button: TemplateChild::default(),
-                audio_button: TemplateChild::default(),
-                save_button: TemplateChild::default(),
-                stack: TemplateChild::default(),
-                spinner: TemplateChild::default(),
-                progress_bar: TemplateChild::default(),
-                try_again_button: TemplateChild::default(),
-                done_button: TemplateChild::default(),
-                back_edit: TemplateChild::default(),
-                open_result: TemplateChild::default(),
-                container_row: TemplateChild::default(),
-                video_encoding: TemplateChild::default(),
-                audio_encoding: TemplateChild::default(),
-                framerate_button: TemplateChild::default(),
-                // link_axis: TemplateChild::default(),
-                resize_type: TemplateChild::default(),
-                resize_scale_width_value: TemplateChild::default(),
-                resize_scale_height_value: TemplateChild::default(),
-                resize_width_value: TemplateChild::default(),
-                resize_height_value: TemplateChild::default(),
-                cancel_button: TemplateChild::default(),
-                success_status: TemplateChild::default(),
-                timeline: TemplateChild::default(),
-                play_pause: TemplateChild::default(),
-
-                running_flag: Arc::new(AtomicBool::new(false)),
-                video_width: Default::default(),
-                video_height: Default::default(),
-                selected_video_width: Default::default(),
-                selected_video_height: Default::default(),
-                selected_video_path: RefCell::new(None),
-                result_video_path: RefCell::new(None),
-                provider: gtk::CssProvider::new(),
-                settings: gio::Settings::new(APP_ID),
-            }
+            Self::default()
         }
     }
 
@@ -362,18 +326,14 @@ impl AppWindow {
             }));
 
         imp.video_preview.imp().crop_box.connect_local("crop-box-changed", true, clone!(@weak self as this => @default-return None, move |v| {
-            this.imp().video_height.get()?;
+            let (t,r,b,l): (f64, f64, f64, f64) = (v.get(1)?.get().ok()?, v.get(2)?.get().ok()?, v.get(3)?.get().ok()?, v.get(4)?.get().ok()?);
 
-            let t: f64 = v.get(1).unwrap().get().expect("Expected a F64");
-            let r: f64 = v.get(2).unwrap().get().expect("Expected a F64");
-            let b: f64 = v.get(3).unwrap().get().expect("Expected a F64");
-            let l: f64 = v.get(4).unwrap().get().expect("Expected a F64");
+            let video_dimensions = this.imp().video_dimensions.get().unwrap();
 
-            let selected_height = (this.imp().video_height.get().unwrap() as f64 * (1. - t - b)) as usize / 2 * 2;
-            let selected_width = (this.imp().video_width.get().unwrap() as f64 * (1. - l - r)) as usize / 2 * 2;
+            let selected_height = (video_dimensions.height_f64() * (1. - t - b)) as u32 / 2 * 2;
+            let selected_width = (video_dimensions.width_f64() as f64 * (1. - l - r)) as u32 / 2 * 2;
 
-            this.imp().selected_video_height.set(Some(selected_height));
-            this.imp().selected_video_width.set(Some(selected_width));
+            this.imp().selected_video_dimensions.set(Some(Dimensions { width: selected_width, height: selected_height }));
 
             this.imp().resize_height_value.set_text(&selected_height.to_string());
             this.imp().resize_width_value.set_text(&selected_width.to_string());
@@ -385,9 +345,9 @@ impl AppWindow {
             "orientation-flipped",
             true,
             clone!(@weak self as this => @default-return None, move |_| {
-                let (height, width) = (this.imp().video_height.get(), this.imp().video_width.get());
-                this.imp().video_width.set(height);
-                this.imp().video_height.set(width);
+                if let Some(video_dimensions) = this.imp().video_dimensions.get() {
+                    this.imp().video_dimensions.set(Some(video_dimensions.swap()));
+                }
                 None
             }),
         );
@@ -469,31 +429,24 @@ impl AppWindow {
 
     fn update_width_from_height(&self) {
         // if self.imp().link_axis.is_active() && self.imp().link_axis.is_visible() {
-        if let (Some(video_width), Some(video_height)) = (
-            self.imp().selected_video_width.get(),
-            self.imp().selected_video_height.get(),
-        ) {
+        if let Some(video_dimensions) = self.imp().selected_video_dimensions.get() {
             let old_value = self.imp().resize_width_value.text().as_str().to_owned();
             let other_text = self.imp().resize_height_value.text().as_str().to_owned();
             if other_text.is_empty() {
                 return;
             }
 
-            let other_way = generate_height_from_width(
-                old_value.parse().unwrap_or(0),
-                (video_width, video_height),
-            )
-            .to_string();
+            let other_way =
+                generate_height_from_width(old_value.parse().unwrap_or(0), video_dimensions)
+                    .to_string();
 
             if other_way == other_text {
                 return;
             }
 
-            let new_value = generate_width_from_height(
-                other_text.parse().unwrap_or(0),
-                (video_width, video_height),
-            )
-            .to_string();
+            let new_value =
+                generate_width_from_height(other_text.parse().unwrap_or(0), video_dimensions)
+                    .to_string();
 
             if old_value != new_value && new_value != "0" {
                 self.imp().resize_width_value.set_text(&new_value);
@@ -504,31 +457,22 @@ impl AppWindow {
 
     fn update_height_from_width(&self) {
         // if self.imp().link_axis.is_active() && self.imp().link_axis.is_visible() {
-        if let (Some(video_width), Some(video_height)) = (
-            self.imp().selected_video_width.get(),
-            self.imp().selected_video_height.get(),
-        ) {
+        if let Some(dimensions) = self.imp().selected_video_dimensions.get() {
             let old_value = self.imp().resize_height_value.text().as_str().to_owned();
             let other_text = self.imp().resize_width_value.text().as_str().to_owned();
             if other_text.is_empty() {
                 return;
             }
 
-            let other_way = generate_width_from_height(
-                old_value.parse().unwrap_or(0),
-                (video_width, video_height),
-            )
-            .to_string();
+            let other_way =
+                generate_width_from_height(old_value.parse().unwrap_or(0), dimensions).to_string();
 
             if other_way == other_text {
                 return;
             }
 
-            let new_value = generate_height_from_width(
-                other_text.parse().unwrap_or(0),
-                (video_width, video_height),
-            )
-            .to_string();
+            let new_value =
+                generate_height_from_width(other_text.parse().unwrap_or(0), dimensions).to_string();
 
             if old_value != new_value && new_value != "0" {
                 self.imp().resize_height_value.set_text(&new_value);
@@ -693,28 +637,24 @@ impl AppWindow {
 
         let (scaled_width, scaled_height) = match self.imp().resize_type.selected() {
             0 => {
-                let (sw, sh): (usize, usize) = (
+                let (sw, sh): (u32, u32) = (
                     self.imp().resize_scale_width_value.text().parse().unwrap(),
                     self.imp().resize_scale_height_value.text().parse().unwrap(),
                 );
-                let (bw, bh) = (
-                    self.imp().selected_video_width.get().unwrap(),
-                    self.imp().selected_video_height.get().unwrap(),
-                );
-                (bw * sw / 100 / 2 * 2, bh * sh / 100 / 2 * 2)
+
+                let selected_video_dimensions = self.imp().selected_video_dimensions.get().unwrap();
+
+                (
+                    selected_video_dimensions.width * sw / 100 / 2 * 2,
+                    selected_video_dimensions.height * sh / 100 / 2 * 2,
+                )
             }
             1 => (
-                self.imp()
-                    .resize_width_value
-                    .text()
-                    .parse::<usize>()
-                    .unwrap()
-                    / 2
-                    * 2,
+                self.imp().resize_width_value.text().parse::<u32>().unwrap() / 2 * 2,
                 self.imp()
                     .resize_height_value
                     .text()
-                    .parse::<usize>()
+                    .parse::<u32>()
                     .unwrap()
                     / 2
                     * 2,
@@ -731,12 +671,29 @@ impl AppWindow {
         self.imp().video_preview.save(
             path,
             sender,
-            self.selected_container(),
-            self.selected_video_encoding(),
-            self.selected_audio_encoding(),
-            self.imp().framerate_button.value(),
-            scaled_width,
-            scaled_height,
+            OutputFormat {
+                container_format: self.selected_container(),
+                video_encoding: self.selected_video_encoding(),
+                audio_encoding: self.selected_audio_encoding(),
+            },
+            {
+                let f = Fraction::from(self.imp().framerate_button.value());
+
+                match f {
+                    fraction::Fraction::Rational(_, r) => Framerate {
+                        nominator: *r.numer() as u32,
+                        denominator: *r.denom() as u32,
+                    },
+                    _ => Framerate {
+                        nominator: 30,
+                        denominator: 1,
+                    },
+                }
+            },
+            Dimensions {
+                width: scaled_width,
+                height: scaled_height,
+            },
             running_flag,
         );
         receiver.attach(
@@ -765,8 +722,7 @@ impl AppWindow {
 
     fn create_ui(&self, path: PathBuf) {
         glib::MainContext::default().iteration(true);
-        let Ok((width, height, duration, framerate)) = self.imp().video_preview.load_path(path)
-        else {
+        let Ok((dimensions, duration, framerate)) = self.imp().video_preview.load_path(path) else {
             self.imp().stack.set_visible_child_name("invalid");
             return;
         };
@@ -774,17 +730,19 @@ impl AppWindow {
         self.imp().timeline.set_position(0);
         self.imp().timeline.set_duration(duration);
         self.imp().timeline.set_range(Some((0, duration)));
-        self.imp().video_width.set(Some(width));
-        self.imp().video_height.set(Some(height));
-        self.imp().selected_video_width.set(Some(width));
-        self.imp().selected_video_height.set(Some(height));
+        self.imp().video_dimensions.set(Some(dimensions));
+        self.imp().selected_video_dimensions.set(Some(dimensions));
         self.imp().resize_scale_height_value.set_text("100");
         self.imp().resize_scale_width_value.set_text("100");
-        self.imp().resize_height_value.set_text(&height.to_string());
-        self.imp().resize_width_value.set_text(&width.to_string());
+        self.imp()
+            .resize_height_value
+            .set_text(&dimensions.height.to_string());
+        self.imp()
+            .resize_width_value
+            .set_text(&dimensions.width.to_string());
         self.imp()
             .framerate_button
-            .set_value(framerate.unwrap_or(30) as f64);
+            .set_value(framerate.map(|x| x.value()).unwrap_or(30.));
 
         self.imp().stack.set_visible_child_name("editing");
         self.imp().spinner.stop();
@@ -814,9 +772,7 @@ impl AppWindow {
             // Translators: Replace "translator-credits" with your names, one name per line
             .translator_credits(gettext("translator-credits"))
             .release_notes_version("1.3")
-            .release_notes(
-                "This minor release introduces various bug fixes.",
-            )
+            .release_notes("This minor release introduces various bug fixes.")
             .license_type(gtk::License::Gpl30)
             .version(VERSION)
             .build();
@@ -860,10 +816,10 @@ impl SettingsStore for AppWindow {
     }
 }
 
-fn generate_width_from_height(height: usize, image_dim: (usize, usize)) -> usize {
-    ((height as f64) * (image_dim.0 as f64) / (image_dim.1 as f64)).round() as usize
+fn generate_width_from_height(height: u32, image_dim: Dimensions<u32>) -> u32 {
+    ((height as f64) * (image_dim.width_f64()) / (image_dim.height_f64())).round() as u32
 }
 
-fn generate_height_from_width(width: usize, image_dim: (usize, usize)) -> usize {
-    ((width as f64) * (image_dim.1 as f64) / (image_dim.0 as f64)).round() as usize
+fn generate_height_from_width(width: u32, image_dim: Dimensions<u32>) -> u32 {
+    ((width as f64) * (image_dim.height_f64()) / (image_dim.width_f64())).round() as u32
 }

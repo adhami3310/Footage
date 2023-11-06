@@ -141,3 +141,9 @@ impl AudioEncoding {
         }
     }
 }
+
+pub struct OutputFormat {
+    pub container_format: ContainerFormat,
+    pub video_encoding: Option<VideoEncoding>,
+    pub audio_encoding: Option<AudioEncoding>,
+}
