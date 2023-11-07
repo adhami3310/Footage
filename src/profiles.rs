@@ -142,6 +142,7 @@ impl AudioEncoding {
     }
 }
 
+#[derive(Debug)]
 pub struct OutputFormat {
     pub container_format: ContainerFormat,
     pub video_encoding: Option<VideoEncoding>,

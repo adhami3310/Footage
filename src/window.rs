@@ -229,14 +229,17 @@ impl AppWindow {
             }));
         imp.audio_button
             .connect_toggled(clone!(@weak self as this => move |b| {
-                if b.is_active() {
-                    b.set_icon_name("audio-volume-muted-symbolic");
-                    b.set_tooltip_text(Some(&gettext("Enable Audio")));
-                    this.imp().video_preview.mute();
-                } else {
-                    b.set_icon_name("audio-volume-high-symbolic");
-                    b.set_tooltip_text(Some(&gettext("Disable Audio")));
-                    this.imp().video_preview.unmute();
+                // don't think about it
+                if b.is_visible() {
+                    if b.is_active() {
+                        b.set_icon_name("audio-volume-muted-symbolic");
+                        b.set_tooltip_text(Some(&gettext("Enable Audio")));
+                        this.imp().video_preview.mute();
+                    } else {
+                        b.set_icon_name("audio-volume-high-symbolic");
+                        b.set_tooltip_text(Some(&gettext("Disable Audio")));
+                        this.imp().video_preview.unmute();
+                    }
                 }
             }));
         imp.save_button
@@ -328,7 +331,7 @@ impl AppWindow {
         imp.video_preview.imp().crop_box.connect_local("crop-box-changed", true, clone!(@weak self as this => @default-return None, move |v| {
             let (t,r,b,l): (f64, f64, f64, f64) = (v.get(1)?.get().ok()?, v.get(2)?.get().ok()?, v.get(3)?.get().ok()?, v.get(4)?.get().ok()?);
 
-            let video_dimensions = this.imp().video_dimensions.get().unwrap();
+            let video_dimensions = this.imp().video_dimensions.get()?;
 
             let selected_height = (video_dimensions.height_f64() * (1. - t - b)) as u32 / 2 * 2;
             let selected_width = (video_dimensions.width_f64() as f64 * (1. - l - r)) as u32 / 2 * 2;
@@ -722,11 +725,22 @@ impl AppWindow {
 
     fn create_ui(&self, path: PathBuf) {
         glib::MainContext::default().iteration(true);
-        let Ok((dimensions, duration, framerate)) = self.imp().video_preview.load_path(path) else {
+        let Ok((dimensions, duration, framerate, has_audio)) =
+            self.imp().video_preview.load_path(path)
+        else {
             self.imp().stack.set_visible_child_name("invalid");
             return;
         };
-        self.imp().audio_button.set_active(false);
+        if has_audio {
+            if self.imp().audio_button.is_active() {
+                // don't think about it
+                self.imp().audio_button.set_visible(false);
+                self.imp().audio_button.set_active(false);
+            }
+            self.imp().audio_button.set_visible(true);
+        } else {
+            self.imp().audio_button.set_visible(false);
+        }
         self.imp().timeline.set_position(0);
         self.imp().timeline.set_duration(duration);
         self.imp().timeline.set_range(Some((0, duration)));
@@ -745,6 +759,7 @@ impl AppWindow {
             .set_value(framerate.map(|x| x.value()).unwrap_or(30.));
 
         self.imp().stack.set_visible_child_name("editing");
+        self.imp().play_pause.grab_focus();
         self.imp().spinner.stop();
     }
 

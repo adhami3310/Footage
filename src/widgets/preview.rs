@@ -13,7 +13,7 @@ use ges::prelude::*;
 use ges::Effect;
 
 use crate::{
-    info::{get_width_height, Dimensions, Framerate},
+    info::{get_info, Dimensions, Framerate},
     orientation::VideoOrientation,
     profiles::{ContainerFormat, OutputFormat},
 };
@@ -123,30 +123,46 @@ impl VideoPreview {
     pub fn load_path(
         &self,
         path: PathBuf,
-    ) -> Result<(Dimensions<u32>, u64, Option<Framerate>), ()> {
+    ) -> Result<(Dimensions<u32>, u64, Option<Framerate>, bool), ()> {
         gst::init().unwrap();
         ges::init().unwrap();
+
+        if let Some(pipeline) = self.imp().pipeline.take() {
+            pipeline.set_state(gst::State::Null).unwrap();
+        }
+        self.imp().ended.replace(false);
+        self.imp().bus_watch.replace(None);
 
         let clip = ges::UriClip::new(url::Url::from_file_path(path.clone()).unwrap().as_str())
             .map_err(|_| ())?;
         let duration = clip.duration().mseconds();
         self.imp().clip.replace(Some(clip));
 
+        self.imp().inpoint.set(0);
         self.imp().outpoint.set(duration);
 
-        let (dimensions, framerate) =
-            get_width_height(path.to_str().unwrap().to_owned()).ok_or(())?;
+        let (dimensions, framerate, has_audio) =
+            get_info(path.to_str().unwrap().to_owned()).ok_or(())?;
+
         self.imp().current_dimensions.set(Some(dimensions));
 
         self.imp().path.replace(path);
         self.imp().effects.replace(vec![]);
 
         self.imp().crop_box.set_proportions((0., 0., 0., 0.));
+        self.imp().audio_level.replace(None);
         self.imp().orientation.set(Default::default());
+        self.emit_by_name::<()>("mode-changed", &[&false]);
+
+        if has_audio {
+            self.imp().mute.set(false);
+        } else {
+            self.imp().mute.set(true);
+        }
 
         self.refresh_ui();
 
-        Ok((dimensions, duration, framerate))
+        Ok((dimensions, duration, framerate, has_audio))
     }
 
     pub fn seek(&self, position: u64) {
@@ -221,16 +237,6 @@ impl VideoPreview {
             gst::PadProbeReturn::Ok
         });
 
-        receiver.attach(
-            None,
-            clone!(@weak self as this => @default-return glib::ControlFlow::Break, move |p| {
-                if this.is_playing() {
-                    this.emit_by_name::<()>("set-position", &[&(p + this.imp().inpoint.get())]);
-                }
-                glib::ControlFlow::Continue
-            }),
-        );
-
         sink.add_pad(pad).unwrap();
 
         pipeline.set_video_sink(Some(&sink));
@@ -239,7 +245,7 @@ impl VideoPreview {
 
         pipeline
             .set_state(gst::State::Paused)
-            .expect("Unable to set the pipeline to the `Playing` state");
+            .expect("Unable to set the pipeline to the `Paused` state");
 
         let bus_watch = bus
             .add_watch_local(
@@ -271,6 +277,16 @@ impl VideoPreview {
 
         self.imp().pipeline.replace(Some(pipeline));
         self.imp().bus_watch.replace(Some(bus_watch));
+
+        receiver.attach(
+            None,
+            clone!(@weak self as this => @default-return glib::ControlFlow::Break, move |p| {
+                if this.is_playing() {
+                    this.emit_by_name::<()>("set-position", &[&(p + this.imp().inpoint.get())]);
+                }
+                glib::ControlFlow::Continue
+            }),
+        );
     }
 
     // fn update_position(&self) {
@@ -334,7 +350,7 @@ impl VideoPreview {
         let orig_p = self.imp().pipeline.borrow();
         let p = orig_p.as_ref().unwrap();
 
-        p.timeline().unwrap().commit_sync();
+        p.timeline().unwrap().commit();
     }
 
     fn remove_effect(&self, effect: &ges::Effect) {
@@ -413,8 +429,9 @@ impl VideoPreview {
     }
 
     pub fn mute(&self) {
-        let new_av = ges::Effect::new("volume volume=0").unwrap();
         self.imp().mute.set(true);
+
+        let new_av = ges::Effect::new("volume volume=0").unwrap();
         let av_orig = self.imp().audio_level.replace(Some(new_av));
 
         if let Some(av_orig) = av_orig {
@@ -425,9 +442,9 @@ impl VideoPreview {
     }
 
     pub fn unmute(&self) {
-        let new_av = ges::Effect::new("volume volume=1").unwrap();
         self.imp().mute.set(false);
 
+        let new_av = ges::Effect::new("volume volume=1").unwrap();
         let av_orig = self.imp().audio_level.replace(Some(new_av));
 
         if let Some(av_orig) = av_orig {
@@ -459,7 +476,7 @@ impl VideoPreview {
         let input_path = self.imp().path.borrow().to_owned();
         let orientation = self.imp().orientation.get();
 
-        let (dimensions, _) = get_width_height(input_path.to_str().unwrap().to_owned()).unwrap();
+        let dimensions = get_info(input_path.to_str().unwrap().to_owned()).unwrap().0;
 
         let dimensions: Dimensions<f64> = dimensions.into();
 
@@ -475,13 +492,7 @@ impl VideoPreview {
         let full_scaled_height = dimensions.height
             * (scaled_dimension.height_f64() / (dimensions.height * (1. - top - bottom)));
 
-        // let mut effects = self.imp().effects.borrow().to_owned();
-
         let mute = self.imp().mute.get();
-
-        // if self.imp().mute.get() {
-        //     effects.push("volume volume=0".to_owned());
-        // }
 
         let inpoint = self.imp().clip.borrow().as_ref().unwrap().inpoint();
         let duration = self.imp().clip.borrow().as_ref().unwrap().duration();
@@ -509,8 +520,8 @@ impl VideoPreview {
                                 framerate.denominator as i32,
                             ),
                         )
-                        .field("width", scaled_dimension.height as i32)
-                        .field("height", scaled_dimension.width as i32)
+                        .field("width", scaled_dimension.width as i32)
+                        .field("height", scaled_dimension.height as i32)
                         .build(),
                 );
                 t.elements().into_iter().for_each(|te| {
@@ -568,11 +579,6 @@ impl VideoPreview {
 
             clip.add_top_effect(&ges::Effect::new("videorate").unwrap(), 0)
                 .ok();
-
-            if mute {
-                clip.add_top_effect(&ges::Effect::new("volume volume=0").unwrap(), 0)
-                    .ok();
-            }
 
             clip.set_inpoint(inpoint);
             clip.set_duration(Some(duration));
@@ -635,11 +641,13 @@ impl VideoPreview {
                     container_profile = container_profile.add_profile(video_profile);
                 }
 
-                if let Some(audio_cap) = audio_caps.first() {
-                    let audio_profile =
-                        gstreamer_pbutils::EncodingAudioProfile::builder(audio_cap).build();
+                if !mute {
+                    if let Some(audio_cap) = audio_caps.first() {
+                        let audio_profile =
+                            gstreamer_pbutils::EncodingAudioProfile::builder(audio_cap).build();
 
-                    container_profile = container_profile.add_profile(audio_profile);
+                        container_profile = container_profile.add_profile(audio_profile);
+                    }
                 }
 
                 pipeline
@@ -655,23 +663,27 @@ impl VideoPreview {
                 .preset_name(output_format.video_encoding.unwrap().get_preset_name())
                 .build();
 
-                let audio_profile = gstreamer_pbutils::EncodingAudioProfile::builder(
-                    &gst::Caps::builder(output_format.audio_encoding.unwrap().get_format()).build(),
-                )
-                .build();
+                let container_format =
+                    gst::Caps::builder(output_format.container_format.format()).build();
 
-                let container_profile = gstreamer_pbutils::EncodingContainerProfile::builder(
-                    &gst::Caps::builder(output_format.container_format.format()).build(),
-                )
-                .name("container")
-                .add_profile(video_profile)
-                .add_profile(audio_profile)
-                .build();
+                let mut container_profile =
+                    gstreamer_pbutils::EncodingContainerProfile::builder(&container_format)
+                        .name("container")
+                        .add_profile(video_profile);
+
+                if !mute {
+                    let audio_profile = gstreamer_pbutils::EncodingAudioProfile::builder(
+                        &gst::Caps::builder(output_format.audio_encoding.unwrap().get_format())
+                            .build(),
+                    )
+                    .build();
+                    container_profile = container_profile.add_profile(audio_profile);
+                }
 
                 pipeline
                     .set_render_settings(
                         url::Url::from_file_path(output_path).unwrap().as_str(),
-                        &container_profile,
+                        &container_profile.build(),
                     )
                     .unwrap();
             }

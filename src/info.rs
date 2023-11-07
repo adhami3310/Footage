@@ -2,6 +2,7 @@ use std::process::Command;
 
 use itertools::Itertools;
 
+#[derive(Debug)]
 pub struct Framerate {
     pub nominator: u32,
     pub denominator: u32,
@@ -13,7 +14,7 @@ impl Framerate {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Dimensions<T> {
     pub width: T,
     pub height: T,
@@ -55,7 +56,27 @@ impl From<Dimensions<u32>> for Dimensions<f64> {
     }
 }
 
-pub fn get_width_height(path: String) -> Option<(Dimensions<u32>, Option<Framerate>)> {
+pub fn get_info(path: String) -> Option<(Dimensions<u32>, Option<Framerate>, bool)> {
+    let video_info = get_video_info(path.clone())?;
+    let audio_info = get_audio_info(path)?;
+    Some((video_info.0, video_info.1, audio_info))
+}
+
+fn get_audio_info(path: String) -> Option<bool> {
+    let o = Command::new("ffprobe")
+        .args(["-v", "error"])
+        .args(["-show_entries", "stream=codec_type"])
+        .args(["-of", "csv=p=0"])
+        .arg(path)
+        .output()
+        .ok()?;
+
+    let s = std::str::from_utf8(&o.stdout).ok()?;
+
+    Some(s.trim().split('\n').any(|x| x == "audio"))
+}
+
+fn get_video_info(path: String) -> Option<(Dimensions<u32>, Option<Framerate>)> {
     let o = Command::new("ffprobe")
         .args(["-v", "error"])
         .args(["-select_streams", "v:0"])
@@ -63,9 +84,9 @@ pub fn get_width_height(path: String) -> Option<(Dimensions<u32>, Option<Framera
         .args(["-of", "csv=s=x:p=0"])
         .arg(path)
         .output()
-        .unwrap();
+        .ok()?;
 
-    let s = std::str::from_utf8(&o.stdout).unwrap();
+    let s = std::str::from_utf8(&o.stdout).ok()?;
 
     match s.trim().split('x').collect_vec()[..] {
         [a, b, c] => Some((
