@@ -8,7 +8,6 @@ use gtk::{gio, glib, subclass::prelude::*};
 use itertools::Itertools;
 
 use crate::{
-    config::{APP_ID, VERSION},
     info::{Dimensions, Framerate},
     profiles::{AudioEncoding, ContainerFormat, OutputFormat, VideoEncoding},
     spawn, Listable,
@@ -775,22 +774,17 @@ impl AppWindow {
     }
 
     fn show_about(&self) {
-        let about = adw::AboutWindow::builder()
-            .transient_for(self)
-            .application_icon(APP_ID)
-            .application_name(gettext("Footage"))
-            .developer_name("Khaleel Al-Adhami")
-            .website("https://gitlab.com/adhami3310/Footage")
-            .issue_url("https://gitlab.com/adhami3310/Footage/-/issues")
-            .developers(vec!["Khaleel Al-Adhami"])
-            .artists(vec!["kramo https://kramo.hu"])
-            // Translators: Replace "translator-credits" with your names, one name per line
-            .translator_credits(gettext("translator-credits"))
-            .release_notes_version("1.3")
-            .release_notes("This minor release introduces various bug fixes.")
-            .license_type(gtk::License::Gpl30)
-            .version(VERSION)
-            .build();
+        let about = adw::AboutWindow::from_appdata(
+            "/io/gitlab/adhami3310/Footage/io.gitlab.adhami3310.Footage.metainfo.xml",
+            Some("1.3"),
+        );
+
+        about.set_transient_for(Some(self));
+        about.set_developers(&["Khaleel Al-Adhami"]);
+        about.set_artists(&["kramo https://kramo.hu"]);
+
+        // Translators: Replace "translator-credits" with your names, one name per line
+        about.set_translator_credits(&gettext("translator-credits"));
 
         about.present();
     }

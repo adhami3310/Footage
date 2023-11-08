@@ -38,19 +38,18 @@ appdata_file = i18n.merge_file(
     output: '@BASENAME@',
     configuration: appdata_conf
   ),
-  output: '@0@.metainfo.xml'.format(application_id),
+  output: '@0@.metainfo.xml'.format(base_id),
   po_dir: podir,
   install: true,
   install_dir: datadir / 'metainfo'
 )
 
 # Validate Appdata
-appstreamcli = find_program('appstreamcli', required: false)
-if appstreamcli.found()
+if appstream_util.found()
   test(
-    'validate-appdata', appstreamcli,
+    'validate-appdata', appstream_util,
     args: [
-      'validate', '--no-net', appdata_file.full_path()
+      'validate', '--nonet', appdata_file.full_path()
     ],
     depends: appdata_file,
   )
@@ -68,7 +67,7 @@ configure_file(
   install_dir: datadir / 'glib-2.0' / 'schemas'
 )
 
-# Validate GSchema
+# Validata GSchema
 if glib_compile_schemas.found()
   test(
     'validate-gschema', glib_compile_schemas,

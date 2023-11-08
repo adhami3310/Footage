@@ -1,6 +1,6 @@
 project('footage',
   'rust',
-  version: '1.3',
+  version: '1.3.1',
   meson_version: '>= 0.59.0',
   license: 'GPLv3',
 )
@@ -16,6 +16,7 @@ dependency('libadwaita-1')
 glib_compile_resources = find_program('glib-compile-resources', required: true)
 glib_compile_schemas = find_program('glib-compile-schemas', required: true)
 desktop_file_validate = find_program('desktop-file-validate', required: false)
+appstream_util = find_program('appstream-util', required: false)
 cargo = find_program('cargo', required: true)
 
 version = meson.project_version()
@@ -32,13 +33,13 @@ gettext_package = meson.project_name()
 
 if get_option('profile') == 'development'
   profile = 'Devel'
-  vcs_tag = run_command('git', 'rev-parse', '--short', 'HEAD').stdout().strip()
+  vcs_tag = run_command('git', 'rev-parse', '--short', 'HEAD', check: false).stdout().strip()
   if vcs_tag == ''
     version_suffix = '-devel'
   else
     version_suffix = '-@0@'.format(vcs_tag)
   endif
-  application_id = base_id
+  application_id = '@0@.@1@'.format(base_id, profile)
 else
   profile = ''
   version_suffix = ''
