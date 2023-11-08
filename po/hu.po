@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-28 03:58-0400\n"
+"POT-Creation-Date: 2023-11-07 21:02-0500\n"
 "PO-Revision-Date: 2023-11-03 13:41+0100\n"
 "Last-Translator: Meskó Balázs <mesko.balazs@fsf.hu>\n"
 "Language-Team: \n"
@@ -20,7 +20,7 @@ msgstr ""
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
 #: data/resources/blueprints/window.blp:9
-#: data/resources/blueprints/window.blp:42 src/main.rs:48 src/window.rs:808
+#: data/resources/blueprints/window.blp:42 src/main.rs:48
 msgid "Footage"
 msgstr "Filmszalag"
 
@@ -169,7 +169,7 @@ msgstr "Tükrözés vízszintesen"
 msgid "Flip Vertically"
 msgstr "Tükrözés függőlegesen"
 
-#: data/resources/blueprints/window.blp:130 src/window.rs:274
+#: data/resources/blueprints/window.blp:130 src/window.rs:239
 msgid "Disable Audio"
 msgstr "Hang letiltása"
 
@@ -256,7 +256,7 @@ msgstr "Renderelés…"
 msgid "This may take a while"
 msgstr "Ez eltarthat egy ideig"
 
-#: data/resources/blueprints/window.blp:358 src/window.rs:547 src/window.rs:573
+#: data/resources/blueprints/window.blp:358 src/window.rs:493 src/window.rs:519
 msgid "_Cancel"
 msgstr "_Mégse"
 
@@ -280,36 +280,36 @@ msgstr "Bal oldali vágási fogantyú"
 msgid "Right trimming handle"
 msgstr "Jobb oldali vágási fogantyú"
 
-#: src/window.rs:270
+#: src/window.rs:235
 msgid "Enable Audio"
 msgstr "Hang engedélyezése"
 
-#: src/window.rs:438
+#: src/window.rs:400
 msgid "Pause"
 msgstr "Szüneteltetés"
 
-#: src/window.rs:441
+#: src/window.rs:403
 msgid "Play"
 msgstr "Lejátszás"
 
-#: src/window.rs:543 src/window.rs:568
+#: src/window.rs:489 src/window.rs:514
 msgid "Stop rendering?"
 msgstr "Renderelés leállítása?"
 
-#: src/window.rs:544 src/window.rs:569
+#: src/window.rs:490 src/window.rs:515
 msgid "You will lose all progress."
 msgstr "A teljes előrehaladás elvész."
 
-#: src/window.rs:548 src/window.rs:573
+#: src/window.rs:494 src/window.rs:519
 msgid "_Stop"
 msgstr "_Leállítás"
 
-#: src/window.rs:595
+#: src/window.rs:541
 msgid "Video Files"
 msgstr "Videófájlok"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
-#: src/window.rs:815
+#: src/window.rs:787
 msgid "translator-credits"
 msgstr "Meskó Balázs <mesko dot balazs at fsf dot hu>"
 

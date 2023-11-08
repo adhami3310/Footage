@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-28 03:58-0400\n"
+"POT-Creation-Date: 2023-11-07 21:02-0500\n"
 "PO-Revision-Date: 2023-10-28 12:31+0300\n"
 "Last-Translator: Sabri Ünal <libreajans@gmail.com>\n"
 "Language-Team: Turkish <takim@gnome.org.tr>\n"
@@ -22,7 +22,7 @@ msgstr ""
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
 #: data/resources/blueprints/window.blp:9
-#: data/resources/blueprints/window.blp:42 src/main.rs:48 src/window.rs:808
+#: data/resources/blueprints/window.blp:42 src/main.rs:48
 msgid "Footage"
 msgstr "Footage"
 
@@ -172,7 +172,7 @@ msgstr "Yatay Döndür"
 msgid "Flip Vertically"
 msgstr "Dikey Döndür"
 
-#: data/resources/blueprints/window.blp:130 src/window.rs:274
+#: data/resources/blueprints/window.blp:130 src/window.rs:239
 msgid "Disable Audio"
 msgstr "Sesi Devre Dışı Bırak"
 
@@ -260,7 +260,7 @@ msgstr "İşleniyor…"
 msgid "This may take a while"
 msgstr "Bu biraz zaman alabilir"
 
-#: data/resources/blueprints/window.blp:358 src/window.rs:547 src/window.rs:573
+#: data/resources/blueprints/window.blp:358 src/window.rs:493 src/window.rs:519
 msgid "_Cancel"
 msgstr "_İptal"
 
@@ -284,36 +284,36 @@ msgstr "Sol kırpma tutamacı"
 msgid "Right trimming handle"
 msgstr "Sağ kırpma tutamacı"
 
-#: src/window.rs:270
+#: src/window.rs:235
 msgid "Enable Audio"
 msgstr "Sesi Etkinleştir"
 
-#: src/window.rs:438
+#: src/window.rs:400
 msgid "Pause"
 msgstr "Duraklat"
 
-#: src/window.rs:441
+#: src/window.rs:403
 msgid "Play"
 msgstr "Oynat"
 
-#: src/window.rs:543 src/window.rs:568
+#: src/window.rs:489 src/window.rs:514
 msgid "Stop rendering?"
 msgstr "İşleme durdurulsun mu?"
 
-#: src/window.rs:544 src/window.rs:569
+#: src/window.rs:490 src/window.rs:515
 msgid "You will lose all progress."
 msgstr "Tüm ilerleme kaybolacak."
 
-#: src/window.rs:548 src/window.rs:573
+#: src/window.rs:494 src/window.rs:519
 msgid "_Stop"
 msgstr "_Durdur"
 
-#: src/window.rs:595
+#: src/window.rs:541
 msgid "Video Files"
 msgstr "Video Dosyalar"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
-#: src/window.rs:815
+#: src/window.rs:787
 msgid "translator-credits"
 msgstr "Sabri Ünal <libreajans@gmail.com>"
 

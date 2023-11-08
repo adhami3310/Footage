@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-28 03:58-0400\n"
+"POT-Creation-Date: 2023-11-07 21:02-0500\n"
 "PO-Revision-Date: 2023-10-28 11:10+0300\n"
 "Last-Translator: Сергей Ворон <voron@duck.com>\n"
 "Language-Team: \n"
@@ -22,7 +22,7 @@ msgstr ""
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
 #: data/resources/blueprints/window.blp:9
-#: data/resources/blueprints/window.blp:42 src/main.rs:48 src/window.rs:808
+#: data/resources/blueprints/window.blp:42 src/main.rs:48
 msgid "Footage"
 msgstr "Footage"
 
@@ -173,7 +173,7 @@ msgstr "Перевернуть по горизонтали"
 msgid "Flip Vertically"
 msgstr "Перевернуть по вертикали"
 
-#: data/resources/blueprints/window.blp:130 src/window.rs:274
+#: data/resources/blueprints/window.blp:130 src/window.rs:239
 msgid "Disable Audio"
 msgstr "Отключить звук"
 
@@ -261,7 +261,7 @@ msgstr "Рендеринг…"
 msgid "This may take a while"
 msgstr "Это может занять некоторое время"
 
-#: data/resources/blueprints/window.blp:358 src/window.rs:547 src/window.rs:573
+#: data/resources/blueprints/window.blp:358 src/window.rs:493 src/window.rs:519
 msgid "_Cancel"
 msgstr "_Отменить"
 
@@ -285,36 +285,36 @@ msgstr "Левый указатель обрезки"
 msgid "Right trimming handle"
 msgstr "Правый указатель обрезки"
 
-#: src/window.rs:270
+#: src/window.rs:235
 msgid "Enable Audio"
 msgstr "Включить звук"
 
-#: src/window.rs:438
+#: src/window.rs:400
 msgid "Pause"
 msgstr "Приостановить"
 
-#: src/window.rs:441
+#: src/window.rs:403
 msgid "Play"
 msgstr "Воспроизвести"
 
-#: src/window.rs:543 src/window.rs:568
+#: src/window.rs:489 src/window.rs:514
 msgid "Stop rendering?"
 msgstr "Остановить рендеринг?"
 
-#: src/window.rs:544 src/window.rs:569
+#: src/window.rs:490 src/window.rs:515
 msgid "You will lose all progress."
 msgstr "Вы потеряете весь прогресс."
 
-#: src/window.rs:548 src/window.rs:573
+#: src/window.rs:494 src/window.rs:519
 msgid "_Stop"
 msgstr "_Остановить"
 
-#: src/window.rs:595
+#: src/window.rs:541
 msgid "Video Files"
 msgstr "Видеофайлы"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
-#: src/window.rs:815
+#: src/window.rs:787
 msgid "translator-credits"
 msgstr ""
 "Сергей Ворон <voron@duck.com>\n"
