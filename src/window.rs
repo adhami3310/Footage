@@ -68,7 +68,7 @@ mod imp {
         #[template_child]
         pub audio_encoding: TemplateChild<adw::ComboRow>,
         #[template_child]
-        pub framerate_button: TemplateChild<gtk::SpinButton>,
+        pub framerate_row: TemplateChild<adw::SpinRow>,
         // #[template_child]
         // pub link_axis: TemplateChild<gtk::ToggleButton>,
         #[template_child]
@@ -679,7 +679,7 @@ impl AppWindow {
                 audio_encoding: self.selected_audio_encoding(),
             },
             {
-                let f = Fraction::from(self.imp().framerate_button.value());
+                let f = Fraction::from(self.imp().framerate_row.value());
 
                 match f {
                     fraction::Fraction::Rational(_, r) => Framerate {
@@ -754,7 +754,7 @@ impl AppWindow {
             .resize_width_value
             .set_text(&dimensions.width.to_string());
         self.imp()
-            .framerate_button
+            .framerate_row
             .set_value(framerate.map(|x| x.value()).unwrap_or(30.));
 
         self.imp().stack.set_visible_child_name("editing");
