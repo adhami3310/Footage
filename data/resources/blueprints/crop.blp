@@ -13,55 +13,86 @@ template $Crop: Widget {
             hexpand: true;
             vexpand: true;
 
-            Box inner_crop_box {
-                orientation: vertical;
-                
-                Box top {
-
-                    Button top_left {
-                        halign: start;
-                        valign: start;
-                        tooltip-text: _("Top left crop corner");
-
-                        styles ["crop-handle"]
-                    }
-                    Box {
-                        hexpand: true;
-                    }
-                    Button top_right {
-                        halign: end;
-                        valign: start;
-                        tooltip-text: _("Top right crop corner");
-
-
-                        styles ["crop-handle"]
-                    }
-                }
-
+            Overlay {
                 Box {
-                    vexpand: true;
-                }
-
-                Box bottom {
-                    Button bottom_left {
-                        halign: start;
-                        valign: end;
-                        tooltip-text: _("Bottom left crop corner");
-
-                        styles ["crop-handle"]
-                    }
+                    orientation: vertical;
                     Box {
-                        hexpand: true;
+                        styles ["crop-border"]
                     }
-                    Button bottom_right {
-                        halign: end;
-                        valign: end;
-                        tooltip-text: _("Bottom right crop corner");
 
-                        styles ["crop-handle"]
+                    Box {
+                        vexpand: true;
+
+                        Box {
+                            styles ["crop-border"]
+                        }
+
+                        Box {
+                            hexpand: true;
+                        }
+
+                        Box {
+                            styles ["crop-border"]
+                        }
+                    }
+
+                    Box {
+                        styles ["crop-border"]
+                    }
+                }
+                
+                [overlay]
+                Box inner_crop_box {
+                    orientation: vertical;
+                    
+                    Box top {
+
+                        Button top_left {
+                            halign: start;
+                            valign: start;
+                            tooltip-text: _("Top left crop corner");
+
+                            styles ["crop-handle"]
+                        }
+                        Box {
+                            hexpand: true;
+                        }
+                        Button top_right {
+                            halign: end;
+                            valign: start;
+                            tooltip-text: _("Top right crop corner");
+
+
+                            styles ["crop-handle"]
+                        }
+                    }
+
+                    Box {
+                        vexpand: true;
+                    }
+
+                    Box bottom {
+                        Button bottom_left {
+                            halign: start;
+                            valign: end;
+                            tooltip-text: _("Bottom left crop corner");
+
+                            styles ["crop-handle"]
+                        }
+                        Box {
+                            hexpand: true;
+                        }
+                        Button bottom_right {
+                            halign: end;
+                            valign: end;
+                            tooltip-text: _("Bottom right crop corner");
+
+                            styles ["crop-handle"]
+                        }
                     }
                 }
             }
+
 
             styles ["crop-region"]
         }

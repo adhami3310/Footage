@@ -350,7 +350,7 @@ impl VideoPreview {
         let orig_p = self.imp().pipeline.borrow();
         let p = orig_p.as_ref().unwrap();
 
-        p.timeline().unwrap().commit();
+        p.timeline().unwrap().commit_sync();
     }
 
     fn remove_effect(&self, effect: &ges::Effect) {

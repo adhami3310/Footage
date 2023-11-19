@@ -228,15 +228,18 @@ impl AppWindow {
             }));
         imp.audio_button
             .connect_toggled(clone!(@weak self as this => move |b| {
+                if b.is_active() {
+                    b.set_icon_name("audio-volume-muted-symbolic");
+                    b.set_tooltip_text(Some(&gettext("Enable Audio")));
+                } else {
+                    b.set_icon_name("audio-volume-high-symbolic");
+                    b.set_tooltip_text(Some(&gettext("Disable Audio")));
+                }
                 // don't think about it
                 if b.is_visible() {
                     if b.is_active() {
-                        b.set_icon_name("audio-volume-muted-symbolic");
-                        b.set_tooltip_text(Some(&gettext("Enable Audio")));
                         this.imp().video_preview.mute();
                     } else {
-                        b.set_icon_name("audio-volume-high-symbolic");
-                        b.set_tooltip_text(Some(&gettext("Disable Audio")));
                         this.imp().video_preview.unmute();
                     }
                 }
