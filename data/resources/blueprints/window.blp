@@ -195,20 +195,16 @@ template $AppWindow : Adw.ApplicationWindow {
                 }
               }
             }
-            Adw.ActionRow {
+            Adw.SpinRow framerate_row {
               title: _("Framerate");
-
-              SpinButton framerate_button {
-                adjustment: Adjustment {
-                  lower: 1;
-                  step-increment: 1;
-                  upper: 480;
-                }
-                
-                ;
-                value: 30;
-                valign: center;
+              adjustment: Adjustment {
+                lower: 1;
+                step-increment: 1;
+                upper: 480;
               }
+
+              ;
+              value: 30;
             }
           }
 
