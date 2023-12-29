@@ -226,12 +226,14 @@ impl VideoPreview {
 
         let pad = &gst::GhostPad::with_target(&convert.static_pad("sink").unwrap()).unwrap();
 
-        let (sender, receiver) = glib::MainContext::channel(glib::Priority::HIGH);
+        let (sender, receiver) = async_channel::bounded(1);
 
         pad.add_probe(PadProbeType::DATA_DOWNSTREAM, move |_, info| {
             if let Some(PadProbeData::Buffer(data)) = &info.data {
                 if let Some(pts) = data.pts() {
-                    sender.send(pts.mseconds()).expect("Concurrency Issues");
+                    sender
+                        .send_blocking(pts.mseconds())
+                        .expect("Concurrency Issues");
                 }
             }
             gst::PadProbeReturn::Ok
@@ -278,15 +280,13 @@ impl VideoPreview {
         self.imp().pipeline.replace(Some(pipeline));
         self.imp().bus_watch.replace(Some(bus_watch));
 
-        receiver.attach(
-            None,
-            clone!(@weak self as this => @default-return glib::ControlFlow::Break, move |p| {
+        glib::spawn_future_local(clone!(@weak self as this => async move {
+            while let Ok(p) = receiver.recv().await {
                 if this.is_playing() {
                     this.emit_by_name::<()>("set-position", &[&(p + this.imp().inpoint.get())]);
                 }
-                glib::ControlFlow::Continue
-            }),
-        );
+            }
+        }));
     }
 
     // fn update_position(&self) {
@@ -465,13 +465,15 @@ impl VideoPreview {
     pub fn save(
         &self,
         output_path: PathBuf,
-        sender: glib::Sender<Result<f64, ()>>,
+        sender: async_channel::Sender<Result<(u64, u64), ()>>,
         output_format: OutputFormat,
         framerate: Framerate,
         scaled_dimension: Dimensions<u32>,
         running_flag: Arc<AtomicBool>,
     ) {
         self.kill();
+
+        dbg!(&output_format, &framerate, &scaled_dimension);
 
         let input_path = self.imp().path.borrow().to_owned();
         let orientation = self.imp().orientation.get();
@@ -691,16 +693,33 @@ impl VideoPreview {
             pipeline.set_mode(ges::PipelineFlags::RENDER).unwrap();
 
             let sender_pad = sender.clone();
+
+            let another_running_flag = running_flag.clone();
+
             timeline.pads().first().unwrap().add_probe(
                 PadProbeType::DATA_DOWNSTREAM,
                 move |_, info| {
                     if let Some(PadProbeData::Buffer(data)) = &info.data {
                         if let Some(pts) = data.pts() {
-                            sender_pad
-                                .send(Ok(pts.mseconds() as f64 / duration.mseconds() as f64))
-                                .expect("Concurrency Issues");
+                            if sender_pad
+                                .send_blocking(Ok((pts.mseconds(), duration.mseconds())))
+                                .is_err()
+                            {
+                                return gst::PadProbeReturn::Drop;
+                            }
                         }
                     }
+
+                    if !another_running_flag
+                        .clone()
+                        .load(std::sync::atomic::Ordering::SeqCst)
+                    {
+                        sender_pad
+                            .send_blocking(Err(()))
+                            .expect("Concurrency Issues");
+                        return gst::PadProbeReturn::Drop;
+                    }
+
                     gst::PadProbeReturn::Ok
                 },
             );
@@ -711,24 +730,28 @@ impl VideoPreview {
                 .bus()
                 .expect("Pipeline without bus. Shouldn't happen!");
 
+            dbg!("starting");
+
             for msg in bus.iter_timed(gst::ClockTime::NONE) {
                 use gst::MessageView;
 
                 match msg.view() {
                     MessageView::Eos(..) => {
-                        sender.send(Ok(1.)).expect("Concurrency Issues");
+                        sender
+                            .send_blocking(Ok((1, 1)))
+                            .expect("Concurrency Issues");
                         break;
                     }
                     MessageView::Error(_) => {
                         pipeline.set_state(gst::State::Null).unwrap();
 
-                        sender.send(Err(())).expect("Concurrency Issues");
+                        sender.send_blocking(Err(())).expect("Concurrency Issues");
                     }
                     _ => {
                         if !running_flag.load(std::sync::atomic::Ordering::SeqCst) {
                             pipeline.set_state(gst::State::Null).unwrap();
 
-                            sender.send(Err(())).expect("Concurrency Issues");
+                            sender.send_blocking(Err(())).expect("Concurrency Issues");
                         }
                     }
                 }

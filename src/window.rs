@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use adw::prelude::*;
-use fraction::Fraction;
+use fraction::Ratio;
 use gettextrs::gettext;
 use glib::clone;
 use gtk::{gio, glib, subclass::prelude::*};
@@ -668,11 +668,12 @@ impl AppWindow {
         };
 
         let running_flag = self.imp().running_flag.clone();
+        let receiver_running_flag = running_flag.clone();
         running_flag.store(true, std::sync::atomic::Ordering::SeqCst);
 
         self.imp().progress_bar.set_fraction(0.);
 
-        let (sender, receiver) = glib::MainContext::channel(glib::Priority::DEFAULT);
+        let (sender, receiver) = async_channel::unbounded();
         self.imp().video_preview.save(
             path,
             sender,
@@ -682,10 +683,10 @@ impl AppWindow {
                 audio_encoding: self.selected_audio_encoding(),
             },
             {
-                let f = Fraction::from(self.imp().framerate_row.value());
+                let f = Ratio::<i32>::approximate_float(self.imp().framerate_row.value());
 
                 match f {
-                    fraction::Fraction::Rational(_, r) => Framerate {
+                    Some(r) => Framerate {
                         nominator: *r.numer() as u32,
                         denominator: *r.denom() as u32,
                     },
@@ -701,28 +702,33 @@ impl AppWindow {
             },
             running_flag,
         );
-        receiver.attach(
-            None,
-            clone!(@weak self as this => @default-return glib::ControlFlow::Break, move |p| {
+
+        glib::spawn_future_local(clone!(@weak self as this => async move {
+            let mut most_done = 0;
+            while let Ok(p) = receiver.recv().await {
+                if !receiver_running_flag.load(std::sync::atomic::Ordering::SeqCst) {
+                    this.imp().stack.set_visible_child_name("failure");
+                    break;
+                }
                 match p {
-                    Ok(p) if p == 1.0 => {
+                    Ok((done, total)) if done == total => {
                         this.imp().stack.set_visible_child_name("success");
                         this.imp().back_edit.set_visible(true);
                         this.imp().running_flag.store(false, std::sync::atomic::Ordering::SeqCst);
-                        glib::ControlFlow::Break
+                        break
                     }
-                    Ok(p) => {
-                        this.imp().progress_bar.set_fraction(p);
-                        glib::ControlFlow::Continue
+                    Ok((done, total)) => {
+                        most_done = std::cmp::max(done, most_done);
+                        this.imp().progress_bar.set_fraction(most_done as f64 / total as f64);
                     }
-                    _ => {
+                    Err(_) => {
                         this.imp().stack.set_visible_child_name("failure");
                         this.imp().running_flag.store(false, std::sync::atomic::Ordering::SeqCst);
-                        glib::ControlFlow::Break
+                        break
                     }
                 }
-            }),
-        );
+            }
+        }));
     }
 
     fn create_ui(&self, path: PathBuf) {
@@ -766,8 +772,6 @@ impl AppWindow {
     }
 
     pub fn open_file(&self, path: PathBuf) {
-        dbg!(&path);
-
         self.imp().selected_video_path.replace(Some(path.clone()));
 
         self.imp().stack.set_visible_child_name("loading");
