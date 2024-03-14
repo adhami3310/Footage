@@ -21,7 +21,7 @@ mod imp {
     };
 
     use crate::{
-        config::APP_ID,
+        config::{APP_ID, PKGDATADIR},
         widgets::{preview::VideoPreview, timeline::Timeline},
     };
 
@@ -124,6 +124,12 @@ mod imp {
     impl ObjectImpl for AppWindow {
         fn constructed(&self) {
             self.parent_constructed();
+
+            let theme = gtk::IconTheme::for_display(
+                &gtk::gdk::Display::default().expect("cannot find display"),
+            );
+            theme.add_search_path(PKGDATADIR.to_owned() + "/icons");
+
             let obj = self.obj();
             obj.load_window_size();
             obj.setup_gactions();
