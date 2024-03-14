@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{os::fd::AsFd, path::PathBuf};
 
 use adw::prelude::*;
 use fraction::Ratio;
@@ -167,7 +167,7 @@ glib::wrapper! {
 
 #[gtk::template_callbacks]
 impl AppWindow {
-    pub fn new<P: glib::IsA<gtk::Application>>(app: &P) -> Self {
+    pub fn new<P: glib::prelude::IsA<gtk::Application>>(app: &P) -> Self {
         let win = glib::Object::builder::<AppWindow>()
             .property("application", app)
             .build();
@@ -280,7 +280,7 @@ impl AppWindow {
             .connect_clicked(clone!(@weak self as this => move |_| {
                 spawn!(async move {
                     let file = std::fs::File::open(this.imp().result_video_path.borrow().as_ref().unwrap()).unwrap();
-                    ashpd::desktop::open_uri::OpenFileRequest::default().ask(true).identifier(ashpd::WindowIdentifier::from_native(&this.native().unwrap()).await).send_file(&file).await.ok();
+                    ashpd::desktop::open_uri::OpenFileRequest::default().ask(true).identifier(ashpd::WindowIdentifier::from_native(&this.native().unwrap()).await).send_file(&file.as_fd()).await.ok();
                 });
             }));
         imp.container_row
@@ -770,7 +770,7 @@ impl AppWindow {
             .set_text(&dimensions.width.to_string());
         self.imp()
             .framerate_row
-            .set_value(framerate.map(|x| x.value()).unwrap_or(30.));
+            .set_value(framerate.map(|x| x.value().min(240.)).unwrap_or(30.));
 
         self.imp().stack.set_visible_child_name("editing");
         self.imp().play_pause.grab_focus();
