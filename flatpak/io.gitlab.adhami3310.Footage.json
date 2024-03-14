@@ -232,8 +232,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v1.8.0/SVT-AV1-v1.8.0.tar.gz?path=gstreamer-plugin",
-                    "sha256": "4defb7da24248900f520b3cd6e8dcc126608c6875e794cfad1d714b5435ca76a"
+                    "url": "https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v2.0.0/SVT-AV1-v2.0.0.tar.gz?path=gstreamer-plugin",
+                    "sha256": "7a6848e0244b2e35df4546b9c48fef62ba6148eab990a5b5c3d047fdf7612841"
                 }
             ]
         },
