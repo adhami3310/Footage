@@ -49,6 +49,7 @@ You can install Footage from the latest commit:
 
 1. Install [`org.flatpak.Builder`](https://github.com/flathub/org.flatpak.Builder) from Flathub
 1. Clone `https://gitlab.com/adhami3310/Footage.git` (or your fork)
+1. `cd flatpatk`
 1. Run `flatpak run org.flatpak.Builder --install --user --force-clean build-dir io.gitlab.adhami3310.Footage.json` in the terminal from the root of the repository.
 
 ### Meson
