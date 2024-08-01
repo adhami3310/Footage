@@ -105,14 +105,22 @@ impl App {
     fn setup_gactions(&self) {
         self.add_action_entries([
             gio::ActionEntry::builder("quit")
-                .activate(clone!(@weak self as app => move |_,_, _| {
-                    app.quit();
-                }))
+                .activate(clone!(
+                    #[weak(rename_to=app)]
+                    self,
+                    move |_, _, _| {
+                        app.quit();
+                    }
+                ))
                 .build(),
             gio::ActionEntry::builder("new-window")
-                .activate(clone!(@weak self as app => move |_, _, _| {
-                    app.present_main_window();
-                }))
+                .activate(clone!(
+                    #[weak(rename_to=app)]
+                    self,
+                    move |_, _, _| {
+                        app.present_main_window();
+                    }
+                ))
                 .build(),
         ]);
     }

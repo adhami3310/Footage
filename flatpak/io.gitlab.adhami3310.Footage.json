@@ -64,8 +64,8 @@
                 {
                     "type": "git",
                     "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler.git",
-                    "tag": "v0.10.0",
-                    "commit": "2a39a16391122af2f3d812e478c1c1398c98b972"
+                    "tag": "v0.12.0",
+                    "commit": "66b43c36cf1017c878762007373964a096b3d2a5"
                 }
             ]
         },
@@ -146,8 +146,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://bitbucket.org/multicoreware/x265_git/downloads/x265_3.5.tar.gz",
-                    "sha256": "e70a3335cacacbba0b3a20ec6fecd6783932288ebc8163ad74bcc9606477cae8",
+                    "url": "https://bitbucket.org/multicoreware/x265_git/downloads/x265_3.6.tar.gz",
+                    "sha256": "663531f341c5389f460d730e62e10a4fcca3428ca2ca109693867bc5fe2e2807",
                     "x-checker-data": {
                         "type": "html",
                         "url": "https://bitbucket.org/multicoreware/x265_git/raw/stable/x265Version.txt",
@@ -170,7 +170,7 @@
                     "type": "git",
                     "url": "https://code.videolan.org/videolan/x264.git",
                     "//": "Just get the latest from https://code.videolan.org/videolan/x264/-/commits/stable/ they don't do tags/snapshots/releases anymore",
-                    "commit": "baee400fa9ced6f5481a728138fed6e867b0ff7f"
+                    "commit": "31e19f92f00c7003fa115047ce50978bc98c3a0d"
                 }
             ]
         },
@@ -183,8 +183,8 @@
                 {
                     "type": "git",
                     "url": "https://github.com/mstorsjo/fdk-aac.git",
-                    "tag": "v0.1.6",
-                    "commit": "a30bfced6b6d6d976c728552d247cb30dd86e238"
+                    "tag": "v2.0.3",
+                    "commit": "716f4394641d53f0d79c9ddac3fa93b03a49f278"
                 }
             ]
         },
@@ -221,8 +221,8 @@
                 {
                     "type": "git",
                     "url": "https://gitlab.com/AOMediaCodec/SVT-AV1",
-                    "tag": "v2.0.0",
-                    "commit": "2aeeb4f1a1d495b84bf5c21dbb60ae10e991fada"
+                    "tag": "v2.1.2",
+                    "commit": "c949fe4f14fe288a9b2b47aa3e61335422a83645"
                 }
             ]
         },
@@ -236,8 +236,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v2.0.0/SVT-AV1-v2.0.0.tar.gz?path=gstreamer-plugin",
-                    "sha256": "7a6848e0244b2e35df4546b9c48fef62ba6148eab990a5b5c3d047fdf7612841"
+                    "url": "https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v2.1.2/SVT-AV1-v2.1.2.tar.gz?path=gstreamer-plugin",
+                    "sha256": "2a57398ac9bb89531a12c21375da794b5d314907c00627684e7fe7d0b6b789be"
                 }
             ]
         },
@@ -264,51 +264,54 @@
             "sources": [
                 {
                     "type": "git",
-                    "tag": "1.22.8",
+                    "tag": "1.24.6",
                     "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
-                    "commit": "4af14db10e8355f980bbf79733af004e59d255fc",
+                    "commit": "8d175ea255ea260ae4ad05175282bdfb1b975f35",
                     "disable-submodules": false
                 }
             ]
         },
         {
-            "name": "cargo-c",
-            "buildsystem": "simple",
-            "build-commands": [
-                "mkdir .cargo",
-                "echo -e '[source.crates-io]\nreplace-with = \"vendored-sources\"\n\n[source.vendored-sources]\ndirectory = \"cargo/vendor\"' >> .cargo/config",
-                "cat .cargo/config",
-                "cargo --offline fetch --manifest-path Cargo.toml --verbose",
-                "cargo install --path . --root /app"
-            ],
-            "sources": [
-                {
-                    "type": "git",
-                    "url": "https://github.com/lu-zero/cargo-c",
-                    "tag": "v0.9.20",
-                    "sha256": "ddf235c6d039d7e75f211f62da16fa5baa2bb2ad"
-                },
-                "cargo-c-sources.json"
-            ],
-            "cleanup": [
-                "*"
-            ]
-        },
-        {
-            "name": "gst-plugins-rs",
+            "name": "gst-plugin-gtk4",
             "buildsystem": "simple",
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://gitlab.com/adhami3310/Footage/-/raw/615ef6e9c600da451ead6113cda06cc0033901b9/flatpak/gst-plugins-rs.tar.xz?inline=false",
-                    "sha256": "60d8d83f3228f282c2d93030ff583a7eff0fd7423aba9907ac8d579f89505c20"
-                }
+                    "url": "https://crates.io/api/v1/crates/gst-plugin-gtk4/0.12.5/download",
+                    "dest-filename": "gst-plugin-gtk4-0.12.5.tar.gz",
+                    "sha256": "56e483cb1452f056ae94ccd5f63bdec697e04c87b30d89eb30c3f934042e1022"
+                },
+                "gst-plugin-gtk4-sources.json"
             ],
             "build-commands": [
-                "cargo --offline fetch --manifest-path Cargo.toml --verbose",
-                "cargo cinstall -p gst-plugin-gtk4 --prefix=/app",
-                "cargo cinstall -p gst-plugin-gif --prefix=/app"
-            ]
+                "cargo cinstall --offline --release --features=wayland,x11glx,x11egl,gtk_v4_14 --library-type=cdylib --prefix=/app --libdir=/app/lib"
+            ],
+            "build-options": {
+                "env": {
+                    "CARGO_HOME": "/run/build/gst-plugin-gtk4/cargo"
+                }
+            }
+        },
+        {
+            "name": "gst-plugin-gif",
+            "buildsystem": "simple",
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://crates.io/api/v1/crates/gst-plugin-gif/0.13.0/download",
+                    "dest-filename": "gst-plugin-gif-0.13.0.tar.gz",
+                    "sha256": "cc129158467d8083bebb7a63aab59a4f0dbb29f3ecf7c5072d8205a69bcbe72a"
+                },
+                "gst-plugin-gif-sources.json"
+            ],
+            "build-commands": [
+                "cargo cinstall --offline --release --library-type=cdylib --prefix=/app --libdir=/app/lib"
+            ],
+            "build-options": {
+                "env": {
+                    "CARGO_HOME": "/run/build/gst-plugin-gif/cargo"
+                }
+            }
         },
         {
             "name": "footage",

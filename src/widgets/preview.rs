@@ -250,8 +250,12 @@ impl VideoPreview {
             .expect("Unable to set the pipeline to the `Paused` state");
 
         let bus_watch = bus
-            .add_watch_local(
-                clone!(@weak self as this => @default-return glib::ControlFlow::Break, move |_, msg| {
+            .add_watch_local(clone!(
+                #[weak(rename_to=this)]
+                self,
+                #[upgrade_or]
+                glib::ControlFlow::Break,
+                move |_, msg| {
                     use gst::MessageView;
 
                     match msg.view() {
@@ -273,20 +277,24 @@ impl VideoPreview {
                     };
 
                     glib::ControlFlow::Continue
-                }),
-            )
+                }
+            ))
             .expect("Failed to add bus watch");
 
         self.imp().pipeline.replace(Some(pipeline));
         self.imp().bus_watch.replace(Some(bus_watch));
 
-        glib::spawn_future_local(clone!(@weak self as this => async move {
-            while let Ok(p) = receiver.recv().await {
-                if this.is_playing() {
-                    this.emit_by_name::<()>("set-position", &[&(p + this.imp().inpoint.get())]);
+        glib::spawn_future_local(clone!(
+            #[weak(rename_to = this)]
+            self,
+            async move {
+                while let Ok(p) = receiver.recv().await {
+                    if this.is_playing() {
+                        this.emit_by_name::<()>("set-position", &[&(p + this.imp().inpoint.get())]);
+                    }
                 }
             }
-        }));
+        ));
     }
 
     // fn update_position(&self) {

@@ -194,21 +194,33 @@ impl AppWindow {
     fn setup_gactions(&self) {
         self.add_action_entries([
             gio::ActionEntry::builder("close")
-                .activate(clone!(@weak self as window => move |_,_, _| {
-                    window.close();
-                }))
+                .activate(clone!(
+                    #[weak(rename_to=window)]
+                    self,
+                    move |_, _, _| {
+                        window.close();
+                    }
+                ))
                 .build(),
             gio::ActionEntry::builder("about")
-                .activate(clone!(@weak self as window => move |_, _, _| {
-                    window.show_about();
-                }))
+                .activate(clone!(
+                    #[weak(rename_to=window)]
+                    self,
+                    move |_, _, _| {
+                        window.show_about();
+                    }
+                ))
                 .build(),
             gio::ActionEntry::builder("open")
-                .activate(clone!(@weak self as window => move |_, _, _| {
-                    spawn!(async move {
-                        window.open_dialog().await;
-                    });
-                }))
+                .activate(clone!(
+                    #[weak(rename_to=window)]
+                    self,
+                    move |_, _, _| {
+                        spawn!(async move {
+                            window.open_dialog().await;
+                        });
+                    }
+                ))
                 .build(),
         ]);
     }
@@ -216,24 +228,38 @@ impl AppWindow {
     fn setup_callbacks(&self) {
         let imp = self.imp();
 
-        imp.rotate_left_button
-            .connect_clicked(clone!(@weak self as this => move |_| {
+        imp.rotate_left_button.connect_clicked(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |_| {
                 this.imp().video_preview.rotate_left();
-            }));
-        imp.rotate_right_button
-            .connect_clicked(clone!(@weak self as this => move |_| {
+            }
+        ));
+        imp.rotate_right_button.connect_clicked(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |_| {
                 this.imp().video_preview.rotate_right();
-            }));
-        imp.horizontal_flip_button
-            .connect_clicked(clone!(@weak self as this => move |_| {
+            }
+        ));
+        imp.horizontal_flip_button.connect_clicked(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |_| {
                 this.imp().video_preview.horizontal_flip();
-            }));
-        imp.vertical_flip_button
-            .connect_clicked(clone!(@weak self as this => move |_| {
+            }
+        ));
+        imp.vertical_flip_button.connect_clicked(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |_| {
                 this.imp().video_preview.vertical_flip();
-            }));
-        imp.audio_button
-            .connect_toggled(clone!(@weak self as this => move |b| {
+            }
+        ));
+        imp.audio_button.connect_toggled(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |b| {
                 if b.is_active() {
                     b.set_icon_name("audio-volume-muted-symbolic");
                     b.set_tooltip_text(Some(&gettext("Enable Audio")));
@@ -249,46 +275,80 @@ impl AppWindow {
                         this.imp().video_preview.unmute();
                     }
                 }
-            }));
-        imp.save_button
-            .connect_clicked(clone!(@weak self as this => move |_| {
+            }
+        ));
+        imp.save_button.connect_clicked(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |_| {
                 spawn!(async move {
                     this.save_dialog().await;
                 });
-            }));
-        imp.try_again_button
-            .connect_clicked(clone!(@weak self as this => move |_| {
+            }
+        ));
+        imp.try_again_button.connect_clicked(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |_| {
                 this.imp().video_preview.refresh_ui();
                 this.imp().stack.set_visible_child_name("editing");
-            }));
-        imp.done_button
-            .connect_clicked(clone!(@weak self as this => move |_| {
+            }
+        ));
+        imp.done_button.connect_clicked(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |_| {
                 this.imp().stack.set_visible_child_name("welcome");
                 this.imp().back_edit.set_visible(false);
-            }));
-        imp.cancel_button
-            .connect_clicked(clone!(@weak self as this => move |_| {
+            }
+        ));
+        imp.cancel_button.connect_clicked(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |_| {
                 this.convert_cancel(false);
-            }));
-        imp.back_edit
-            .connect_clicked(clone!(@weak self as this => move |g| {
+            }
+        ));
+        imp.back_edit.connect_clicked(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |g| {
                 this.imp().video_preview.refresh_ui();
                 this.imp().stack.set_visible_child_name("editing");
                 g.set_visible(false);
-            }));
-        imp.open_result
-            .connect_clicked(clone!(@weak self as this => move |_| {
+            }
+        ));
+        imp.open_result.connect_clicked(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |_| {
                 spawn!(async move {
-                    let file = std::fs::File::open(this.imp().result_video_path.borrow().as_ref().unwrap()).unwrap();
-                    ashpd::desktop::open_uri::OpenFileRequest::default().ask(true).identifier(ashpd::WindowIdentifier::from_native(&this.native().unwrap()).await).send_file(&file.as_fd()).await.ok();
+                    let file = std::fs::File::open(
+                        this.imp().result_video_path.borrow().as_ref().unwrap(),
+                    )
+                    .unwrap();
+                    ashpd::desktop::open_uri::OpenFileRequest::default()
+                        .ask(true)
+                        .identifier(
+                            ashpd::WindowIdentifier::from_native(&this.native().unwrap()).await,
+                        )
+                        .send_file(&file.as_fd())
+                        .await
+                        .ok();
                 });
-            }));
-        imp.container_row
-            .connect_selected_notify(clone!(@weak self as this => move |_| {
+            }
+        ));
+        imp.container_row.connect_selected_notify(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |_| {
                 this.update_options();
-            }));
-        imp.resize_type
-            .connect_selected_notify(clone!(@weak self as this => move |rt| {
+            }
+        ));
+        imp.resize_type.connect_selected_notify(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |rt| {
                 match rt.selected() {
                     0 => {
                         this.imp().resize_width_value.set_visible(false);
@@ -302,140 +362,244 @@ impl AppWindow {
                         this.imp().resize_scale_width_value.set_visible(false);
                         this.imp().resize_scale_height_value.set_visible(false);
                     }
-                    _ => unreachable!()
+                    _ => unreachable!(),
                 }
-            }));
-        imp.resize_width_value
-            .connect_changed(clone!(@weak self as this => move |_| {
+            }
+        ));
+        imp.resize_width_value.connect_changed(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |_| {
                 this.update_height_from_width();
-            }));
-        imp.resize_height_value
-            .connect_changed(clone!(@weak self as this => move |_| {
+            }
+        ));
+        imp.resize_height_value.connect_changed(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |_| {
                 this.update_width_from_height();
-            }));
+            }
+        ));
 
-        imp.resize_scale_height_value
-            .connect_changed(clone!(@weak self as this => move |_| {
+        imp.resize_scale_height_value.connect_changed(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |_| {
                 // if this.imp().link_axis.is_active() && this.imp().link_axis.is_visible() {
-                    let old_value = this.imp().resize_scale_width_value.text().as_str().to_owned();
-                    let new_value = this.imp().resize_scale_height_value.text().as_str().to_owned();
-                    if old_value != new_value && !new_value.is_empty() {
-                        this.imp().resize_scale_width_value.set_text(&new_value);
-                    }
+                let old_value = this
+                    .imp()
+                    .resize_scale_width_value
+                    .text()
+                    .as_str()
+                    .to_owned();
+                let new_value = this
+                    .imp()
+                    .resize_scale_height_value
+                    .text()
+                    .as_str()
+                    .to_owned();
+                if old_value != new_value && !new_value.is_empty() {
+                    this.imp().resize_scale_width_value.set_text(&new_value);
+                }
                 // }
-            }));
+            }
+        ));
 
-        imp.resize_scale_width_value
-            .connect_changed(clone!(@weak self as this => move |_| {
+        imp.resize_scale_width_value.connect_changed(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |_| {
                 // if this.imp().link_axis.is_active() && this.imp().link_axis.is_visible() {
-                    let old_value = this.imp().resize_scale_height_value.text().as_str().to_owned();
-                    let new_value = this.imp().resize_scale_width_value.text().as_str().to_owned();
-                    if old_value != new_value && !new_value.is_empty() {
-                        this.imp().resize_scale_height_value.set_text(&new_value);
-                    }
+                let old_value = this
+                    .imp()
+                    .resize_scale_height_value
+                    .text()
+                    .as_str()
+                    .to_owned();
+                let new_value = this
+                    .imp()
+                    .resize_scale_width_value
+                    .text()
+                    .as_str()
+                    .to_owned();
+                if old_value != new_value && !new_value.is_empty() {
+                    this.imp().resize_scale_height_value.set_text(&new_value);
+                }
                 // }
-            }));
+            }
+        ));
 
-        imp.video_preview.imp().crop_box.connect_local("crop-box-changed", true, clone!(@weak self as this => @default-return None, move |v| {
-            let (t,r,b,l): (f64, f64, f64, f64) = (v.get(1)?.get().ok()?, v.get(2)?.get().ok()?, v.get(3)?.get().ok()?, v.get(4)?.get().ok()?);
+        imp.video_preview.imp().crop_box.connect_local(
+            "crop-box-changed",
+            true,
+            clone!(
+                #[weak(rename_to=this)]
+                self,
+                #[upgrade_or]
+                None,
+                move |v| {
+                    let (t, r, b, l): (f64, f64, f64, f64) = (
+                        v.get(1)?.get().ok()?,
+                        v.get(2)?.get().ok()?,
+                        v.get(3)?.get().ok()?,
+                        v.get(4)?.get().ok()?,
+                    );
 
-            let video_dimensions = this.imp().video_dimensions.get()?;
+                    let video_dimensions = this.imp().video_dimensions.get()?;
 
-            let selected_height = (video_dimensions.height_f64() * (1. - t - b)) as u32 / 2 * 2;
-            let selected_width = (video_dimensions.width_f64() as f64 * (1. - l - r)) as u32 / 2 * 2;
+                    let selected_height =
+                        (video_dimensions.height_f64() * (1. - t - b)) as u32 / 2 * 2;
+                    let selected_width =
+                        (video_dimensions.width_f64() as f64 * (1. - l - r)) as u32 / 2 * 2;
 
-            this.imp().selected_video_dimensions.set(Some(Dimensions { width: selected_width, height: selected_height }));
+                    this.imp().selected_video_dimensions.set(Some(Dimensions {
+                        width: selected_width,
+                        height: selected_height,
+                    }));
 
-            this.imp().resize_height_value.set_text(&selected_height.to_string());
-            this.imp().resize_width_value.set_text(&selected_width.to_string());
+                    this.imp()
+                        .resize_height_value
+                        .set_text(&selected_height.to_string());
+                    this.imp()
+                        .resize_width_value
+                        .set_text(&selected_width.to_string());
 
-            None
-        }));
+                    None
+                }
+            ),
+        );
 
         imp.video_preview.connect_local(
             "orientation-flipped",
             true,
-            clone!(@weak self as this => @default-return None, move |_| {
-                if let Some(video_dimensions) = this.imp().video_dimensions.get() {
-                    this.imp().video_dimensions.set(Some(video_dimensions.swap()));
+            clone!(
+                #[weak(rename_to=this)]
+                self,
+                #[upgrade_or]
+                None,
+                move |_| {
+                    if let Some(video_dimensions) = this.imp().video_dimensions.get() {
+                        this.imp()
+                            .video_dimensions
+                            .set(Some(video_dimensions.swap()));
+                    }
+                    None
                 }
-                None
-            }),
+            ),
         );
 
         imp.timeline.connect_local(
             "set-range",
             true,
-            clone!(@weak self as this => @default-return None, move |values| {
-                let values = values.to_vec();
-                let start: u64 = values.get(1).unwrap().get().expect("Expected a U64");
-                let end: u64 = values.get(2).unwrap().get().expect("Expected a U64");
-                if this.imp().video_preview.imp().inpoint.get() != start || this.imp().video_preview.imp().outpoint.get() != end {
-                    this.imp().video_preview.set_range(start, end);
+            clone!(
+                #[weak(rename_to=this)]
+                self,
+                #[upgrade_or]
+                None,
+                move |values| {
+                    let values = values.to_vec();
+                    let start: u64 = values.get(1).unwrap().get().expect("Expected a U64");
+                    let end: u64 = values.get(2).unwrap().get().expect("Expected a U64");
+                    if this.imp().video_preview.imp().inpoint.get() != start
+                        || this.imp().video_preview.imp().outpoint.get() != end
+                    {
+                        this.imp().video_preview.set_range(start, end);
+                    }
+                    None
                 }
-                None
-            }),
+            ),
         );
 
         imp.timeline.connect_local(
             "moving",
             true,
-            clone!(@weak self as this => @default-return None, move |_| {
-                this.imp().video_preview.pause();
-                None
-            }),
+            clone!(
+                #[weak(rename_to=this)]
+                self,
+                #[upgrade_or]
+                None,
+                move |_| {
+                    this.imp().video_preview.pause();
+                    None
+                }
+            ),
         );
 
         imp.timeline.connect_local(
             "set-position",
             true,
-            clone!(@weak self as this => @default-return None, move |values| {
-                let position: u64 = values[1].get().expect("Expected a U64");
+            clone!(
+                #[weak(rename_to=this)]
+                self,
+                #[upgrade_or]
+                None,
+                move |values| {
+                    let position: u64 = values[1].get().expect("Expected a U64");
 
-                this.imp().video_preview.seek(position);
+                    this.imp().video_preview.seek(position);
 
-                None
-            }),
+                    None
+                }
+            ),
         );
 
         imp.video_preview.connect_local(
             "mode-changed",
             true,
-            clone!(@weak self as this => @default-return None, move |values| {
-                let playing: bool = values[1].get().expect("Expected a U64");
+            clone!(
+                #[weak(rename_to=this)]
+                self,
+                #[upgrade_or]
+                None,
+                move |values| {
+                    let playing: bool = values[1].get().expect("Expected a U64");
 
-                if playing {
-                    this.imp().play_pause.set_icon_name("pause-symbolic");
-                    this.imp().play_pause.set_tooltip_text(Some(&gettext("Pause")));
-                } else {
-                    this.imp().play_pause.set_icon_name("play-symbolic");
-                    this.imp().play_pause.set_tooltip_text(Some(&gettext("Play")));
+                    if playing {
+                        this.imp().play_pause.set_icon_name("pause-symbolic");
+                        this.imp()
+                            .play_pause
+                            .set_tooltip_text(Some(&gettext("Pause")));
+                    } else {
+                        this.imp().play_pause.set_icon_name("play-symbolic");
+                        this.imp()
+                            .play_pause
+                            .set_tooltip_text(Some(&gettext("Play")));
+                    }
+
+                    None
                 }
-
-                None
-            }),
+            ),
         );
 
         imp.video_preview.connect_local(
             "set-position",
             true,
-            clone!(@weak self as this => @default-return None, move |values| {
-                let position: u64 = values[1].get().expect("Expected a U64");
+            clone!(
+                #[weak(rename_to=this)]
+                self,
+                #[upgrade_or]
+                None,
+                move |values| {
+                    let position: u64 = values[1].get().expect("Expected a U64");
 
-                this.imp().timeline.set_position(position);
+                    this.imp().timeline.set_position(position);
 
-                None
-            }),
+                    None
+                }
+            ),
         );
 
-        imp.play_pause
-            .connect_clicked(clone!(@weak self as this => move |b| {
+        imp.play_pause.connect_clicked(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |b| {
                 if b.icon_name().unwrap() == "play-symbolic" {
                     this.imp().video_preview.play();
                 } else {
                     this.imp().video_preview.pause();
                 }
-            }));
+            }
+        ));
     }
 
     fn update_width_from_height(&self) {
@@ -505,22 +669,26 @@ impl AppWindow {
 
         stop_converting_dialog.connect_response(
             None,
-            clone!(@weak self as this => move |_, response_id| {
-                if response_id == "stop" {
-                    this.imp()
-                        .running_flag
-                        .store(false, std::sync::atomic::Ordering::SeqCst);
+            clone!(
+                #[weak(rename_to=this)]
+                self,
+                move |_, response_id| {
+                    if response_id == "stop" {
+                        this.imp()
+                            .running_flag
+                            .store(false, std::sync::atomic::Ordering::SeqCst);
 
-                    if closing {
-                        this.close();
-                    } else {
-                        this.imp().stack.set_visible_child_name("failure");
+                        if closing {
+                            this.close();
+                        } else {
+                            this.imp().stack.set_visible_child_name("failure");
+                        }
                     }
                 }
-            }),
+            ),
         );
 
-        stop_converting_dialog.present(self);
+        stop_converting_dialog.present(Some(self));
     }
 
     async fn open_dialog(&self) {
@@ -688,32 +856,42 @@ impl AppWindow {
             running_flag,
         );
 
-        glib::spawn_future_local(clone!(@weak self as this => async move {
-            let mut most_done = 0;
-            while let Ok(p) = receiver.recv().await {
-                if !receiver_running_flag.load(std::sync::atomic::Ordering::SeqCst) {
-                    this.imp().stack.set_visible_child_name("failure");
-                    break;
-                }
-                match p {
-                    Ok((done, total)) if done == total => {
-                        this.imp().stack.set_visible_child_name("success");
-                        this.imp().back_edit.set_visible(true);
-                        this.imp().running_flag.store(false, std::sync::atomic::Ordering::SeqCst);
-                        break
-                    }
-                    Ok((done, total)) => {
-                        most_done = std::cmp::max(done, most_done);
-                        this.imp().progress_bar.set_fraction(most_done as f64 / total as f64);
-                    }
-                    Err(_) => {
+        glib::spawn_future_local(clone!(
+            #[weak(rename_to=this)]
+            self,
+            async move {
+                let mut most_done = 0;
+                while let Ok(p) = receiver.recv().await {
+                    if !receiver_running_flag.load(std::sync::atomic::Ordering::SeqCst) {
                         this.imp().stack.set_visible_child_name("failure");
-                        this.imp().running_flag.store(false, std::sync::atomic::Ordering::SeqCst);
-                        break
+                        break;
+                    }
+                    match p {
+                        Ok((done, total)) if done == total => {
+                            this.imp().stack.set_visible_child_name("success");
+                            this.imp().back_edit.set_visible(true);
+                            this.imp()
+                                .running_flag
+                                .store(false, std::sync::atomic::Ordering::SeqCst);
+                            break;
+                        }
+                        Ok((done, total)) => {
+                            most_done = std::cmp::max(done, most_done);
+                            this.imp()
+                                .progress_bar
+                                .set_fraction(most_done as f64 / total as f64);
+                        }
+                        Err(_) => {
+                            this.imp().stack.set_visible_child_name("failure");
+                            this.imp()
+                                .running_flag
+                                .store(false, std::sync::atomic::Ordering::SeqCst);
+                            break;
+                        }
                     }
                 }
             }
-        }));
+        ));
     }
 
     fn create_ui(&self, path: PathBuf) {
@@ -777,7 +955,7 @@ impl AppWindow {
         // Translators: Replace "translator-credits" with your names, one name per line
         about.set_translator_credits(&gettext("translator-credits"));
 
-        about.present(self);
+        about.present(Some(self));
     }
 }
 

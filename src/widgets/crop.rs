@@ -173,99 +173,123 @@ mod imp {
             obj.add_controller(event_controller_motion);
 
             let event_controller_keyboard = gtk::EventControllerKey::new();
-            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::Propagation::Stop, move |_, k, _, _| {
-                match k {
-                    Key::Down => {
-                        this.bring_top_down();
-                        glib::Propagation::Stop
+            event_controller_keyboard.connect_key_pressed(clone!(
+                #[weak(rename_to=this)]
+                self,
+                #[upgrade_or]
+                glib::Propagation::Stop,
+                move |_, k, _, _| {
+                    match k {
+                        Key::Down => {
+                            this.bring_top_down();
+                            glib::Propagation::Stop
+                        }
+                        Key::Up => {
+                            this.bring_top_up();
+                            glib::Propagation::Stop
+                        }
+                        Key::Left => {
+                            this.bring_left_left();
+                            glib::Propagation::Stop
+                        }
+                        Key::Right => {
+                            this.bring_left_right();
+                            glib::Propagation::Stop
+                        }
+                        _ => glib::Propagation::Proceed,
                     }
-                    Key::Up => {
-                        this.bring_top_up();
-                        glib::Propagation::Stop
-                    }
-                    Key::Left => {
-                        this.bring_left_left();
-                        glib::Propagation::Stop
-                    }
-                    Key::Right => {
-                        this.bring_left_right();
-                        glib::Propagation::Stop
-                    }
-                    _ => glib::Propagation::Proceed
                 }
-            }));
+            ));
             self.top_left.add_controller(event_controller_keyboard);
 
             let event_controller_keyboard = gtk::EventControllerKey::new();
-            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::Propagation::Stop, move |_, k, _, _| {
-                match k {
-                    Key::Down => {
-                        this.bring_bottom_down();
-                        glib::Propagation::Stop
+            event_controller_keyboard.connect_key_pressed(clone!(
+                #[weak(rename_to = this)]
+                self,
+                #[upgrade_or]
+                glib::Propagation::Stop,
+                move |_, k, _, _| {
+                    match k {
+                        Key::Down => {
+                            this.bring_bottom_down();
+                            glib::Propagation::Stop
+                        }
+                        Key::Up => {
+                            this.bring_bottom_up();
+                            glib::Propagation::Stop
+                        }
+                        Key::Left => {
+                            this.bring_left_left();
+                            glib::Propagation::Stop
+                        }
+                        Key::Right => {
+                            this.bring_left_right();
+                            glib::Propagation::Stop
+                        }
+                        _ => glib::Propagation::Proceed,
                     }
-                    Key::Up => {
-                        this.bring_bottom_up();
-                        glib::Propagation::Stop
-                    }
-                    Key::Left => {
-                        this.bring_left_left();
-                        glib::Propagation::Stop
-                    }
-                    Key::Right => {
-                        this.bring_left_right();
-                        glib::Propagation::Stop
-                    }
-                    _ => glib::Propagation::Proceed
                 }
-            }));
+            ));
             self.bottom_left.add_controller(event_controller_keyboard);
 
             let event_controller_keyboard = gtk::EventControllerKey::new();
-            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::Propagation::Stop, move |_, k, _, _| {
-                match k {
-                    Key::Down => {
-                        this.bring_top_down();
-                        glib::Propagation::Stop
+            event_controller_keyboard.connect_key_pressed(clone!(
+                #[weak(rename_to=this)]
+                self,
+                #[upgrade_or]
+                glib::Propagation::Stop,
+                move |_, k, _, _| {
+                    match k {
+                        Key::Down => {
+                            this.bring_top_down();
+                            glib::Propagation::Stop
+                        }
+                        Key::Up => {
+                            this.bring_top_up();
+                            glib::Propagation::Stop
+                        }
+                        Key::Left => {
+                            this.bring_right_left();
+                            glib::Propagation::Stop
+                        }
+                        Key::Right => {
+                            this.bring_right_right();
+                            glib::Propagation::Stop
+                        }
+                        _ => glib::Propagation::Proceed,
                     }
-                    Key::Up => {
-                        this.bring_top_up();
-                        glib::Propagation::Stop
-                    }
-                    Key::Left => {
-                        this.bring_right_left();
-                        glib::Propagation::Stop
-                    }
-                    Key::Right => {
-                        this.bring_right_right();
-                        glib::Propagation::Stop
-                    }
-                    _ => glib::Propagation::Proceed
                 }
-            }));
+            ));
             self.top_right.add_controller(event_controller_keyboard);
 
             let event_controller_keyboard = gtk::EventControllerKey::new();
-            event_controller_keyboard.connect_key_pressed(clone!(@weak self as this => @default-return glib::Propagation::Stop, move |_, k, _, _| {
-                match k {
-                    Key::Down => {
-                        this.bring_bottom_down();
-                        glib::Propagation::Stop
+            event_controller_keyboard.connect_key_pressed(clone!(
+                #[weak(rename_to = this)]
+                self,
+                #[upgrade_or]
+                glib::Propagation::Stop,
+                move |_, k, _, _| {
+                    match k {
+                        Key::Down => {
+                            this.bring_bottom_down();
+                            glib::Propagation::Stop
+                        }
+                        Key::Up => {
+                            this.bring_bottom_up();
+                            glib::Propagation::Stop
+                        }
+                        Key::Left => {
+                            this.bring_right_left();
+                            glib::Propagation::Stop
+                        }
+                        Key::Right => {
+                            this.bring_right_right();
+                            glib::Propagation::Stop
+                        }
+                        _ => glib::Propagation::Proceed,
                     }
-                    Key::Up => {
-                        this.bring_bottom_up();
-                        glib::Propagation::Stop
-                    }
-                    Key::Left => {
-                        this.bring_right_left();
-                        glib::Propagation::Stop
-                    }
-                    Key::Right => {
-                        this.bring_right_right();
-                        glib::Propagation::Stop
-                    }
-                    _ => glib::Propagation::Proceed
                 }
-            }));
+            ));
             self.bottom_right.add_controller(event_controller_keyboard);
         }
 
