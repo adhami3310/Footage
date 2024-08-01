@@ -146,7 +146,7 @@ mod imp {
             }
 
             if self.running_flag.load(std::sync::atomic::Ordering::SeqCst) {
-                self.obj().close_dialog();
+                self.obj().convert_cancel(true);
                 glib::Propagation::Stop
             } else {
                 // Pass close request on to the parent
@@ -268,7 +268,7 @@ impl AppWindow {
             }));
         imp.cancel_button
             .connect_clicked(clone!(@weak self as this => move |_| {
-                this.convert_cancel();
+                this.convert_cancel(false);
             }));
         imp.back_edit
             .connect_clicked(clone!(@weak self as this => move |g| {
@@ -492,34 +492,8 @@ impl AppWindow {
         // }
     }
 
-    fn close_dialog(&self) {
-        let stop_converting_dialog = adw::MessageDialog::new(
-            Some(self),
-            Some(&gettext("Stop rendering?")),
-            Some(&gettext("You will lose all progress.")),
-        );
-
-        stop_converting_dialog.add_response("cancel", &gettext("_Cancel"));
-        stop_converting_dialog.add_response("stop", &gettext("_Stop"));
-        stop_converting_dialog
-            .set_response_appearance("stop", adw::ResponseAppearance::Destructive);
-        stop_converting_dialog.connect_response(
-            None,
-            clone!(@weak self as this => move |_, response_id| {
-                if response_id == "stop" {
-                    this.imp()
-                        .running_flag
-                        .store(false, std::sync::atomic::Ordering::SeqCst);
-                    this.close();
-                }
-            }),
-        );
-        stop_converting_dialog.present();
-    }
-
-    fn convert_cancel(&self) {
-        let stop_converting_dialog = adw::MessageDialog::new(
-            Some(self),
+    fn convert_cancel(&self, closing: bool) {
+        let stop_converting_dialog = adw::AlertDialog::new(
             Some(&gettext("Stop rendering?")),
             Some(&gettext("You will lose all progress.")),
         );
@@ -536,12 +510,17 @@ impl AppWindow {
                     this.imp()
                         .running_flag
                         .store(false, std::sync::atomic::Ordering::SeqCst);
-                    this.imp().stack.set_visible_child_name("failure");
+
+                    if closing {
+                        this.close();
+                    } else {
+                        this.imp().stack.set_visible_child_name("failure");
+                    }
                 }
             }),
         );
 
-        stop_converting_dialog.present();
+        stop_converting_dialog.present(self);
     }
 
     async fn open_dialog(&self) {
@@ -787,19 +766,18 @@ impl AppWindow {
     }
 
     fn show_about(&self) {
-        let about = adw::AboutWindow::from_appdata(
+        let about = adw::AboutDialog::from_appdata(
             "/io/gitlab/adhami3310/Footage/io.gitlab.adhami3310.Footage.metainfo.xml",
             Some("1.3"),
         );
 
-        about.set_transient_for(Some(self));
         about.set_developers(&["Khaleel Al-Adhami"]);
         about.set_artists(&["kramo https://kramo.hu"]);
 
         // Translators: Replace "translator-credits" with your names, one name per line
         about.set_translator_credits(&gettext("translator-credits"));
 
-        about.present();
+        about.present(self);
     }
 }
 
