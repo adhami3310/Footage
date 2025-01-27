@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-07 21:02-0500\n"
+"POT-Creation-Date: 2025-01-27 13:08-0300\n"
 "PO-Revision-Date: 2023-10-28 11:10+0300\n"
 "Last-Translator: Сергей Ворон <voron@duck.com>\n"
 "Language-Team: \n"
@@ -19,26 +19,24 @@ msgstr ""
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 "X-Generator: Poedit 3.4\n"
 
-#: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
+#: data/io.gitlab.adhami3310.Footage.desktop.in.in:2
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
 #: data/resources/blueprints/window.blp:9
 #: data/resources/blueprints/window.blp:42 src/main.rs:48
 msgid "Footage"
 msgstr "Footage"
 
-#: data/io.gitlab.adhami3310.Footage.desktop.in.in:4
+#: data/io.gitlab.adhami3310.Footage.desktop.in.in:3
 msgid "Video Editor"
 msgstr "Редактор видео"
 
-#: data/io.gitlab.adhami3310.Footage.desktop.in.in:5
+#: data/io.gitlab.adhami3310.Footage.desktop.in.in:4
 msgid "Polish Your Videos"
 msgstr "Улучшайте свои видео"
 
-#: data/io.gitlab.adhami3310.Footage.desktop.in.in:11
+#: data/io.gitlab.adhami3310.Footage.desktop.in.in:10
 msgid "video;edit;trim;crop;convert"
-msgstr ""
-"video;edit;trim;crop;convert;видео;редактировать;обрезать;вырезать;"
-"конвертировать"
+msgstr "video;edit;trim;crop;convert;видео;редактировать;обрезать;вырезать;конвертировать"
 
 #: data/io.gitlab.adhami3310.Footage.gschema.xml.in:6
 msgid "Window width"
@@ -94,6 +92,38 @@ msgstr "конвертировать"
 msgid "Editing screen with default options"
 msgstr "Экран редактирования с параметрами по умолчанию"
 
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:68
+msgid "Fixes crash when framerate is undefined."
+msgstr ""
+
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:73
+msgid "Fixes various random crashes."
+msgstr ""
+
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:78
+msgid "Fixes various bugs and upgrades to GNOME runtime 45."
+msgstr ""
+
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:83
+msgid ""
+"This minor release introduces a fix for X11 and additional translation "
+"support."
+msgstr ""
+"В этом выпуске представлено исправление для X11 и дополнительная поддержка "
+"перевода."
+
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:88
+msgid ""
+"This minor release introduces a couple of bug fixes and enhances keyboard "
+"accessibility."
+msgstr ""
+"В этом минорном выпуске исправлено несколько ошибок и улучшены возможности "
+"клавиатуры."
+
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:93
+msgid "Initial version."
+msgstr "Первоначальная версия."
+
 #: data/resources/blueprints/help-overlay.blp:11
 msgctxt "shortcut window"
 msgid "General"
@@ -119,19 +149,19 @@ msgctxt "shortcut window"
 msgid "Quit"
 msgstr "Выйти"
 
-#: data/resources/blueprints/crop.blp:24
+#: data/resources/blueprints/crop.blp:53
 msgid "Top left crop corner"
 msgstr "Верхний левый угол обрезки"
 
-#: data/resources/blueprints/crop.blp:34
+#: data/resources/blueprints/crop.blp:63
 msgid "Top right crop corner"
 msgstr "Верхний правый угол обрезки"
 
-#: data/resources/blueprints/crop.blp:49
+#: data/resources/blueprints/crop.blp:78
 msgid "Bottom left crop corner"
 msgstr "Нижний левый угол обрезки"
 
-#: data/resources/blueprints/crop.blp:59
+#: data/resources/blueprints/crop.blp:88
 msgid "Bottom right crop corner"
 msgstr "Нижний правый угол обрезки"
 
@@ -144,7 +174,7 @@ msgid "Choose a video to edit"
 msgstr "Выберите видео для редактирования"
 
 #: data/resources/blueprints/window.blp:54
-#: data/resources/blueprints/window.blp:379
+#: data/resources/blueprints/window.blp:375
 msgid "Open Video…"
 msgstr "Открыть видео..."
 
@@ -173,7 +203,7 @@ msgstr "Перевернуть по горизонтали"
 msgid "Flip Vertically"
 msgstr "Перевернуть по вертикали"
 
-#: data/resources/blueprints/window.blp:130 src/window.rs:239
+#: data/resources/blueprints/window.blp:130 src/window.rs:268
 msgid "Disable Audio"
 msgstr "Отключить звук"
 
@@ -217,63 +247,64 @@ msgstr "px"
 msgid "Framerate"
 msgstr "Частота кадров"
 
-#: data/resources/blueprints/window.blp:217
+#: data/resources/blueprints/window.blp:213
 msgid "Container Format"
 msgstr "Формат контейнера"
 
-#: data/resources/blueprints/window.blp:223
+#: data/resources/blueprints/window.blp:219
 msgid "Video Encoding"
 msgstr "Видеокодек"
 
-#: data/resources/blueprints/window.blp:229
+#: data/resources/blueprints/window.blp:225
 msgid "Audio Encoding"
 msgstr "Аудиокодек"
 
-#: data/resources/blueprints/window.blp:240
+#: data/resources/blueprints/window.blp:236
 msgid "Save Video"
 msgstr "Сохранить видео"
 
-#: data/resources/blueprints/window.blp:268
+#: data/resources/blueprints/window.blp:264
 msgid "Video Exported"
 msgstr "Видео экспортировано"
 
-#: data/resources/blueprints/window.blp:278
+#: data/resources/blueprints/window.blp:274
 msgid "View Result"
 msgstr "Показать результат"
 
-#: data/resources/blueprints/window.blp:290
+#: data/resources/blueprints/window.blp:286
 msgid "Finish"
 msgstr "Готово"
 
-#: data/resources/blueprints/window.blp:312
+#: data/resources/blueprints/window.blp:308
 msgid "Exporting Video Unsuccessful"
 msgstr "Не удалось экспортировать видео"
 
-#: data/resources/blueprints/window.blp:321
+#: data/resources/blueprints/window.blp:317
 msgid "Retry"
 msgstr "Повторить"
 
-#: data/resources/blueprints/window.blp:341
-msgid "Rendering…"
+#: data/resources/blueprints/window.blp:337
+#, fuzzy
+msgid "Rendering"
 msgstr "Рендеринг…"
 
-#: data/resources/blueprints/window.blp:343
+#: data/resources/blueprints/window.blp:339
 msgid "This may take a while"
 msgstr "Это может занять некоторое время"
 
-#: data/resources/blueprints/window.blp:358 src/window.rs:493 src/window.rs:519
+#: data/resources/blueprints/window.blp:354 src/window.rs:666
 msgid "_Cancel"
 msgstr "_Отменить"
 
-#: data/resources/blueprints/window.blp:384
+#: data/resources/blueprints/window.blp:380
 msgid "New Window"
 msgstr "Новое окно"
 
-#: data/resources/blueprints/window.blp:391
+#: data/resources/blueprints/window.blp:387
 msgid "Keyboard Shortcuts"
 msgstr "Комбинации клавиш"
 
-#: data/resources/blueprints/window.blp:396
+#: data/resources/blueprints/window.blp:392
 msgid "About Footage"
 msgstr "О приложении"
 
@@ -285,36 +316,36 @@ msgstr "Левый указатель обрезки"
 msgid "Right trimming handle"
 msgstr "Правый указатель обрезки"
 
-#: src/window.rs:235
+#: src/window.rs:265
 msgid "Enable Audio"
 msgstr "Включить звук"
 
-#: src/window.rs:400
+#: src/window.rs:561
 msgid "Pause"
 msgstr "Приостановить"
 
-#: src/window.rs:403
+#: src/window.rs:566
 msgid "Play"
 msgstr "Воспроизвести"
 
-#: src/window.rs:489 src/window.rs:514
+#: src/window.rs:661
 msgid "Stop rendering?"
 msgstr "Остановить рендеринг?"
 
-#: src/window.rs:490 src/window.rs:515
+#: src/window.rs:662
 msgid "You will lose all progress."
 msgstr "Вы потеряете весь прогресс."
 
-#: src/window.rs:494 src/window.rs:519
+#: src/window.rs:666
 msgid "_Stop"
 msgstr "_Остановить"
 
-#: src/window.rs:541
+#: src/window.rs:697
 msgid "Video Files"
 msgstr "Видеофайлы"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
-#: src/window.rs:787
+#: src/window.rs:956
 msgid "translator-credits"
 msgstr ""
 "Сергей Ворон <voron@duck.com>\n"
@@ -330,20 +361,3 @@ msgstr "Оставить как есть"
 
 #~ msgid "Open File…"
 #~ msgstr "Открыть файл…"
-
-#~ msgid ""
-#~ "This minor release introduces a fix for X11 and additional translation "
-#~ "support."
-#~ msgstr ""
-#~ "В этом выпуске представлено исправление для X11 и дополнительная "
-#~ "поддержка перевода."
-
-#~ msgid ""
-#~ "This minor release introduces a couple of bug fixes and enhances keyboard "
-#~ "accessibility."
-#~ msgstr ""
-#~ "В этом минорном выпуске исправлено несколько ошибок и улучшены "
-#~ "возможности клавиатуры."
-
-#~ msgid "Initial version."
-#~ msgstr "Первоначальная версия."
