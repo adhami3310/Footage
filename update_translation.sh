@@ -6,7 +6,6 @@ if [ -d "$BUILD_DIR" ]; then
 fi
 
 meson translation-build
-meson compile -C translation-build footage-pot
 meson compile -C translation-build footage-update-po
 
 rm -r translation-build
