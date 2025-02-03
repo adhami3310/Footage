@@ -788,7 +788,7 @@ impl AppWindow {
 
         self.imp()
             .success_status
-            .set_description(Some(&gettext!("Saved as {}", file_name)));
+            .set_description(Some(&gettext("Saved as {}").replace("{}", &file_name)));
 
         self.imp().stack.set_visible_child_name("exporting");
         glib::MainContext::default().iteration(true);

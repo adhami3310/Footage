@@ -1,7 +1,7 @@
 {
     "id": "io.gitlab.adhami3310.Footage",
     "runtime": "org.gnome.Platform",
-    "runtime-version": "46",
+    "runtime-version": "47",
     "sdk": "org.gnome.Sdk",
     "sdk-extensions": [
         "org.freedesktop.Sdk.Extension.rust-stable"
@@ -242,32 +242,86 @@
             ]
         },
         {
-            "name": "gstreamer",
+            "name": "gstreamer-plugins-bad",
             "buildsystem": "meson",
-            "builddir": true,
             "config-opts": [
                 "--libdir=lib",
                 "--wrap-mode=nodownload",
                 "-Dauto_features=disabled",
-                "-Dges=enabled",
-                "-Dvaapi=enabled",
-                "-Dgstreamer-vaapi:wayland=enabled",
-                "-Dgstreamer-vaapi:drm=enabled",
-                "-Dgstreamer-vaapi:x11=enabled",
-                "-Dgstreamer-vaapi:encoders=enabled",
-                "-Dbad=enabled",
-                "-Dugly=enabled",
-                "-Dgst-plugins-bad:x265=enabled",
-                "-Dgst-plugins-ugly:x264=enabled",
+                "-Dx265=enabled",
                 "-Dgpl=enabled"
             ],
+            "subdir": "subprojects/gst-plugins-bad",
             "sources": [
                 {
                     "type": "git",
-                    "tag": "1.24.6",
+                    "tag": "1.24.12",
                     "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
-                    "commit": "8d175ea255ea260ae4ad05175282bdfb1b975f35",
-                    "disable-submodules": false
+                    "commit": "88e31216479a3f0c25096ca406369f3983efec14",
+                    "disable-submodules": true
+                }
+            ]
+        },
+        {
+            "name": "gstreamer-vaaapi",
+            "buildsystem": "meson",
+            "config-opts": [
+                "--libdir=lib",
+                "--wrap-mode=nodownload",
+                "-Dauto_features=disabled",
+                "-Ddrm=enabled",
+                "-Dwayland=enabled",
+                "-Dx11=enabled",
+                "-Dencoders=enabled"
+            ],
+            "subdir": "subprojects/gstreamer-vaapi",
+            "sources": [
+                {
+                    "type": "git",
+                    "tag": "1.24.12",
+                    "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
+                    "commit": "88e31216479a3f0c25096ca406369f3983efec14",
+                    "disable-submodules": true
+                }
+            ]
+        },
+        {
+            "name": "gstreamer-plugins-ugly",
+            "buildsystem": "meson",
+            "config-opts": [
+                "--libdir=lib",
+                "--wrap-mode=nodownload",
+                "-Dauto_features=disabled",
+                "-Dx264=enabled",
+                "-Dgpl=enabled"
+            ],
+            "subdir": "subprojects/gst-plugins-ugly",
+            "sources": [
+                {
+                    "type": "git",
+                    "tag": "1.24.12",
+                    "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
+                    "commit": "88e31216479a3f0c25096ca406369f3983efec14",
+                    "disable-submodules": true
+                }
+            ]
+        },
+        {
+            "name": "gstreamer-editing-services",
+            "buildsystem": "meson",
+            "config-opts": [
+                "--libdir=lib",
+                "--wrap-mode=nodownload",
+                "-Dauto_features=disabled"
+            ],
+            "subdir": "subprojects/gst-editing-services",
+            "sources": [
+                {
+                    "type": "git",
+                    "tag": "1.24.12",
+                    "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
+                    "commit": "88e31216479a3f0c25096ca406369f3983efec14",
+                    "disable-submodules": true
                 }
             ]
         },

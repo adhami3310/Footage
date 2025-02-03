@@ -8,23 +8,28 @@ edition = "2021"
 [dependencies]
 gettext-rs = { version = "0.7", features = ["gettext-system"] }
 glib = "0.20"
-gtk = { version = "0.9", package = "gtk4", features = ["blueprint", "gnome_46"] }
+gtk = { version = "0.9", package = "gtk4", features = [
+    "blueprint",
+    "gnome_47",
+] }
 gtk-macros = { version = "0.9", package = "gtk4-macros", features = [
     "blueprint",
 ] }
-adw = { version = "0.7", package = "libadwaita", features = ["v1_5"] }
+adw = { version = "0.7", package = "libadwaita", features = ["v1_6"] }
 log = "0.4"
 once_cell = "1.19"
 pretty_env_logger = "0.5"
-itertools = "0.13"
-ashpd = { version = "0.9", features = ["gtk4"]}
+itertools = "0.14"
+ashpd = { version = "0.10", features = ["gtk4"] }
 async-std = "1.12"
-gst = { version = "0.23", package = "gstreamer", features = ["v1_22"] }
-ges = { version = "0.23", package = "gstreamer-editing-services", features = ["v1_22"] }
+gst = { version = "0.23", package = "gstreamer", features = ["v1_24"] }
+ges = { version = "0.23", package = "gstreamer-editing-services", features = [
+    "v1_24",
+] }
 url = "2.5"
-gstreamer-video = { version = "0.23", features = ["v1_22"] }
+gstreamer-video = { version = "0.23", features = ["v1_24"] }
 ordered-float = "4"
-gstreamer-pbutils = { version = "0.23", features = ["v1_22"] }
+gstreamer-pbutils = { version = "0.23", features = ["v1_24"] }
 fraction = "0.15"
 derivative = "2.2"
 async-channel = "2.3"
