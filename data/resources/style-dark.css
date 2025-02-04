@@ -1,5 +1,5 @@
 timeline > .selection {
-	background-color: @blue_3;
+	background-color: var(--accent-bg-color);
 }
 
 timeline > .position {

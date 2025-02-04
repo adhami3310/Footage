@@ -3,7 +3,10 @@
     <id>@app-id@</id>
 
     <name>Footage</name>
-    <developer_name>Khaleel Al-Adhami</developer_name>
+    <developer id="io.gitlab.adhami3310">
+        <name translate="no">Khaleel Al-Adhami</name>
+    </developer>
+
     <summary>Polish your videos</summary>
 
     <metadata_license>CC-BY-SA-4.0</metadata_license>
@@ -11,7 +14,9 @@
 
     <description>
         <p>
-            Trim, flip, rotate and crop individual clips. Footage is a useful tool for quickly editing short videos and screencasts. It's also capable of exporting any video into a format of your choice.
+            Trim, flip, rotate and crop individual clips. Footage is a useful tool for quickly
+            editing short videos and screencasts. It's also capable of exporting any video into a
+            format of your choice.
         </p>
     </description>
 
@@ -85,7 +90,8 @@
         </release>
         <release version="1.1" date="2023-06-16">
             <description translatable="no">
-                <p>This minor release introduces a couple of bug fixes and enhances keyboard accessibility.</p>
+                <p>This minor release introduces a couple of bug fixes and enhances keyboard
+                    accessibility.</p>
             </description>
         </release>
         <release version="1.0" date="2023-06-13">

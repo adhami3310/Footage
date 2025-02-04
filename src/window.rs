@@ -322,19 +322,21 @@ impl AppWindow {
             #[weak(rename_to=this)]
             self,
             move |_| {
+                let file =
+                    std::fs::File::open(this.imp().result_video_path.borrow().as_ref().unwrap())
+                        .unwrap();
                 spawn!(async move {
-                    let file = std::fs::File::open(
-                        this.imp().result_video_path.borrow().as_ref().unwrap(),
-                    )
-                    .unwrap();
-                    ashpd::desktop::open_uri::OpenFileRequest::default()
-                        .ask(true)
-                        .identifier(
-                            ashpd::WindowIdentifier::from_native(&this.native().unwrap()).await,
-                        )
-                        .send_file(&file.as_fd())
-                        .await
-                        .ok();
+                    tokio::runtime::Builder::new_current_thread()
+                        .enable_all()
+                        .build()
+                        .unwrap()
+                        .block_on(async move {
+                            ashpd::desktop::open_uri::OpenFileRequest::default()
+                                .ask(true)
+                                .send_file(&file.as_fd())
+                                .await
+                                .ok();
+                        });
                 });
             }
         ));

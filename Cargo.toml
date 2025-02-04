@@ -33,3 +33,4 @@ gstreamer-pbutils = { version = "0.23", features = ["v1_24"] }
 fraction = "0.15"
 derivative = "2.2"
 async-channel = "2.3"
+tokio = { version = "1.43.0", features = ["rt"] }

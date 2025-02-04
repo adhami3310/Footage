@@ -1,76 +1,69 @@
 timeline {
-	background-color: alpha(currentColor, .1);
-	border-radius: 6px;
+  background-color: alpha(currentColor, 0.1);
+  border-radius: 6px;
 }
 
 .timeline-selection {
-	background-color: @blue_1;
-	border-radius: 6px;
+  background-color: color-mix(in srgb, var(--accent-bg-color) 70%, white);
+  border-radius: 6px;
 }
 
 .timeline-position {
-	background-color: @blue_5;
-	min-width: 2px;
+  background-color: color-mix(in srgb, var(--accent-bg-color) 50%, black);
+  min-width: 2px;
 }
 
 .timeline-handle {
-	background-color: @blue_1;
-	padding: 0 4px;
-	min-width: 7px;
-}
-
-.timeline-handle:focus {
-	background-color: @blue_3;
+  background-color: color-mix(in srgb, var(--accent-bg-color) 70%, white);
+  outline-color: color-mix(in srgb, var(--accent-bg-color) 50%, black);
+  padding: 0 4px;
+  min-width: 7px;
 }
 
 .dots {
-	background-color: @blue_4;
-	min-width: 4px;
-	min-height: 4px;
-	border-radius: 4px;
-}
-
-.timeline-handle:focus .dots {
-	background-color: @blue_1;
+  background-color: color-mix(in srgb, var(--accent-bg-color) 50%, black);
+  min-width: 4px;
+  min-height: 4px;
+  border-radius: 4px;
 }
 
 .crop-handle {
-	outline: 5px solid white;
-	outline-offset: 0;
-	background-color: white;
-	box-shadow: 0 0 3px 5px #00000080;
-	border-radius: 10px;
-	padding: 0;
+  outline: 5px solid white;
+  outline-offset: 0;
+  background-color: white;
+  box-shadow: 0 0 3px 5px #00000080;
+  border-radius: 10px;
+  padding: 0;
 
-	min-width: 3px;
-	min-height: 3px;
-	z-index: 5;
+  min-width: 3px;
+  min-height: 3px;
+  z-index: 5;
 }
 
 .crop-border {
-	background-color: white;
-	min-height: 3px;
-	min-width: 3px;
-	box-shadow: 0 0 3px #00000080;
+  background-color: white;
+  min-height: 3px;
+  min-width: 3px;
+  box-shadow: 0 0 3px #00000080;
 }
 
 .crop-handle:focus {
-	outline: 8px solid @blue_3;
-	background-color: @blue_3;
-	box-shadow: 0 0 3px 8px #00000080;
+  outline: 8px solid var(--accent-bg-color);
+  background-color: var(--accent-bg-color);
+  box-shadow: 0 0 3px 8px #00000080;
 }
 
 .property box.title .title {
-	font-weight: 400;
-	font-size: 9pt;
-	opacity: 0.55;
+  font-weight: 400;
+  font-size: 9pt;
+  opacity: 0.55;
 }
 
 .property .subtitle {
-	font-size: inherit;
-	opacity: 1;
+  font-size: inherit;
+  opacity: 1;
 }
 
 .unit-drop .menu contents {
-	min-width: 0px;
+  min-width: 0px;
 }

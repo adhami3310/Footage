@@ -1,10 +1,21 @@
 .property box.title .title {
-	font-weight: 400;
-	font-size: 9pt;
-	opacity: 0.9;
+  font-weight: 400;
+  font-size: 9pt;
+  opacity: 0.9;
 }
 
 .property .subtitle {
-	font-size: inherit;
-	opacity: 1;
+  font-size: inherit;
+  opacity: 1;
+}
+
+.timeline-handle {
+  box-shadow: none;
+}
+
+.timeline-position {
+  border: 1px solid color-mix(in srgb, var(--accent-bg-color) 50%, black);
+  background-color: color-mix(in srgb, var(--accent-bg-color) 40%, white);;
+  min-width: 4px;
+  border-radius: 2px;
 }
