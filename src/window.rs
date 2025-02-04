@@ -450,7 +450,7 @@ impl AppWindow {
                     let selected_height =
                         (video_dimensions.height_f64() * (1. - t - b)) as u32 / 2 * 2;
                     let selected_width =
-                        (video_dimensions.width_f64() as f64 * (1. - l - r)) as u32 / 2 * 2;
+                        (video_dimensions.width_f64() * (1. - l - r)) as u32 / 2 * 2;
 
                     this.imp().selected_video_dimensions.set(Some(Dimensions {
                         width: selected_width,

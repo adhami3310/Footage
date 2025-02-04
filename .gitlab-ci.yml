@@ -1,0 +1,30 @@
+image: rust
+
+stages:
+  - check
+
+variables:
+  CARGO_HOME: $CI_PROJECT_DIR/.cargo_cache
+
+.cargo:
+  before_script:
+    - rustc --version && cargo --version
+  cache:
+    paths:
+      - $CARGO_HOME
+      - target/
+
+format-code:
+  extends: .cargo
+  stage: check
+  script:
+    - rustup component add rustfmt
+    - cargo check
+    - cargo fmt --all --check
+
+lint-code:
+  extends: .cargo
+  stage: check
+  script:
+    - rustup component add clippy
+    - cargo clippy --all-targets --all-features -- -D warnings
