@@ -67,7 +67,8 @@ mod imp {
                         window
                             .downcast_ref::<AppWindow>()
                             .unwrap()
-                            .open_file(file_path);
+                            .open_file(file_path)
+                            .await;
                     });
                 }
             }
@@ -145,6 +146,9 @@ impl App {
         info!("Footage ({})", APP_ID);
         info!("Version: {} ({})", VERSION, PROFILE);
         info!("Datadir: {}", PKGDATADIR);
+
+        gst::init().unwrap();
+        ges::init().unwrap();
 
         ApplicationExtManual::run(self)
     }

@@ -710,7 +710,7 @@ impl AppWindow {
         {
             let path = file.path().unwrap();
 
-            self.open_file(path);
+            self.open_file(path).await;
         }
     }
 
@@ -896,10 +896,11 @@ impl AppWindow {
         ));
     }
 
-    fn create_ui(&self, path: PathBuf) {
+    async fn create_ui(&self, path: PathBuf) {
         glib::MainContext::default().iteration(true);
+        self.imp().video_preview.reset();
         let Ok((dimensions, duration, framerate, has_audio)) =
-            self.imp().video_preview.load_path(path)
+            self.imp().video_preview.load_path(path).await
         else {
             self.imp().stack.set_visible_child_name("invalid");
             return;
@@ -936,13 +937,13 @@ impl AppWindow {
         self.imp().spinner.stop();
     }
 
-    pub fn open_file(&self, path: PathBuf) {
+    pub async fn open_file(&self, path: PathBuf) {
         self.imp().selected_video_path.replace(Some(path.clone()));
 
         self.imp().stack.set_visible_child_name("loading");
         self.imp().spinner.start();
 
-        self.create_ui(path);
+        self.create_ui(path).await;
     }
 
     fn show_about(&self) {

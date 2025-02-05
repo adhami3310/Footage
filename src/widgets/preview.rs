@@ -120,21 +120,49 @@ impl VideoPreview {
         bin
     }
 
-    pub fn load_path(
+    pub fn reset(&self) {
+        self.imp().crop_box.reset();
+        self.imp().orientation.set(VideoOrientation::Identity);
+        self.imp().audio_level.replace(None);
+        self.imp().effects.replace(vec![]);
+        self.imp().current_dimensions.set(None);
+        {
+            if let Some(pipeline) = self.imp().pipeline.take() {
+                pipeline.set_state(gst::State::Null).unwrap();
+            }
+        }
+        self.imp().clip.replace(None);
+        self.imp().path.replace(PathBuf::new());
+        self.imp().ended.replace(false);
+        self.imp().bus_watch.replace(None);
+        self.imp().paint.set_paintable(None::<&gdk::Paintable>);
+        self.imp().mute.set(false);
+        self.emit_by_name::<()>("mode-changed", &[&false]);
+    }
+
+    async fn load_ges_clip(&self, uri: &str) -> Result<ges::Asset, ()> {
+        let clip = ges::Asset::request_future(ges::UriClip::static_type(), Some(uri))
+            .await
+            .map_err(|_| ())?;
+
+        Ok(clip)
+    }
+
+    pub async fn load_path(
         &self,
         path: PathBuf,
     ) -> Result<(Dimensions<u32>, u64, Option<Framerate>, bool), ()> {
-        gst::init().unwrap();
-        ges::init().unwrap();
+        dbg!(url::Url::from_file_path(path.clone()).unwrap().as_str());
 
-        if let Some(pipeline) = self.imp().pipeline.take() {
-            pipeline.set_state(gst::State::Null).unwrap();
-        }
-        self.imp().ended.replace(false);
-        self.imp().bus_watch.replace(None);
+        let clip = self
+            .load_ges_clip(url::Url::from_file_path(path.clone()).unwrap().as_str())
+            .await
+            .map_err(|_| ())?
+            .extract()
+            .unwrap()
+            .dynamic_cast::<ges::UriClip>()
+            .unwrap();
 
-        let clip = ges::UriClip::new(url::Url::from_file_path(path.clone()).unwrap().as_str())
-            .map_err(|_| ())?;
         let duration = clip.duration().mseconds();
         self.imp().clip.replace(Some(clip));
 

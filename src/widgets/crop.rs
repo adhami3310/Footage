@@ -866,4 +866,8 @@ impl Crop {
         let p = self.proportions();
         (p.2, p.1, p.0, p.3)
     }
+
+    pub fn reset(&self) {
+        self.set_proportions((0.0, 0.0, 0.0, 0.0));
+    }
 }
