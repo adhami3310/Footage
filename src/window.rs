@@ -472,6 +472,22 @@ impl AppWindow {
         );
 
         imp.video_preview.connect_local(
+            "preview-ready",
+            true,
+            clone!(
+                #[weak(rename_to=this)]
+                self,
+                #[upgrade_or]
+                None,
+                move |_| {
+                    this.mark_ui_as_ready();
+
+                    None
+                }
+            ),
+        );
+
+        imp.video_preview.connect_local(
             "orientation-flipped",
             true,
             clone!(
@@ -897,7 +913,6 @@ impl AppWindow {
     }
 
     async fn create_ui(&self, path: PathBuf) {
-        glib::MainContext::default().iteration(true);
         self.imp().video_preview.reset();
         let Ok((dimensions, duration, framerate, has_audio)) =
             self.imp().video_preview.load_path(path).await
@@ -931,7 +946,12 @@ impl AppWindow {
         self.imp()
             .framerate_row
             .set_value(framerate.map(|x| x.value().min(240.)).unwrap_or(30.));
+    }
 
+    pub fn mark_ui_as_ready(&self) {
+        self.imp()
+            .stack
+            .set_transition_type(gtk::StackTransitionType::Crossfade);
         self.imp().stack.set_visible_child_name("editing");
         self.imp().play_pause.grab_focus();
         self.imp().spinner.stop();
@@ -940,6 +960,9 @@ impl AppWindow {
     pub async fn open_file(&self, path: PathBuf) {
         self.imp().selected_video_path.replace(Some(path.clone()));
 
+        self.imp()
+            .stack
+            .set_transition_type(gtk::StackTransitionType::None);
         self.imp().stack.set_visible_child_name("loading");
         self.imp().spinner.start();
 

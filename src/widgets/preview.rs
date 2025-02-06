@@ -77,13 +77,16 @@ mod imp {
 
         fn signals() -> &'static [Signal] {
             use once_cell::sync::Lazy;
-            static SIGNALS: Lazy<[Signal; 3]> = Lazy::new(|| {
+            static SIGNALS: Lazy<[Signal; 4]> = Lazy::new(|| {
                 [
                     Signal::builder("orientation-flipped")
                         .param_types(std::iter::empty::<glib::Type>())
                         .build(),
                     Signal::builder("set-position")
                         .param_types([glib::Type::U64])
+                        .build(),
+                    Signal::builder("preview-ready")
+                        .param_types(std::iter::empty::<glib::Type>())
                         .build(),
                     Signal::builder("mode-changed")
                         .param_types([glib::Type::BOOL])
@@ -316,7 +319,13 @@ impl VideoPreview {
             #[weak(rename_to = this)]
             self,
             async move {
+                let mut sent_ready = false;
+
                 while let Ok(p) = receiver.recv().await {
+                    if !sent_ready {
+                        sent_ready = true;
+                        this.emit_by_name::<()>("preview-ready", &[]);
+                    }
                     if this.is_playing() {
                         this.emit_by_name::<()>("set-position", &[&(p + this.imp().inpoint.get())]);
                     }
