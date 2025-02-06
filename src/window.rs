@@ -10,7 +10,7 @@ use itertools::Itertools;
 use crate::{
     info::{Dimensions, Framerate},
     profiles::{AudioEncoding, ContainerFormat, OutputFormat, VideoEncoding},
-    spawn, Listable,
+    runtime, spawn, Listable,
 };
 
 mod imp {
@@ -291,7 +291,6 @@ impl AppWindow {
             self,
             move |_| {
                 this.imp().video_preview.refresh_ui();
-                this.imp().stack.set_visible_child_name("editing");
             }
         ));
         imp.done_button.connect_clicked(clone!(
@@ -314,7 +313,6 @@ impl AppWindow {
             self,
             move |g| {
                 this.imp().video_preview.refresh_ui();
-                this.imp().stack.set_visible_child_name("editing");
                 g.set_visible(false);
             }
         ));
@@ -325,18 +323,12 @@ impl AppWindow {
                 let file =
                     std::fs::File::open(this.imp().result_video_path.borrow().as_ref().unwrap())
                         .unwrap();
-                spawn!(async move {
-                    tokio::runtime::Builder::new_current_thread()
-                        .enable_all()
-                        .build()
-                        .unwrap()
-                        .block_on(async move {
-                            ashpd::desktop::open_uri::OpenFileRequest::default()
-                                .ask(true)
-                                .send_file(&file.as_fd())
-                                .await
-                                .ok();
-                        });
+                runtime().spawn(async move {
+                    ashpd::desktop::open_uri::OpenFileRequest::default()
+                        .ask(true)
+                        .send_file(&file.as_fd())
+                        .await
+                        .ok();
                 });
             }
         ));
@@ -808,8 +800,14 @@ impl AppWindow {
             .success_status
             .set_description(Some(&gettext("Saved as {}").replace("{}", &file_name)));
 
+        self.imp()
+            .stack
+            .set_transition_type(gtk::StackTransitionType::None);
         self.imp().stack.set_visible_child_name("exporting");
         glib::MainContext::default().iteration(true);
+        self.imp()
+            .stack
+            .set_transition_type(gtk::StackTransitionType::Crossfade);
 
         let (scaled_width, scaled_height) = match self.imp().resize_type.selected() {
             0 => {
