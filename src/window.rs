@@ -52,7 +52,7 @@ mod imp {
         #[template_child]
         pub stack: TemplateChild<gtk::Stack>,
         #[template_child]
-        pub spinner: TemplateChild<gtk::Spinner>,
+        pub spinner: TemplateChild<adw::Spinner>,
         #[template_child]
         pub progress_bar: TemplateChild<gtk::ProgressBar>,
         #[template_child]
@@ -952,7 +952,6 @@ impl AppWindow {
             .set_transition_type(gtk::StackTransitionType::Crossfade);
         self.imp().stack.set_visible_child_name("editing");
         self.imp().play_pause.grab_focus();
-        self.imp().spinner.stop();
     }
 
     pub async fn open_file(&self, path: PathBuf) {
@@ -962,7 +961,6 @@ impl AppWindow {
             .stack
             .set_transition_type(gtk::StackTransitionType::None);
         self.imp().stack.set_visible_child_name("loading");
-        self.imp().spinner.start();
 
         self.create_ui(path).await;
     }
