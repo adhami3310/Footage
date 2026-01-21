@@ -1,7 +1,7 @@
 {
     "id": "io.gitlab.adhami3310.Footage",
     "runtime": "org.gnome.Platform",
-    "runtime-version": "47",
+    "runtime-version": "49",
     "sdk": "org.gnome.Sdk",
     "sdk-extensions": [
         "org.freedesktop.Sdk.Extension.rust-stable"
@@ -54,21 +54,6 @@
         "ldflags": "-L/app/lib/codecs/lib"
     },
     "modules": [
-        {
-            "name": "blueprint-compiler",
-            "buildsystem": "meson",
-            "cleanup": [
-                "*"
-            ],
-            "sources": [
-                {
-                    "type": "git",
-                    "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler.git",
-                    "tag": "v0.12.0",
-                    "commit": "66b43c36cf1017c878762007373964a096b3d2a5"
-                }
-            ]
-        },
         {
             "name": "liba52",
             "config-opts": [
@@ -123,7 +108,7 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "http://libmpeg2.sourceforge.net/files/libmpeg2-0.5.1.tar.gz",
+                    "url": "https://download.videolan.org/contrib/libmpeg2/libmpeg2-0.5.1.tar.gz",
                     "sha256": "dee22e893cb5fc2b2b6ebd60b88478ab8556cb3b93f9a0d7ce8f3b61851871d4"
                 },
                 {
@@ -143,17 +128,20 @@
             "name": "x265",
             "buildsystem": "cmake-ninja",
             "subdir": "source",
+            "config-opts": [
+                "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+                "-DBUILD_SHARED_LIBS=ON",
+                "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
+            ],
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://bitbucket.org/multicoreware/x265_git/downloads/x265_3.6.tar.gz",
-                    "sha256": "663531f341c5389f460d730e62e10a4fcca3428ca2ca109693867bc5fe2e2807",
-                    "x-checker-data": {
-                        "type": "html",
-                        "url": "https://bitbucket.org/multicoreware/x265_git/raw/stable/x265Version.txt",
-                        "version-pattern": "releasetag: ([\\d\\.-]*)$",
-                        "url-template": "https://bitbucket.org/multicoreware/x265_git/downloads/x265_$version.tar.gz"
-                    }
+                    "url": "https://bitbucket.org/multicoreware/x265_git/downloads/x265_4.1.tar.gz",
+                    "sha256": "a31699c6a89806b74b0151e5e6a7df65de4b49050482fe5ebf8a4379d7af8f29"
+                },
+                {
+                    "type": "patch",
+                    "path": "patches/x265-cmake.patch"
                 }
             ]
         },
@@ -221,23 +209,8 @@
                 {
                     "type": "git",
                     "url": "https://gitlab.com/AOMediaCodec/SVT-AV1",
-                    "tag": "v2.1.2",
-                    "commit": "c949fe4f14fe288a9b2b47aa3e61335422a83645"
-                }
-            ]
-        },
-        {
-            "name": "gstreamer-svt-av1",
-            "buildsystem": "simple",
-            "build-commands": [
-                "cd gstreamer-plugin && meson -Dprefix=/app build",
-                "cd gstreamer-plugin && ninja -C build install"
-            ],
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v2.1.2/SVT-AV1-v2.1.2.tar.gz?path=gstreamer-plugin",
-                    "sha256": "2a57398ac9bb89531a12c21375da794b5d314907c00627684e7fe7d0b6b789be"
+                    "tag": "v3.1.2",
+                    "commit": "b33dcc56cc64fcb3b3569094af8ab1d0d81ab4c1"
                 }
             ]
         },
@@ -249,15 +222,16 @@
                 "--wrap-mode=nodownload",
                 "-Dauto_features=disabled",
                 "-Dx265=enabled",
-                "-Dgpl=enabled"
+                "-Dgpl=enabled",
+                "-Dsvtav1=enabled"
             ],
             "subdir": "subprojects/gst-plugins-bad",
             "sources": [
                 {
                     "type": "git",
-                    "tag": "1.24.12",
+                    "tag": "1.26.10",
                     "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
-                    "commit": "88e31216479a3f0c25096ca406369f3983efec14",
+                    "commit": "bfdc62185e243d3633aa916187a566d03a587792",
                     "disable-submodules": true
                 }
             ]
@@ -278,9 +252,9 @@
             "sources": [
                 {
                     "type": "git",
-                    "tag": "1.24.12",
+                    "tag": "1.26.10",
                     "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
-                    "commit": "88e31216479a3f0c25096ca406369f3983efec14",
+                    "commit": "bfdc62185e243d3633aa916187a566d03a587792",
                     "disable-submodules": true
                 }
             ]
@@ -299,9 +273,9 @@
             "sources": [
                 {
                     "type": "git",
-                    "tag": "1.24.12",
+                    "tag": "1.26.10",
                     "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
-                    "commit": "88e31216479a3f0c25096ca406369f3983efec14",
+                    "commit": "bfdc62185e243d3633aa916187a566d03a587792",
                     "disable-submodules": true
                 }
             ]
@@ -318,9 +292,9 @@
             "sources": [
                 {
                     "type": "git",
-                    "tag": "1.24.12",
+                    "tag": "1.26.10",
                     "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
-                    "commit": "88e31216479a3f0c25096ca406369f3983efec14",
+                    "commit": "bfdc62185e243d3633aa916187a566d03a587792",
                     "disable-submodules": true
                 }
             ]

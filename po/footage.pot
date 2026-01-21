@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-27 13:08-0300\n"
+"POT-Creation-Date: 2026-01-20 21:45-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:2
 #: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:5
 #: data/resources/blueprints/window.blp:9
-#: data/resources/blueprints/window.blp:42 src/main.rs:48
+#: data/resources/blueprints/window.blp:42 src/main.rs:56
 msgid "Footage"
 msgstr ""
 
@@ -33,7 +33,7 @@ msgid "Polish Your Videos"
 msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.desktop.in.in:10
-msgid "video;edit;trim;crop;convert"
+msgid "video;edit;trim;crop;convert;"
 msgstr ""
 
 #: data/io.gitlab.adhami3310.Footage.gschema.xml.in:6
@@ -48,71 +48,39 @@ msgstr ""
 msgid "Window maximized state"
 msgstr ""
 
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:6
-msgid "Khaleel Al-Adhami"
-msgstr ""
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:7
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:10
 msgid "Polish your videos"
 msgstr ""
 
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:13
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:16
 msgid ""
 "Trim, flip, rotate and crop individual clips. Footage is a useful tool for "
 "quickly editing short videos and screencasts. It's also capable of exporting "
 "any video into a format of your choice."
 msgstr ""
 
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:28
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:33
 msgid "video"
 msgstr ""
 
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:29
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:34
 msgid "edit"
 msgstr ""
 
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:30
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:35
 msgid "trim"
 msgstr ""
 
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:31
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:36
 msgid "crop"
 msgstr ""
 
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:32
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:37
 msgid "convert"
 msgstr ""
 
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:48
+#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:53
 msgid "Editing screen with default options"
-msgstr ""
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:68
-msgid "Fixes crash when framerate is undefined."
-msgstr ""
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:73
-msgid "Fixes various random crashes."
-msgstr ""
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:78
-msgid "Fixes various bugs and upgrades to GNOME runtime 45."
-msgstr ""
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:83
-msgid ""
-"This minor release introduces a fix for X11 and additional translation "
-"support."
-msgstr ""
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:88
-msgid ""
-"This minor release introduces a couple of bug fixes and enhances keyboard "
-"accessibility."
-msgstr ""
-
-#: data/io.gitlab.adhami3310.Footage.metainfo.xml.in.in:93
-msgid "Initial version."
 msgstr ""
 
 #: data/resources/blueprints/help-overlay.blp:11
@@ -193,7 +161,7 @@ msgstr ""
 msgid "Flip Vertically"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:130 src/window.rs:268
+#: data/resources/blueprints/window.blp:130 src/window.rs:270
 msgid "Disable Audio"
 msgstr ""
 
@@ -279,7 +247,7 @@ msgstr ""
 msgid "This may take a while"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:354 src/window.rs:666
+#: data/resources/blueprints/window.blp:354 src/window.rs:678
 msgid "_Cancel"
 msgstr ""
 
@@ -295,44 +263,49 @@ msgstr ""
 msgid "About Footage"
 msgstr ""
 
-#: data/resources/blueprints/timeline.blp:18
+#: data/resources/blueprints/timeline.blp:17
 msgid "Left trimming handle"
 msgstr ""
 
-#: data/resources/blueprints/timeline.blp:52
+#: data/resources/blueprints/timeline.blp:51
 msgid "Right trimming handle"
 msgstr ""
 
-#: src/window.rs:265
+#: src/window.rs:267
 msgid "Enable Audio"
 msgstr ""
 
-#: src/window.rs:561
+#: src/window.rs:573
 msgid "Pause"
 msgstr ""
 
-#: src/window.rs:566
+#: src/window.rs:578
 msgid "Play"
 msgstr ""
 
-#: src/window.rs:661
+#: src/window.rs:673
 msgid "Stop rendering?"
 msgstr ""
 
-#: src/window.rs:662
+#: src/window.rs:674
 msgid "You will lose all progress."
 msgstr ""
 
-#: src/window.rs:666
+#: src/window.rs:678
 msgid "_Stop"
 msgstr ""
 
-#: src/window.rs:697
+#: src/window.rs:709
 msgid "Video Files"
 msgstr ""
 
+#: src/window.rs:803
+#, rust-format
+msgid "Saved as {}"
+msgstr ""
+
 #. Translators: Replace "translator-credits" with your names, one name per line
-#: src/window.rs:956
+#: src/window.rs:980
 msgid "translator-credits"
 msgstr ""
 

@@ -494,7 +494,8 @@ mod imp {
 
 glib::wrapper! {
     pub struct Timeline(ObjectSubclass<imp::Timeline>)
-        @extends gtk::Widget;
+        @extends gtk::Widget,
+        @implements gtk::Root, gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
 impl Timeline {

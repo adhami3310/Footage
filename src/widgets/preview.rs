@@ -104,9 +104,9 @@ mod imp {
 }
 
 glib::wrapper! {
-    pub struct VideoPreview(ObjectSubclass<imp::VideoPreview>)
-        @extends adw::Bin, gtk::Widget,
-        @implements gio::ActionMap, gio::ActionGroup, gtk::Root;
+pub struct VideoPreview(ObjectSubclass<imp::VideoPreview>)
+    @extends adw::Bin, gtk::Widget,
+    @implements gio::ActionMap, gio::ActionGroup, gtk::Root, gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
 impl Default for VideoPreview {
