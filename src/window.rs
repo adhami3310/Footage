@@ -6,6 +6,7 @@ use gettextrs::gettext;
 use glib::clone;
 use gtk::{gio, glib, subclass::prelude::*};
 use itertools::Itertools;
+use log::warn;
 
 use crate::{
     info::{Dimensions, Framerate},
@@ -142,7 +143,7 @@ mod imp {
             let obj = self.obj();
 
             if let Err(err) = obj.save_window_size() {
-                dbg!("Failed to save window state, {}", &err);
+                warn!("Failed to save window state: {}", &err);
             }
 
             if self.running_flag.load(std::sync::atomic::Ordering::SeqCst) {

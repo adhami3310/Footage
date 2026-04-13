@@ -1,7 +1,7 @@
 use std::{
     cell::RefCell,
     path::PathBuf,
-    sync::{atomic::AtomicBool, Arc},
+    sync::{Arc, atomic::AtomicBool},
 };
 
 use glib::clone;
@@ -9,11 +9,12 @@ use gst::{ClockTime, PadProbeData, PadProbeType, SeekFlags};
 use gstreamer_pbutils::Discoverer;
 use gtk::{gdk, gio, glib, subclass::prelude::*};
 
-use ges::prelude::*;
 use ges::Effect;
+use ges::prelude::*;
+use log::{error, info};
 
 use crate::{
-    info::{get_info, Dimensions, Framerate},
+    info::{Dimensions, Framerate, get_info},
     orientation::VideoOrientation,
     profiles::{ContainerFormat, ContainerSelection, OutputFormat},
 };
@@ -118,9 +119,7 @@ impl Default for VideoPreview {
 #[gtk::template_callbacks]
 impl VideoPreview {
     pub fn new() -> Self {
-        let bin = glib::Object::builder::<VideoPreview>().build();
-
-        bin
+        glib::Object::builder::<VideoPreview>().build()
     }
 
     pub fn reset(&self) {
@@ -144,7 +143,7 @@ impl VideoPreview {
     }
 
     async fn load_ges_clip(&self, uri: &str) -> Result<ges::Asset, ()> {
-        let clip = ges::Asset::request_future(ges::UriClip::static_type(), Some(uri))
+        let clip = ges::Asset::request_future::<ges::UriClip>(Some(uri))
             .await
             .map_err(|_| ())?;
 
@@ -155,7 +154,10 @@ impl VideoPreview {
         &self,
         path: PathBuf,
     ) -> Result<(Dimensions<u32>, u64, Option<Framerate>, bool), ()> {
-        dbg!(url::Url::from_file_path(path.clone()).unwrap().as_str());
+        info!(
+            "Loading path: {}",
+            url::Url::from_file_path(path.clone()).unwrap().as_str()
+        );
 
         let clip = self
             .load_ges_clip(url::Url::from_file_path(path.clone()).unwrap().as_str())
@@ -260,13 +262,14 @@ impl VideoPreview {
         let (sender, receiver) = async_channel::bounded(1);
 
         pad.add_probe(PadProbeType::DATA_DOWNSTREAM, move |_, info| {
-            if let Some(PadProbeData::Buffer(data)) = &info.data {
-                if let Some(pts) = data.pts() {
-                    sender
-                        .send_blocking(pts.mseconds())
-                        .expect("Concurrency Issues");
-                }
+            if let Some(PadProbeData::Buffer(data)) = &info.data
+                && let Some(pts) = data.pts()
+            {
+                sender
+                    .send_blocking(pts.mseconds())
+                    .expect("Concurrency Issues");
             }
+
             gst::PadProbeReturn::Ok
         });
 
@@ -297,7 +300,7 @@ impl VideoPreview {
                             // this.seek(0);
                         }
                         MessageView::Error(err) => {
-                            println!(
+                            error!(
                                 "Error from {:?}: {} ({:?})",
                                 err.src().map(|s| s.path_string()),
                                 err.error(),
@@ -518,7 +521,10 @@ impl VideoPreview {
     ) {
         self.kill();
 
-        dbg!(&output_format, &framerate, &scaled_dimension);
+        info!(
+            "Converting with output_format={:?}, framerate={:?}, scaled_dimension={:?}",
+            &output_format, &framerate, &scaled_dimension
+        );
 
         let input_path = self.imp().path.borrow().to_owned();
         let orientation = self.imp().orientation.get();
@@ -677,13 +683,11 @@ impl VideoPreview {
                         container_profile = container_profile.add_profile(video_profile);
                     }
 
-                    if !mute {
-                        if let Some(audio_cap) = audio_caps.first() {
-                            let audio_profile =
-                                gstreamer_pbutils::EncodingAudioProfile::builder(audio_cap).build();
+                    if !mute && let Some(audio_cap) = audio_caps.first() {
+                        let audio_profile =
+                            gstreamer_pbutils::EncodingAudioProfile::builder(audio_cap).build();
 
-                            container_profile = container_profile.add_profile(audio_profile);
-                        }
+                        container_profile = container_profile.add_profile(audio_profile);
                     }
 
                     pipeline
@@ -738,15 +742,13 @@ impl VideoPreview {
             timeline.pads().first().unwrap().add_probe(
                 PadProbeType::DATA_DOWNSTREAM,
                 move |_, info| {
-                    if let Some(PadProbeData::Buffer(data)) = &info.data {
-                        if let Some(pts) = data.pts() {
-                            if sender_pad
-                                .send_blocking(Ok((pts.mseconds(), duration.mseconds())))
-                                .is_err()
-                            {
-                                return gst::PadProbeReturn::Drop;
-                            }
-                        }
+                    if let Some(PadProbeData::Buffer(data)) = &info.data
+                        && let Some(pts) = data.pts()
+                        && sender_pad
+                            .send_blocking(Ok((pts.mseconds(), duration.mseconds())))
+                            .is_err()
+                    {
+                        return gst::PadProbeReturn::Drop;
                     }
 
                     if !another_running_flag
@@ -769,7 +771,7 @@ impl VideoPreview {
                 .bus()
                 .expect("Pipeline without bus. Shouldn't happen!");
 
-            dbg!("starting");
+            info!("Starting pipeline");
 
             for msg in bus.iter_timed(gst::ClockTime::NONE) {
                 use gst::MessageView;

@@ -3,6 +3,7 @@ use std::process::Command;
 use glib::translate::IntoGlib;
 use gst::prelude::*;
 use itertools::Itertools;
+use log::info;
 
 #[derive(Debug)]
 pub struct Framerate {
@@ -120,25 +121,25 @@ pub fn get_debug_info() {
 
     let s = std::str::from_utf8(&o.stdout).unwrap();
 
-    println!("{}", s);
+    info!("{}", s);
 
-    println!(
-        "\n=== GStreamer version: {}.{}.{}.{} ===",
+    info!(
+        "GStreamer version: {}.{}.{}.{}",
         gst::version().0,
         gst::version().1,
         gst::version().2,
         gst::version().3,
     );
 
-    println!("\n=== Encoder selection priority ===");
+    info!("Encoder selection priority:");
     for encoding in crate::profiles::VideoEncoding::ALL {
         let encoders = encoding.available_encoders();
-        println!("{}:", encoding.for_display());
+        info!("{}:", encoding.for_display());
         if encoders.is_empty() {
-            println!("  (none)");
+            info!("  (none)");
         }
         for factory in &encoders {
-            println!("  {:>6}  {}", factory.rank().into_glib(), factory.name());
+            info!("  {:>6}  {}", factory.rank().into_glib(), factory.name());
         }
     }
 }

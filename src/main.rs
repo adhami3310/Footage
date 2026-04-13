@@ -46,7 +46,7 @@ fn runtime() -> &'static Runtime {
 
 fn main() -> ExitCode {
     // Initialize logger
-    pretty_env_logger::init();
+    tracing_subscriber::fmt().init();
 
     // Prepare i18n
     gettextrs::setlocale(LocaleCategory::LcAll, "");
