@@ -15,7 +15,7 @@ use ges::Effect;
 use crate::{
     info::{get_info, Dimensions, Framerate},
     orientation::VideoOrientation,
-    profiles::{ContainerFormat, OutputFormat},
+    profiles::{ContainerFormat, ContainerSelection, OutputFormat},
 };
 
 mod imp {
@@ -633,97 +633,100 @@ impl VideoPreview {
             let pipeline = ges::Pipeline::new();
             pipeline.set_timeline(&timeline).unwrap();
 
-            if output_format.container_format == ContainerFormat::GifContainer {
-                pipeline
-                    .set_render_settings(
-                        url::Url::from_file_path(output_path).unwrap().as_str(),
-                        &output_format.video_encoding.unwrap().encoding_profile(),
+            match output_format.container_selection {
+                ContainerSelection::Same => {
+                    let profile = gstreamer_pbutils::EncodingProfile::from_discoverer(
+                        &Discoverer::new(gst::ClockTime::SECOND)
+                            .unwrap()
+                            .discover_uri(
+                                url::Url::from_file_path(input_path.clone())
+                                    .unwrap()
+                                    .as_str(),
+                            )
+                            .unwrap(),
                     )
                     .unwrap();
-            } else if output_format.container_format == ContainerFormat::Same {
-                let profile = gstreamer_pbutils::EncodingProfile::from_discoverer(
-                    &Discoverer::new(gst::ClockTime::SECOND)
-                        .unwrap()
-                        .discover_uri(
-                            url::Url::from_file_path(input_path.clone())
-                                .unwrap()
-                                .as_str(),
-                        )
-                        .unwrap(),
-                )
-                .unwrap();
 
-                let (video_caps, audio_caps): (Vec<_>, Vec<_>) = profile
-                    .input_caps()
-                    .iter()
-                    .map(|ic| {
-                        let mut ic = ic.to_owned();
-                        ic.remove_fields(["width", "height", "framerate"]);
+                    let (video_caps, audio_caps): (Vec<_>, Vec<_>) = profile
+                        .input_caps()
+                        .iter()
+                        .map(|ic| {
+                            let mut ic = ic.to_owned();
+                            ic.remove_fields(["width", "height", "framerate"]);
 
-                        let mut caps = gst::Caps::builder(ic.name());
+                            let mut caps = gst::Caps::builder(ic.name());
 
-                        for (name, value) in ic.into_iter() {
-                            caps = caps.field(name, value.clone());
+                            for (name, value) in ic.into_iter() {
+                                caps = caps.field(name, value.clone());
+                            }
+
+                            caps.build()
+                        })
+                        .partition(|c| c.to_string().starts_with("video"));
+
+                    let profile_format = profile.format();
+
+                    let mut container_profile =
+                        gstreamer_pbutils::EncodingContainerProfile::builder(&profile_format)
+                            .name("container");
+
+                    if let Some(video_cap) = video_caps.first() {
+                        let video_profile =
+                            gstreamer_pbutils::EncodingVideoProfile::builder(video_cap).build();
+
+                        container_profile = container_profile.add_profile(video_profile);
+                    }
+
+                    if !mute {
+                        if let Some(audio_cap) = audio_caps.first() {
+                            let audio_profile =
+                                gstreamer_pbutils::EncodingAudioProfile::builder(audio_cap).build();
+
+                            container_profile = container_profile.add_profile(audio_profile);
                         }
+                    }
 
-                        caps.build()
-                    })
-                    .partition(|c| c.to_string().starts_with("video"));
-
-                let profile_format = profile.format();
-
-                let mut container_profile =
-                    gstreamer_pbutils::EncodingContainerProfile::builder(&profile_format)
-                        .name("container");
-
-                if let Some(video_cap) = video_caps.first() {
-                    let video_profile =
-                        gstreamer_pbutils::EncodingVideoProfile::builder(video_cap).build();
-
-                    container_profile = container_profile.add_profile(video_profile);
+                    pipeline
+                        .set_render_settings(
+                            url::Url::from_file_path(output_path).unwrap().as_str(),
+                            &container_profile.build(),
+                        )
+                        .unwrap();
                 }
+                ContainerSelection::Format(ContainerFormat::GifContainer) => {
+                    pipeline
+                        .set_render_settings(
+                            url::Url::from_file_path(output_path).unwrap().as_str(),
+                            &output_format.video_encoding.unwrap().encoding_profile(),
+                        )
+                        .unwrap();
+                }
+                ContainerSelection::Format(container) => {
+                    let video_profile = output_format.video_encoding.unwrap().encoding_profile();
 
-                if !mute {
-                    if let Some(audio_cap) = audio_caps.first() {
-                        let audio_profile =
-                            gstreamer_pbutils::EncodingAudioProfile::builder(audio_cap).build();
+                    let container_caps = gst::Caps::builder(container.format()).build();
 
+                    let mut container_profile =
+                        gstreamer_pbutils::EncodingContainerProfile::builder(&container_caps)
+                            .name("container")
+                            .add_profile(video_profile);
+
+                    if !mute {
+                        let audio_profile = gstreamer_pbutils::EncodingAudioProfile::builder(
+                            &gst::Caps::builder(output_format.audio_encoding.unwrap().get_format())
+                                .build(),
+                        )
+                        .build();
                         container_profile = container_profile.add_profile(audio_profile);
                     }
+
+                    pipeline
+                        .set_render_settings(
+                            url::Url::from_file_path(output_path).unwrap().as_str(),
+                            &container_profile.build(),
+                        )
+                        .unwrap();
                 }
-
-                pipeline
-                    .set_render_settings(
-                        url::Url::from_file_path(output_path).unwrap().as_str(),
-                        &container_profile.build(),
-                    )
-                    .unwrap();
-            } else {
-                let video_profile = output_format.video_encoding.unwrap().encoding_profile();
-
-                let container_format =
-                    gst::Caps::builder(output_format.container_format.format()).build();
-
-                let mut container_profile =
-                    gstreamer_pbutils::EncodingContainerProfile::builder(&container_format)
-                        .name("container")
-                        .add_profile(video_profile);
-
-                if !mute {
-                    let audio_profile = gstreamer_pbutils::EncodingAudioProfile::builder(
-                        &gst::Caps::builder(output_format.audio_encoding.unwrap().get_format())
-                            .build(),
-                    )
-                    .build();
-                    container_profile = container_profile.add_profile(audio_profile);
-                }
-
-                pipeline
-                    .set_render_settings(
-                        url::Url::from_file_path(output_path).unwrap().as_str(),
-                        &container_profile.build(),
-                    )
-                    .unwrap();
             }
 
             pipeline.set_mode(ges::PipelineFlags::RENDER).unwrap();

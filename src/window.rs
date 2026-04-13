@@ -9,7 +9,7 @@ use itertools::Itertools;
 
 use crate::{
     info::{Dimensions, Framerate},
-    profiles::{AudioEncoding, ContainerFormat, OutputFormat, VideoEncoding},
+    profiles::{AudioEncoding, ContainerSelection, OutputFormat, VideoEncoding},
     runtime, spawn, Listable,
 };
 
@@ -176,14 +176,8 @@ impl AppWindow {
 
         win.setup_callbacks();
 
-        let container_formats = gtk::StringList::new(&[]);
-
-        for cf in ContainerFormat::get_all() {
-            container_formats.append(&cf.for_display());
-        }
-
         win.imp().container_row.set_model(Some(
-            &ContainerFormat::get_all()
+            &ContainerSelection::get_all()
                 .into_iter()
                 .map(|m| m.for_display())
                 .collect_vec()
@@ -730,8 +724,10 @@ impl AppWindow {
         let input_path_stem = input_path.file_stem().unwrap().to_str().unwrap().to_owned();
 
         let extension = match self.selected_container() {
-            ContainerFormat::Same => input_path.extension().unwrap().to_str().unwrap().to_owned(),
-            x => x.extension().to_owned(),
+            ContainerSelection::Same => {
+                input_path.extension().unwrap().to_str().unwrap().to_owned()
+            }
+            ContainerSelection::Format(f) => f.extension().to_owned(),
         };
 
         if let Ok(file) = gtk::FileDialog::builder()
@@ -745,12 +741,15 @@ impl AppWindow {
         }
     }
 
-    fn selected_container(&self) -> ContainerFormat {
-        ContainerFormat::get_all()[self.imp().container_row.selected() as usize]
+    fn selected_container(&self) -> ContainerSelection {
+        ContainerSelection::get_all()[self.imp().container_row.selected() as usize]
     }
 
     fn selected_video_encoding(&self) -> Option<VideoEncoding> {
-        let list = self.selected_container().viable_matchings().0;
+        let list = match self.selected_container() {
+            ContainerSelection::Same => return None,
+            ContainerSelection::Format(f) => f.viable_video_encodings(),
+        };
         if list.is_empty() {
             None
         } else {
@@ -759,7 +758,10 @@ impl AppWindow {
     }
 
     fn selected_audio_encoding(&self) -> Option<AudioEncoding> {
-        let list = self.selected_container().viable_matchings().1;
+        let list = match self.selected_container() {
+            ContainerSelection::Same => return None,
+            ContainerSelection::Format(f) => f.viable_audio_encodings(),
+        };
         if list.is_empty() {
             None
         } else {
@@ -770,9 +772,12 @@ impl AppWindow {
     fn update_options(&self) {
         let imp = self.imp();
 
-        let selected_container = self.selected_container();
-
-        let (available_video, available_audio) = selected_container.viable_matchings();
+        let (available_video, available_audio) = match self.selected_container() {
+            ContainerSelection::Same => (vec![], vec![]),
+            ContainerSelection::Format(f) => {
+                (f.viable_video_encodings(), f.viable_audio_encodings())
+            }
+        };
 
         imp.audio_encoding.set_visible(available_audio.len() > 1);
         imp.audio_encoding.set_model(Some(
@@ -849,7 +854,7 @@ impl AppWindow {
             path,
             sender,
             OutputFormat {
-                container_format: self.selected_container(),
+                container_selection: self.selected_container(),
                 video_encoding: self.selected_video_encoding(),
                 audio_encoding: self.selected_audio_encoding(),
             },

@@ -1,11 +1,16 @@
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum ContainerFormat {
     Best,
-    Same,
     Matroska,
     Mpeg,
     WebM,
     GifContainer,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum ContainerSelection {
+    Same,
+    Format(ContainerFormat),
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -28,26 +33,30 @@ pub enum AudioEncoding {
 }
 
 use gettextrs::gettext;
+use gst::prelude::*;
 use AudioEncoding::*;
 use ContainerFormat::*;
 use VideoEncoding::*;
 
 impl ContainerFormat {
-    pub fn get_all() -> Vec<ContainerFormat> {
-        vec![Best, Same, Matroska, Mpeg, WebM, GifContainer]
+    pub fn viable_video_encodings(&self) -> Vec<VideoEncoding> {
+        let video = match self {
+            Best => vec![Av1],
+            Matroska => vec![Av1, Vp9, Vp8, H264, H265],
+            Mpeg => vec![Av1, Vp9, Vp8, H264, H265],
+            WebM => vec![Av1, Vp8, Vp9],
+            GifContainer => vec![VideoEncoding::Gif],
+        };
+        video.into_iter().filter(|v| v.is_available()).collect()
     }
 
-    pub fn viable_matchings(&self) -> (Vec<VideoEncoding>, Vec<AudioEncoding>) {
+    pub fn viable_audio_encodings(&self) -> Vec<AudioEncoding> {
         match self {
-            Best => (vec![Av1], vec![Opus]),
-            Same => (vec![], vec![]),
-            Matroska => (
-                vec![Av1, Vp9, Vp8, H264, H265],
-                vec![Vorbis, Opus, Aac, Ac3, Flac],
-            ),
-            Mpeg => (vec![Av1, Vp9, Vp8, H264, H265], vec![Opus, Aac, Ac3, Flac]),
-            WebM => (vec![Av1, Vp8, Vp9], vec![Vorbis, Opus]),
-            GifContainer => (vec![VideoEncoding::Gif], vec![]),
+            Best => vec![Opus],
+            Matroska => vec![Vorbis, Opus, Aac, Ac3, Flac],
+            Mpeg => vec![Opus, Aac, Ac3, Flac],
+            WebM => vec![Vorbis, Opus],
+            GifContainer => vec![],
         }
     }
 
@@ -58,7 +67,6 @@ impl ContainerFormat {
             Mpeg => "video/quicktime",
             WebM => "video/webm",
             GifContainer => "image/gif",
-            Same => unreachable!(),
         }
     }
 
@@ -69,18 +77,44 @@ impl ContainerFormat {
             Mpeg => "mp4",
             WebM => "webm",
             GifContainer => "gif",
-            Same => unreachable!(),
         }
     }
 
     pub fn for_display(&self) -> String {
         match self {
             Best => gettext("Recommended (WEBM, AV1, Opus)"),
-            Same => gettext("Keep as-is"),
             Matroska => "MKV".to_owned(),
             Mpeg => "MP4".to_owned(),
             WebM => "WEBM".to_owned(),
             GifContainer => "GIF".to_owned(),
+        }
+    }
+}
+
+impl ContainerSelection {
+    fn display_priority(&self) -> u8 {
+        match self {
+            ContainerSelection::Format(Best) => 0,
+            ContainerSelection::Same => 1,
+            _ => 2,
+        }
+    }
+
+    pub fn get_all() -> Vec<ContainerSelection> {
+        let mut selections: Vec<ContainerSelection> = [Best, Matroska, Mpeg, WebM, GifContainer]
+            .into_iter()
+            .filter(|c| !c.viable_video_encodings().is_empty())
+            .map(ContainerSelection::Format)
+            .chain(std::iter::once(ContainerSelection::Same))
+            .collect();
+        selections.sort_by_key(|s| s.display_priority());
+        selections
+    }
+
+    pub fn for_display(&self) -> String {
+        match self {
+            ContainerSelection::Same => gettext("Keep as-is"),
+            ContainerSelection::Format(f) => f.for_display(),
         }
     }
 }
@@ -97,6 +131,27 @@ impl VideoEncoding {
             H265 => "video/x-h265",
             Gif => "image/gif",
         }
+    }
+
+    pub fn available_encoders(&self) -> Vec<gst::ElementFactory> {
+        let caps = gst::Caps::builder(self.get_format()).build();
+        let mut factories: Vec<gst::ElementFactory> = gst::ElementFactory::factories_with_type(
+            gst::ElementFactoryType::ENCODER | gst::ElementFactoryType::VIDEO_ENCODER,
+            gst::Rank::MARGINAL,
+        )
+        .into_iter()
+        .filter(|factory| {
+            factory.static_pad_templates().iter().any(|tmpl| {
+                tmpl.direction() == gst::PadDirection::Src && tmpl.caps().can_intersect(&caps)
+            })
+        })
+        .collect();
+        factories.sort_by_key(|f| std::cmp::Reverse(f.rank()));
+        factories
+    }
+
+    pub fn is_available(&self) -> bool {
+        !self.available_encoders().is_empty()
     }
 
     pub fn encoding_profile(&self) -> gstreamer_pbutils::EncodingVideoProfile {
@@ -140,7 +195,7 @@ impl AudioEncoding {
 
 #[derive(Debug)]
 pub struct OutputFormat {
-    pub container_format: ContainerFormat,
+    pub container_selection: ContainerSelection,
     pub video_encoding: Option<VideoEncoding>,
     pub audio_encoding: Option<AudioEncoding>,
 }
