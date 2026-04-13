@@ -1,5 +1,7 @@
 use std::process::Command;
 
+use glib::translate::IntoGlib;
+use gst::prelude::*;
 use itertools::Itertools;
 
 #[derive(Debug)]
@@ -119,4 +121,38 @@ pub fn get_debug_info() {
     let s = std::str::from_utf8(&o.stdout).unwrap();
 
     println!("{}", s);
+
+    println!(
+        "\n=== GStreamer version: {}.{}.{}.{} ===",
+        gst::version().0,
+        gst::version().1,
+        gst::version().2,
+        gst::version().3,
+    );
+
+    println!("\n=== Encoder selection priority ===");
+    for encoding in crate::profiles::VideoEncoding::ALL {
+        let caps = gst::Caps::builder(encoding.get_format()).build();
+        let label = encoding.for_display();
+        let mut encoders: Vec<(String, i32)> = gst::ElementFactory::factories_with_type(
+            gst::ElementFactoryType::ENCODER | gst::ElementFactoryType::VIDEO_ENCODER,
+            gst::Rank::NONE,
+        )
+        .into_iter()
+        .filter(|factory| {
+            factory.static_pad_templates().iter().any(|tmpl| {
+                tmpl.direction() == gst::PadDirection::Src && tmpl.caps().can_intersect(&caps)
+            })
+        })
+        .map(|factory| (factory.name().to_string(), factory.rank().into_glib()))
+        .collect();
+        encoders.sort_by(|a, b| b.1.cmp(&a.1));
+        println!("{label}:");
+        for (name, rank) in &encoders {
+            println!("  {rank:>6}  {name}");
+        }
+        if encoders.is_empty() {
+            println!("  (none)");
+        }
+    }
 }

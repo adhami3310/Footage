@@ -1,0 +1,10 @@
+prefix=/app
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: x265
+Description: H.265/HEVC video encoder
+Version: 4.1
+Libs: -L${libdir} -lx265
+Libs.private: -lstdc++ -lm -ldl -lpthread
+Cflags: -I${includedir}

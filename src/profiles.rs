@@ -86,6 +86,8 @@ impl ContainerFormat {
 }
 
 impl VideoEncoding {
+    pub const ALL: &[VideoEncoding] = &[Av1, Vp8, Vp9, H264, H265, Gif];
+
     pub fn get_format(&self) -> &str {
         match self {
             Av1 => "video/x-av1",
@@ -97,15 +99,9 @@ impl VideoEncoding {
         }
     }
 
-    pub fn get_preset_name(&self) -> &str {
-        match self {
-            Av1 => "svtav1enc",
-            Vp8 => "vp8enc",
-            Vp9 => "vp9enc",
-            H264 => "x264enc",
-            H265 => "x265enc",
-            Gif => "gifenc",
-        }
+    pub fn encoding_profile(&self) -> gstreamer_pbutils::EncodingVideoProfile {
+        let caps = gst::Caps::builder(self.get_format()).build();
+        gstreamer_pbutils::EncodingVideoProfile::builder(&caps).build()
     }
 
     pub fn for_display(&self) -> &str {

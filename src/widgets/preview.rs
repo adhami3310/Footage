@@ -637,12 +637,7 @@ impl VideoPreview {
                 pipeline
                     .set_render_settings(
                         url::Url::from_file_path(output_path).unwrap().as_str(),
-                        &gstreamer_pbutils::EncodingVideoProfile::builder(
-                            &gst::Caps::builder(output_format.video_encoding.unwrap().get_format())
-                                .build(),
-                        )
-                        .preset_name(output_format.video_encoding.unwrap().get_preset_name())
-                        .build(),
+                        &output_format.video_encoding.unwrap().encoding_profile(),
                     )
                     .unwrap();
             } else if output_format.container_format == ContainerFormat::Same {
@@ -704,11 +699,7 @@ impl VideoPreview {
                     )
                     .unwrap();
             } else {
-                let video_profile = gstreamer_pbutils::EncodingVideoProfile::builder(
-                    &gst::Caps::builder(output_format.video_encoding.unwrap().get_format()).build(),
-                )
-                .preset_name(output_format.video_encoding.unwrap().get_preset_name())
-                .build();
+                let video_profile = output_format.video_encoding.unwrap().encoding_profile();
 
                 let container_format =
                     gst::Caps::builder(output_format.container_format.format()).build();

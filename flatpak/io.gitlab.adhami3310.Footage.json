@@ -1,7 +1,7 @@
 {
     "id": "io.gitlab.adhami3310.Footage",
     "runtime": "org.gnome.Platform",
-    "runtime-version": "49",
+    "runtime-version": "master",
     "sdk": "org.gnome.Sdk",
     "sdk-extensions": [
         "org.freedesktop.Sdk.Extension.rust-stable"
@@ -10,7 +10,6 @@
         "/include",
         "/lib/pkgconfig",
         "/lib/girepository-1.0",
-        "/lib/gstreamer-1.0/include",
         "/libexec",
         "/man",
         "/share/aclocal",
@@ -18,9 +17,6 @@
         "/share/man",
         "*.la",
         "*.a"
-    ],
-    "cleanup-commands": [
-        "mkdir -p ${FLATPAK_DEST}/lib/ffmpeg"
     ],
     "command": "footage",
     "finish-args": [
@@ -31,251 +27,20 @@
         "--socket=pulseaudio"
     ],
     "build-options": {
-        "append-path": "/usr/lib/sdk/rust-stable/bin",
-        "env": {
-            "GST_PLUGIN_PATH": "/app/lib/codecs/lib/gstreamer-1.0",
-            "GST_PLUGIN_SYSTEM_PATH": "/app/lib/gstreamer-1.0/",
-            "GST_ENCODING_TARGET_PATH": "/app/share/gstreamer-1.0/encoding-profiles/:/app/share/pitivi/encoding-profiles/",
-            "GST_VAAPI_ALL_DRIVERS": "1",
-            "CARGO_HOME": "/run/build/footage/cargo"
-        },
-        "append-ld-library-path": "/app/lib/codecs/lib",
-        "ldflags": "-L/app/lib/codecs/lib"
+        "append-path": "/usr/lib/sdk/rust-stable/bin"
     },
     "modules": [
-        {
-            "name": "liba52",
-            "config-opts": [
-                "--enable-shared",
-                "--disable-static"
-            ],
-            "rm-configure": true,
-            "cleanup": [
-                "/bin/*a52*"
-            ],
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://sourceforge.net/projects/vlc/files/0.4.6/contrib/a52dec-0.7.4.tar.gz",
-                    "sha256": "a21d724ab3b3933330194353687df82c475b5dfb997513eef4c25de6c865ec33"
-                },
-                {
-                    "type": "patch",
-                    "path": "patches/a52dec-0.7.4-rpath64.patch"
-                },
-                {
-                    "type": "patch",
-                    "path": "patches/a52dec-configure-optflags.patch"
-                },
-                {
-                    "type": "patch",
-                    "path": "patches/liba52-silence.patch"
-                },
-                {
-                    "type": "patch",
-                    "path": "patches/liba52-prefer-pic.patch"
-                },
-                {
-                    "type": "script",
-                    "commands": [
-                        "autoreconf -fiv"
-                    ],
-                    "dest-filename": "autogen.sh"
-                }
-            ]
-        },
-        {
-            "name": "libmpeg2",
-            "config-opts": [
-                "--enable-shared",
-                "--disable-static"
-            ],
-            "rm-configure": true,
-            "cleanup": [
-                "/bin/*mpeg2*"
-            ],
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://download.videolan.org/contrib/libmpeg2/libmpeg2-0.5.1.tar.gz",
-                    "sha256": "dee22e893cb5fc2b2b6ebd60b88478ab8556cb3b93f9a0d7ce8f3b61851871d4"
-                },
-                {
-                    "type": "patch",
-                    "path": "patches/libmpeg2-inline.patch"
-                },
-                {
-                    "type": "script",
-                    "commands": [
-                        "autoreconf -fiv"
-                    ],
-                    "dest-filename": "autogen.sh"
-                }
-            ]
-        },
-        {
-            "name": "x265",
-            "buildsystem": "cmake-ninja",
-            "subdir": "source",
-            "config-opts": [
-                "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
-                "-DBUILD_SHARED_LIBS=ON",
-                "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
-            ],
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://bitbucket.org/multicoreware/x265_git/downloads/x265_4.1.tar.gz",
-                    "sha256": "a31699c6a89806b74b0151e5e6a7df65de4b49050482fe5ebf8a4379d7af8f29"
-                },
-                {
-                    "type": "patch",
-                    "path": "patches/x265-cmake.patch"
-                }
-            ]
-        },
-        {
-            "name": "x264",
-            "config-opts": [
-                "--enable-shared",
-                "--disable-static",
-                "--disable-cli",
-                "--enable-pic"
-            ],
-            "sources": [
-                {
-                    "type": "git",
-                    "url": "https://code.videolan.org/videolan/x264.git",
-                    "//": "Just get the latest from https://code.videolan.org/videolan/x264/-/commits/stable/ they don't do tags/snapshots/releases anymore",
-                    "commit": "31e19f92f00c7003fa115047ce50978bc98c3a0d"
-                }
-            ]
-        },
-        {
-            "name": "fdkaac",
-            "config-opts": [
-                "--disable-static"
-            ],
-            "sources": [
-                {
-                    "type": "git",
-                    "url": "https://github.com/mstorsjo/fdk-aac.git",
-                    "tag": "v2.0.3",
-                    "commit": "716f4394641d53f0d79c9ddac3fa93b03a49f278"
-                }
-            ]
-        },
-        {
-            "name": "vo-aacenc",
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://downloads.sourceforge.net/opencore-amr/vo-aacenc/vo-aacenc-0.1.3.tar.gz",
-                    "mirror-urls": [
-                        "http://ftp.debian.org/debian/pool/main/v/vo-aacenc/vo-aacenc_0.1.3.orig.tar.gz"
-                    ],
-                    "sha256": "e51a7477a359f18df7c4f82d195dab4e14e7414cbd48cf79cc195fc446850f36"
-                }
-            ]
-        },
-        {
-            "name": "svt-av1",
-            "buildsystem": "cmake-ninja",
-            "builddir": true,
-            "config-opts": [
-                "-DCMAKE_BUILD_TYPE=Release",
-                "-DBUILD_SHARED_LIBS=ON",
-                "-DBUILD_APPS=OFF",
-                "-DBUILD_DEC=ON",
-                "-DBUILD_ENC=ON",
-                "-DBUILD_TESTING=OFF"
-            ],
-            "cleanup": [
-                "/include",
-                "/lib/pkgconfig"
-            ],
-            "sources": [
-                {
-                    "type": "git",
-                    "url": "https://gitlab.com/AOMediaCodec/SVT-AV1",
-                    "tag": "v3.1.2",
-                    "commit": "b33dcc56cc64fcb3b3569094af8ab1d0d81ab4c1"
-                }
-            ]
-        },
-        {
-            "name": "gstreamer-plugins-bad",
-            "buildsystem": "meson",
-            "config-opts": [
-                "--libdir=lib",
-                "--wrap-mode=nodownload",
-                "-Dauto_features=disabled",
-                "-Dx265=enabled",
-                "-Dgpl=enabled",
-                "-Dsvtav1=enabled"
-            ],
-            "subdir": "subprojects/gst-plugins-bad",
-            "sources": [
-                {
-                    "type": "git",
-                    "tag": "1.26.10",
-                    "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
-                    "commit": "bfdc62185e243d3633aa916187a566d03a587792",
-                    "disable-submodules": true
-                }
-            ]
-        },
-        {
-            "name": "gstreamer-vaaapi",
-            "buildsystem": "meson",
-            "config-opts": [
-                "--libdir=lib",
-                "--wrap-mode=nodownload",
-                "-Dauto_features=disabled",
-                "-Ddrm=enabled",
-                "-Dwayland=enabled",
-                "-Dx11=enabled",
-                "-Dencoders=enabled"
-            ],
-            "subdir": "subprojects/gstreamer-vaapi",
-            "sources": [
-                {
-                    "type": "git",
-                    "tag": "1.26.10",
-                    "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
-                    "commit": "bfdc62185e243d3633aa916187a566d03a587792",
-                    "disable-submodules": true
-                }
-            ]
-        },
-        {
-            "name": "gstreamer-plugins-ugly",
-            "buildsystem": "meson",
-            "config-opts": [
-                "--libdir=lib",
-                "--wrap-mode=nodownload",
-                "-Dauto_features=disabled",
-                "-Dx264=enabled",
-                "-Dgpl=enabled"
-            ],
-            "subdir": "subprojects/gst-plugins-ugly",
-            "sources": [
-                {
-                    "type": "git",
-                    "tag": "1.26.10",
-                    "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
-                    "commit": "bfdc62185e243d3633aa916187a566d03a587792",
-                    "disable-submodules": true
-                }
-            ]
-        },
         {
             "name": "gstreamer-editing-services",
             "buildsystem": "meson",
             "config-opts": [
-                "--libdir=lib",
-                "--wrap-mode=nodownload",
-                "-Dauto_features=disabled"
+                "-Ddoc=disabled",
+                "-Dexamples=disabled",
+                "-Dintrospection=disabled",
+                "-Dtests=disabled",
+                "-Dtools=disabled",
+                "-Dbash-completion=disabled",
+                "-Dpython=disabled"
             ],
             "subdir": "subprojects/gst-editing-services",
             "sources": [
@@ -289,46 +54,49 @@
             ]
         },
         {
-            "name": "gst-plugin-gtk4",
+            "name": "x265-dev",
             "buildsystem": "simple",
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://crates.io/api/v1/crates/gst-plugin-gtk4/0.12.5/download",
-                    "dest-filename": "gst-plugin-gtk4-0.12.5.tar.gz",
-                    "sha256": "56e483cb1452f056ae94ccd5f63bdec697e04c87b30d89eb30c3f934042e1022"
+                    "url": "https://bitbucket.org/multicoreware/x265_git/downloads/x265_4.1.tar.gz",
+                    "sha256": "a31699c6a89806b74b0151e5e6a7df65de4b49050482fe5ebf8a4379d7af8f29"
                 },
-                "gst-plugin-gtk4-sources.json"
+                {
+                    "type": "file",
+                    "path": "x265_config.h"
+                },
+                {
+                    "type": "file",
+                    "path": "x265.pc"
+                }
             ],
             "build-commands": [
-                "cargo cinstall --offline --release --features=wayland,x11glx,x11egl,gtk_v4_14 --library-type=cdylib --prefix=/app --libdir=/app/lib"
-            ],
-            "build-options": {
-                "env": {
-                    "CARGO_HOME": "/run/build/gst-plugin-gtk4/cargo"
-                }
-            }
+                "install -Dm644 source/x265.h /app/include/x265.h",
+                "install -Dm644 x265_config.h /app/include/x265_config.h",
+                "install -Dm644 x265.pc /app/lib/pkgconfig/x265.pc",
+                "ln -sf /usr/lib/*/codecs-extra/lib/libx265.so /app/lib/libx265.so",
+                "ln -sf /usr/lib/*/codecs-extra/lib/libx265.so.215 /app/lib/libx265.so.215"
+            ]
         },
         {
-            "name": "gst-plugin-gif",
-            "buildsystem": "simple",
+            "name": "gstreamer-plugins-bad",
+            "buildsystem": "meson",
+            "config-opts": [
+                "-Dauto_features=disabled",
+                "-Dx265=enabled",
+                "-Dgpl=enabled"
+            ],
+            "subdir": "subprojects/gst-plugins-bad",
             "sources": [
                 {
-                    "type": "archive",
-                    "url": "https://crates.io/api/v1/crates/gst-plugin-gif/0.13.0/download",
-                    "dest-filename": "gst-plugin-gif-0.13.0.tar.gz",
-                    "sha256": "cc129158467d8083bebb7a63aab59a4f0dbb29f3ecf7c5072d8205a69bcbe72a"
-                },
-                "gst-plugin-gif-sources.json"
-            ],
-            "build-commands": [
-                "cargo cinstall --offline --release --library-type=cdylib --prefix=/app --libdir=/app/lib"
-            ],
-            "build-options": {
-                "env": {
-                    "CARGO_HOME": "/run/build/gst-plugin-gif/cargo"
+                    "type": "git",
+                    "tag": "1.26.10",
+                    "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
+                    "commit": "bfdc62185e243d3633aa916187a566d03a587792",
+                    "disable-submodules": true
                 }
-            }
+            ]
         },
         {
             "name": "footage",

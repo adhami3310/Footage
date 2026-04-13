@@ -1,4 +1,5 @@
 use glib::{clone, ExitCode};
+use gst::prelude::*;
 use log::{debug, info};
 
 use gtk::{gio, glib, prelude::*, subclass::prelude::*};
@@ -149,6 +150,13 @@ impl App {
 
         gst::init().unwrap();
         ges::init().unwrap();
+
+        // svtav1enc is much faster than av1enc (libaom) but ships with lower
+        // rank. Boost it above av1enc so encodebin prefers it, while still
+        // letting hardware encoders (rank 257+) win when available.
+        if let Some(factory) = gst::ElementFactory::find("svtav1enc") {
+            factory.set_rank(gst::Rank::PRIMARY + 1);
+        }
 
         ApplicationExtManual::run(self)
     }
