@@ -9,16 +9,17 @@ use itertools::Itertools;
 use log::warn;
 
 use crate::{
+    Listable,
     info::{Dimensions, Framerate},
     profiles::{AudioEncoding, ContainerSelection, OutputFormat, VideoEncoding},
-    runtime, spawn, Listable,
+    runtime, spawn,
 };
 
 mod imp {
 
     use std::{
         cell::{Cell, RefCell},
-        sync::{atomic::AtomicBool, Arc},
+        sync::{Arc, atomic::AtomicBool},
     };
 
     use crate::{
@@ -334,6 +335,13 @@ impl AppWindow {
             self,
             move |_| {
                 this.update_options();
+            }
+        ));
+        imp.video_encoding.connect_selected_notify(clone!(
+            #[weak(rename_to=this)]
+            self,
+            move |_| {
+                this.update_framerate_limit();
             }
         ));
         imp.resize_type.connect_selected_notify(clone!(
@@ -797,6 +805,20 @@ impl AppWindow {
                 .collect_vec()
                 .to_list(),
         ));
+
+        self.update_framerate_limit();
+    }
+
+    fn update_framerate_limit(&self) {
+        let max_fps = self
+            .selected_video_encoding()
+            .map(|e| e.max_framerate())
+            .unwrap_or(480.);
+        let adj = self.imp().framerate_row.adjustment();
+        adj.set_upper(max_fps);
+        if adj.value() > max_fps {
+            adj.set_value(max_fps);
+        }
     }
 
     fn save_file(&self, path: PathBuf) {
@@ -949,9 +971,13 @@ impl AppWindow {
         self.imp()
             .resize_width_value
             .set_text(&dimensions.width.to_string());
+        let max_fps = self
+            .selected_video_encoding()
+            .map(|e| e.max_framerate())
+            .unwrap_or(240.);
         self.imp()
             .framerate_row
-            .set_value(framerate.map(|x| x.value().min(240.)).unwrap_or(30.));
+            .set_value(framerate.map(|x| x.value().min(max_fps)).unwrap_or(30.));
     }
 
     pub fn mark_ui_as_ready(&self) {

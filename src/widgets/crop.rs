@@ -7,8 +7,9 @@ mod imp {
     use super::*;
     use glib::{clone, subclass::Signal};
     use gtk::{
+        CompositeTemplate,
         gdk::{Key, RGBA},
-        graphene, CompositeTemplate,
+        graphene,
     };
     use itertools::Itertools;
     use once_cell::unsync::OnceCell;

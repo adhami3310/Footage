@@ -32,11 +32,11 @@ pub enum AudioEncoding {
     Flac,
 }
 
-use gettextrs::gettext;
-use gst::prelude::*;
 use AudioEncoding::*;
 use ContainerFormat::*;
 use VideoEncoding::*;
+use gettextrs::gettext;
+use gst::prelude::*;
 
 impl ContainerFormat {
     pub fn viable_video_encodings(&self) -> Vec<VideoEncoding> {
@@ -157,6 +157,17 @@ impl VideoEncoding {
     pub fn encoding_profile(&self) -> gstreamer_pbutils::EncodingVideoProfile {
         let caps = gst::Caps::builder(self.get_format()).build();
         gstreamer_pbutils::EncodingVideoProfile::builder(&caps).build()
+    }
+
+    pub fn max_framerate(&self) -> f64 {
+        match self {
+            Av1 => 240.,
+            Vp8 => 60.,
+            Vp9 => 240.,
+            H264 => 300.,
+            H265 => 300.,
+            Gif => 50.,
+        }
     }
 
     pub fn for_display(&self) -> &str {

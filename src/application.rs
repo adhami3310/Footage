@@ -1,4 +1,4 @@
-use glib::{clone, ExitCode};
+use glib::{ExitCode, clone};
 use gst::prelude::*;
 use log::{debug, info};
 

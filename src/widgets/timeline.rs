@@ -7,10 +7,10 @@ mod imp {
     use super::*;
     use glib::{clone, subclass::Signal};
     use gtk::{
+        CompositeTemplate,
         gdk::{self, Key},
         prelude::*,
         subclass::prelude::*,
-        CompositeTemplate,
     };
     use once_cell::unsync::OnceCell;
     use std::cell::Cell;
