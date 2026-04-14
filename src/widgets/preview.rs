@@ -755,9 +755,9 @@ impl VideoPreview {
                         .clone()
                         .load(std::sync::atomic::Ordering::SeqCst)
                     {
-                        sender_pad
-                            .send_blocking(Err(()))
-                            .expect("Concurrency Issues");
+                        if let Err(e) = sender_pad.send_blocking(Err(())) {
+                            error!("Failed to send cancellation from pad probe: {e}");
+                        }
                         return gst::PadProbeReturn::Drop;
                     }
 
@@ -778,21 +778,27 @@ impl VideoPreview {
 
                 match msg.view() {
                     MessageView::Eos(..) => {
-                        sender
-                            .send_blocking(Ok((1, 1)))
-                            .expect("Concurrency Issues");
+                        if let Err(e) = sender.send_blocking(Ok((1, 1))) {
+                            error!("Failed to send EOS: {e}");
+                        }
                         break;
                     }
                     MessageView::Error(_) => {
                         pipeline.set_state(gst::State::Null).unwrap();
 
-                        sender.send_blocking(Err(())).expect("Concurrency Issues");
+                        if let Err(e) = sender.send_blocking(Err(())) {
+                            error!("Failed to send error: {e}");
+                        }
+                        break;
                     }
                     _ => {
                         if !running_flag.load(std::sync::atomic::Ordering::SeqCst) {
                             pipeline.set_state(gst::State::Null).unwrap();
 
-                            sender.send_blocking(Err(())).expect("Concurrency Issues");
+                            if let Err(e) = sender.send_blocking(Err(())) {
+                                error!("Failed to send cancellation: {e}");
+                            }
+                            break;
                         }
                     }
                 }
