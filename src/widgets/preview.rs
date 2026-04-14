@@ -3,6 +3,7 @@ use std::{
     path::PathBuf,
     sync::{Arc, atomic::AtomicBool},
 };
+use thiserror::Error;
 
 use glib::clone;
 use gst::{ClockTime, PadProbeData, PadProbeType, SeekFlags};
@@ -116,6 +117,16 @@ impl Default for VideoPreview {
     }
 }
 
+#[derive(Debug, Error)]
+pub enum VideoPreviewError {
+    #[error("GStreamer error: {0}")]
+    Glib(#[from] glib::Error),
+    #[error("invalid file path")]
+    InvalidPath,
+    #[error("failed to get media info")]
+    NoInfo,
+}
+
 #[gtk::template_callbacks]
 impl VideoPreview {
     pub fn new() -> Self {
@@ -142,10 +153,9 @@ impl VideoPreview {
         self.emit_by_name::<()>("mode-changed", &[&false]);
     }
 
-    async fn load_ges_clip(&self, uri: &str) -> Result<ges::Asset, ()> {
-        let clip = ges::Asset::request_future::<ges::UriClip>(Some(uri))
-            .await
-            .map_err(|_| ())?;
+    async fn load_ges_clip(&self, uri: &str) -> Result<ges::UriClip, VideoPreviewError> {
+        let asset = ges::Asset::request_future::<ges::UriClip>(Some(uri)).await?;
+        let clip = asset.extract()?.downcast::<ges::UriClip>().unwrap();
 
         Ok(clip)
     }
@@ -153,20 +163,13 @@ impl VideoPreview {
     pub async fn load_path(
         &self,
         path: PathBuf,
-    ) -> Result<(Dimensions<u32>, u64, Option<Framerate>, bool), ()> {
-        info!(
-            "Loading path: {}",
-            url::Url::from_file_path(path.clone()).unwrap().as_str()
-        );
+    ) -> Result<(Dimensions<u32>, u64, Option<Framerate>, bool), VideoPreviewError> {
+        let url =
+            url::Url::from_file_path(path.clone()).map_err(|_| VideoPreviewError::InvalidPath)?;
 
-        let clip = self
-            .load_ges_clip(url::Url::from_file_path(path.clone()).unwrap().as_str())
-            .await
-            .map_err(|_| ())?
-            .extract()
-            .unwrap()
-            .dynamic_cast::<ges::UriClip>()
-            .unwrap();
+        info!("Loading path: {}", url.as_str());
+
+        let clip = self.load_ges_clip(url.as_str()).await?;
 
         let duration = clip.duration().mseconds();
         self.imp().clip.replace(Some(clip));
@@ -175,7 +178,7 @@ impl VideoPreview {
         self.imp().outpoint.set(duration);
 
         let (dimensions, framerate, has_audio) =
-            get_info(path.to_str().unwrap().to_owned()).ok_or(())?;
+            get_info(path.to_str().unwrap().to_owned()).ok_or(VideoPreviewError::NoInfo)?;
 
         self.imp().current_dimensions.set(Some(dimensions));
 

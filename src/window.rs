@@ -6,7 +6,7 @@ use gettextrs::gettext;
 use glib::clone;
 use gtk::{gio, glib, subclass::prelude::*};
 use itertools::Itertools;
-use log::warn;
+use log::{error, warn};
 
 use crate::{
     Listable,
@@ -942,12 +942,15 @@ impl AppWindow {
 
     async fn create_ui(&self, path: PathBuf) {
         self.imp().video_preview.reset();
-        let Ok((dimensions, duration, framerate, has_audio)) =
-            self.imp().video_preview.load_path(path).await
-        else {
-            self.imp().stack.set_visible_child_name("invalid");
-            return;
-        };
+        let (dimensions, duration, framerate, has_audio) =
+            match self.imp().video_preview.load_path(path).await {
+                Ok(result) => result,
+                Err(err) => {
+                    error!("Failed to load video: {err}");
+                    self.imp().stack.set_visible_child_name("invalid");
+                    return;
+                }
+            };
         if has_audio {
             if self.imp().audio_button.is_active() {
                 // don't think about it
