@@ -40,12 +40,14 @@ mod imp {
         #[template_child]
         pub crop_box: TemplateChild<Crop>,
 
+        pub original_duration: Cell<u64>,
+        pub original_dimensions: Cell<Option<Dimensions<u32>>>,
+
         pub current_dimensions: Cell<Option<Dimensions<u32>>>,
         pub orientation: Cell<VideoOrientation>,
         pub inpoint: Cell<u64>,
         pub mute: Cell<bool>,
         pub outpoint: Cell<u64>,
-        pub duration: Cell<u64>,
         pub pipeline: RefCell<Option<gst::Element>>,
         pub videoflip: RefCell<Option<gst::Element>>,
         pub path: RefCell<PathBuf>,
@@ -142,7 +144,8 @@ impl VideoPreview {
         self.imp().bus_watch.replace(None);
         self.imp().paint.set_paintable(None::<&gdk::Paintable>);
         self.imp().mute.set(false);
-        self.imp().duration.set(0);
+        self.imp().original_duration.set(0);
+        self.imp().original_dimensions.set(None);
         self.emit_by_name::<()>("mode-changed", &[&false]);
     }
 
@@ -161,11 +164,12 @@ impl VideoPreview {
 
         self.imp().inpoint.set(0);
         self.imp().outpoint.set(duration);
-        self.imp().duration.set(duration);
+        self.imp().original_duration.set(duration);
 
         let (dimensions, framerate, has_audio) =
             get_info(path.to_str().unwrap().to_owned()).ok_or(VideoPreviewError::NoInfo)?;
 
+        self.imp().original_dimensions.set(Some(dimensions));
         self.imp().current_dimensions.set(Some(dimensions));
 
         self.imp().path.replace(path);
@@ -471,21 +475,26 @@ impl VideoPreview {
         let input_path = self.imp().path.borrow().to_owned();
         let orientation = self.imp().orientation.get();
 
-        let dimensions = get_info(input_path.to_str().unwrap().to_owned()).unwrap().0;
+        let dimensions = self.imp().original_dimensions.get().unwrap_or_else(|| {
+            panic!(
+                "Original dimensions should be set before saving. This is a bug. Path: {:?}",
+                input_path
+            )
+        });
 
         let dimensions: Dimensions<f64> = dimensions.into();
 
-        let dimensions = match orientation.is_width_height_swapped() {
+        let input_dimensions = match orientation.is_width_height_swapped() {
             false => dimensions,
             true => dimensions.swap(),
         };
 
         let (top, right, bottom, left) = self.imp().crop_box.proportions();
 
-        let full_scaled_width = dimensions.width
-            * (scaled_dimension.width_f64() / (dimensions.width * (1. - right - left)));
-        let full_scaled_height = dimensions.height
-            * (scaled_dimension.height_f64() / (dimensions.height * (1. - top - bottom)));
+        let full_scaled_width = input_dimensions.width
+            * (scaled_dimension.width_f64() / (input_dimensions.width * (1. - right - left)));
+        let full_scaled_height = input_dimensions.height
+            * (scaled_dimension.height_f64() / (input_dimensions.height * (1. - top - bottom)));
 
         let job = RenderJob {
             input_path,
