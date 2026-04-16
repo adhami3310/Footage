@@ -15,7 +15,7 @@ use crate::{
 };
 
 pub struct RenderJob {
-    pub input_path: PathBuf,
+    pub input_uri: url::Url,
     pub output_path: PathBuf,
     pub output_format: OutputFormat,
     pub framerate: Framerate,
@@ -34,7 +34,7 @@ pub struct RenderJob {
 
 pub fn run_render(job: RenderJob) {
     let RenderJob {
-        input_path,
+        input_uri,
         output_path,
         output_format,
         framerate,
@@ -53,7 +53,7 @@ pub fn run_render(job: RenderJob) {
 
     // When output == input, write to a temporary file to avoid truncating
     // the source before the pipeline reads it.
-    let same_file = output_path == input_path;
+    let same_file = output_path == input_uri.to_file_path().unwrap();
     let render_path = if same_file {
         let mut temp = output_path.clone();
         temp.set_extension(format!(
@@ -72,12 +72,7 @@ pub fn run_render(job: RenderJob) {
         output_path.clone()
     };
 
-    let clip = ges::UriClip::new(
-        url::Url::from_file_path(input_path.clone())
-            .unwrap()
-            .as_str(),
-    )
-    .unwrap();
+    let clip = ges::UriClip::new(input_uri.as_str()).unwrap();
 
     let timeline = ges::Timeline::new_audio_video();
 
@@ -144,11 +139,7 @@ pub fn run_render(job: RenderJob) {
             let profile = gstreamer_pbutils::EncodingProfile::from_discoverer(
                 &Discoverer::new(gst::ClockTime::SECOND)
                     .unwrap()
-                    .discover_uri(
-                        url::Url::from_file_path(input_path.clone())
-                            .unwrap()
-                            .as_str(),
-                    )
+                    .discover_uri(input_uri.as_str())
                     .unwrap(),
             )
             .unwrap();

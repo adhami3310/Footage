@@ -1,4 +1,4 @@
-use std::{os::fd::AsFd, path::PathBuf};
+use std::{os::fd::AsFd, path::PathBuf, time::Duration};
 
 use adw::prelude::*;
 use fraction::Ratio;
@@ -428,7 +428,7 @@ impl AppWindow {
             }
         ));
 
-        imp.video_preview.imp().crop_box.connect_local(
+        imp.video_preview.crop_box().connect_local(
             "crop-box-changed",
             true,
             clone!(
@@ -513,10 +513,15 @@ impl AppWindow {
                 None,
                 move |values| {
                     let values = values.to_vec();
-                    let start: u64 = values.get(1).unwrap().get().expect("Expected a U64");
-                    let end: u64 = values.get(2).unwrap().get().expect("Expected a U64");
-                    if this.imp().video_preview.imp().inpoint.get() != start
-                        || this.imp().video_preview.imp().outpoint.get() != end
+                    let start = Duration::from_secs_f64(
+                        values.get(1).unwrap().get().expect("Expected a F64"),
+                    );
+                    let end = Duration::from_secs_f64(
+                        values.get(2).unwrap().get().expect("Expected a F64"),
+                    );
+
+                    if this.imp().video_preview.inpoint() != start
+                        || this.imp().video_preview.outpoint() != end
                     {
                         this.imp().video_preview.set_range(start, end);
                     }
@@ -549,7 +554,8 @@ impl AppWindow {
                 #[upgrade_or]
                 None,
                 move |values| {
-                    let position: u64 = values[1].get().expect("Expected a U64");
+                    let position =
+                        Duration::from_secs_f64(values[1].get().expect("Expected a F64"));
 
                     this.imp().video_preview.seek(position);
 
@@ -595,7 +601,8 @@ impl AppWindow {
                 #[upgrade_or]
                 None,
                 move |values| {
-                    let position: u64 = values[1].get().expect("Expected a U64");
+                    let position =
+                        Duration::from_secs_f64(values[1].get().expect("Expected a F64"));
 
                     this.imp().timeline.set_position(position);
 
@@ -961,9 +968,11 @@ impl AppWindow {
         } else {
             self.imp().audio_button.set_visible(false);
         }
-        self.imp().timeline.set_position(0);
+        self.imp().timeline.set_position(Duration::ZERO);
         self.imp().timeline.set_duration(duration);
-        self.imp().timeline.set_range(Some((0, duration)));
+        self.imp()
+            .timeline
+            .set_range(Some((Duration::ZERO, duration)));
         self.imp().video_dimensions.set(Some(dimensions));
         self.imp().selected_video_dimensions.set(Some(dimensions));
         self.imp().resize_scale_height_value.set_text("100");

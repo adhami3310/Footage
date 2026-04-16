@@ -1,5 +1,7 @@
 // https://gitlab.gnome.org/YaLTeR/video-trimmer/-/blob/master/src/timeline.rs
 
+use std::time::Duration;
+
 use glib::subclass::prelude::*;
 use gtk::glib;
 
@@ -16,7 +18,7 @@ mod imp {
     use std::cell::Cell;
 
     const TOLERANCE: f64 = 12.;
-    const TIMELINE_KEYBOARD_MOVE: i64 = 250;
+    const TIMELINE_KEYBOARD_MOVE: Duration = Duration::from_millis(250);
 
     #[derive(Debug, Clone, Copy, Eq, PartialEq)]
     enum DragType {
@@ -54,9 +56,9 @@ mod imp {
         #[template_child]
         right_handle: TemplateChild<gtk::Button>,
 
-        position: Cell<u64>,
-        duration: Cell<u64>,
-        range: Cell<Option<(u64, u64)>>,
+        position: Cell<Duration>,
+        duration: Cell<Duration>,
+        range: Cell<Option<(Duration, Duration)>>,
         gesture_drag: OnceCell<gtk::GestureDrag>,
         drag_start: Cell<f64>,
         drag_type: Cell<Option<DragType>>,
@@ -87,9 +89,9 @@ mod imp {
                 left_handle: TemplateChild::default(),
                 right_handle: TemplateChild::default(),
 
-                position: Cell::new(0),
-                duration: Cell::new(0),
-                range: Cell::new(Some((0, 0))),
+                position: Cell::new(Duration::ZERO),
+                duration: Cell::new(Duration::ZERO),
+                range: Cell::new(Some((Duration::ZERO, Duration::ZERO))),
                 gesture_drag: OnceCell::new(),
                 drag_start: Cell::new(0.),
                 drag_type: Cell::new(None),
@@ -223,12 +225,13 @@ mod imp {
     impl WidgetImpl for Timeline {
         fn size_allocate(&self, width: i32, height: i32, baseline: i32) {
             let duration = self.duration.get();
-            if duration == 0 {
+            if duration.is_zero() {
                 return;
             }
 
             let position = self.position.get();
-            let x = ((position as f64 / duration as f64).clamp(0., 1.) * width as f64) as i32;
+            let x = ((position.as_secs_f64() / duration.as_secs_f64()).clamp(0., 1.) * width as f64)
+                as i32;
             let position_width = self
                 .box_timeline_position
                 .measure(gtk::Orientation::Horizontal, -1)
@@ -245,9 +248,9 @@ mod imp {
             );
 
             if let Some((start, end)) = self.range.get() {
-                let duration = duration as f64;
-                let x = ((start as f64 / duration).clamp(0., 1.) * width as f64) as i32;
-                let x_end = ((end as f64 / duration).clamp(0., 1.) * width as f64) as i32;
+                let duration = duration.as_secs_f64();
+                let x = ((start.as_secs_f64() / duration).clamp(0., 1.) * width as f64) as i32;
+                let x_end = ((end.as_secs_f64() / duration).clamp(0., 1.) * width as f64) as i32;
 
                 let selection_width = self
                     .box_timeline_selection
@@ -269,7 +272,7 @@ mod imp {
     }
 
     impl Timeline {
-        pub fn set_range(&self, range: Option<(u64, u64)>) {
+        pub fn set_range(&self, range: Option<(Duration, Duration)>) {
             self.range.set(range);
             // if let Some((start, end)) = range {
             //     self.left_handle.set_tooltip_text(Some(&format_time(start)));
@@ -282,7 +285,7 @@ mod imp {
             let obj = self.obj();
 
             let duration = self.duration.get();
-            if duration == 0 {
+            if duration.is_zero() {
                 self.box_timeline_position.set_child_visible(false);
                 self.box_timeline_selection.set_child_visible(false);
                 obj.queue_allocate();
@@ -297,7 +300,7 @@ mod imp {
         }
 
         fn on_drag_start(&self, x: f64, _y: f64) {
-            self.obj().emit_by_name::<()>("moving", &[]);
+            self.emit_moving();
             self.drag_start.set(x);
             self.drag_type.set(Some(DragType::Playback));
 
@@ -333,19 +336,16 @@ mod imp {
 
             let duration = self.duration.get();
 
-            if duration != 0 {
-                let time = (duration as f64 * value) as u64;
+            if !duration.is_zero() {
+                let time = Duration::from_secs_f64(duration.as_secs_f64() * value);
 
                 // Update the position for responsive seeking.
                 self.set_position(time);
                 obj.queue_allocate();
 
-                let range = self.range.get();
-                if range.is_none() {
+                let Some((start, end)) = self.range.get() else {
                     return;
-                }
-
-                let (start, end) = range.unwrap();
+                };
 
                 let (start, end) = match self.drag_type.get().unwrap() {
                     DragType::Start => {
@@ -377,15 +377,12 @@ mod imp {
 
         fn bring_start_forward(&self) {
             let (start, end) = self.range.get().unwrap();
-            self.range.set(Some((
-                (start + TIMELINE_KEYBOARD_MOVE as u64).min(end),
-                end,
-            )));
+            self.range
+                .set(Some(((start + TIMELINE_KEYBOARD_MOVE).min(end), end)));
             let (start, end) = self.range.get().unwrap();
             self.set_position(start);
-            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
-            self.obj()
-                .emit_by_name::<()>("set-position", &[&self.position.get()]);
+            self.emit_set_range(start, end);
+            self.emit_set_position(self.position.get());
             // self.left_handle.set_tooltip_text(Some(&format_time(start)));
             // self.right_handle.set_tooltip_text(Some(&format_time(end)));
         }
@@ -393,14 +390,13 @@ mod imp {
         fn bring_start_back(&self) {
             let (start, end) = self.range.get().unwrap();
             self.range.set(Some((
-                (start as i64 - TIMELINE_KEYBOARD_MOVE).max(0) as u64,
+                (start - TIMELINE_KEYBOARD_MOVE).max(Duration::ZERO),
                 end,
             )));
             let (start, end) = self.range.get().unwrap();
             self.set_position(start);
-            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
-            self.obj()
-                .emit_by_name::<()>("set-position", &[&self.position.get()]);
+            self.emit_set_range(start, end);
+            self.emit_set_position(self.position.get());
             // self.left_handle.set_tooltip_text(Some(&format_time(start)));
             // self.right_handle.set_tooltip_text(Some(&format_time(end)));
         }
@@ -409,47 +405,56 @@ mod imp {
             let (start, end) = self.range.get().unwrap();
             self.range.set(Some((
                 start,
-                (end + TIMELINE_KEYBOARD_MOVE as u64).min(self.duration.get()),
+                (end + TIMELINE_KEYBOARD_MOVE).min(self.duration.get()),
             )));
             let (start, end) = self.range.get().unwrap();
             self.set_position(end);
-            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
-            self.obj()
-                .emit_by_name::<()>("set-position", &[&self.position.get()]);
+            self.emit_set_range(start, end);
+            self.emit_set_position(self.position.get());
         }
 
         fn bring_end_back(&self) {
             let (start, end) = self.range.get().unwrap();
-            self.range.set(Some((
-                start,
-                (end as i64 - TIMELINE_KEYBOARD_MOVE).max(start as i64) as u64,
-            )));
+            self.range
+                .set(Some((start, (end - TIMELINE_KEYBOARD_MOVE).max(start))));
             let (start, end) = self.range.get().unwrap();
             self.set_position(end);
-            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
-            self.obj()
-                .emit_by_name::<()>("set-position", &[&self.position.get()]);
+            self.emit_set_range(start, end);
+            self.emit_set_position(self.position.get());
             // self.left_handle.set_tooltip_text(Some(&format_time(start)));
             // self.right_handle.set_tooltip_text(Some(&format_time(end)));
         }
 
         fn on_drag_end(&self) {
             let (start, end) = self.range.get().unwrap();
-            self.obj().emit_by_name::<()>("set-range", &[&start, &end]);
-            self.obj()
-                .emit_by_name::<()>("set-position", &[&self.position.get()]);
+            self.emit_set_range(start, end);
+            self.emit_set_position(self.position.get());
             // self.refresh();
             // self.left_handle.set_tooltip_text(Some(&format_time(start)));
             // self.right_handle.set_tooltip_text(Some(&format_time(end)));
             // self.set_position(start);
         }
 
-        pub fn set_duration(&self, duration: u64) {
+        fn emit_moving(&self) {
+            self.obj().emit_by_name::<()>("moving", &[]);
+        }
+
+        fn emit_set_range(&self, start: Duration, end: Duration) {
+            self.obj()
+                .emit_by_name::<()>("set-range", &[&start.as_secs_f64(), &end.as_secs_f64()]);
+        }
+
+        fn emit_set_position(&self, position: Duration) {
+            self.obj()
+                .emit_by_name::<()>("set-position", &[&position.as_secs_f64()]);
+        }
+
+        pub fn set_duration(&self, duration: Duration) {
             self.duration.set(duration);
             self.refresh();
         }
 
-        pub fn set_position(&self, position: u64) {
+        pub fn set_position(&self, position: Duration) {
             let (start, end) = self.range.get().unwrap();
             let position = position.clamp(start, end);
             self.position.set(position);
@@ -499,15 +504,15 @@ glib::wrapper! {
 }
 
 impl Timeline {
-    pub fn set_range(&self, range: Option<(u64, u64)>) {
+    pub fn set_range(&self, range: Option<(Duration, Duration)>) {
         self.imp().set_range(range);
     }
 
-    pub fn set_duration(&self, duration: u64) {
+    pub fn set_duration(&self, duration: Duration) {
         self.imp().set_duration(duration);
     }
 
-    pub fn set_position(&self, position: u64) {
+    pub fn set_position(&self, position: Duration) {
         self.imp().set_position(position);
     }
 }
