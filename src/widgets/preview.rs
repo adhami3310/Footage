@@ -6,18 +6,17 @@ use std::{
 use thiserror::Error;
 
 use glib::clone;
-use gst::{ClockTime, PadProbeData, PadProbeType, SeekFlags};
+use gst::{ClockTime, PadProbeData, PadProbeType, SeekFlags, prelude::*};
 use gstreamer_pbutils::Discoverer;
 use gtk::{gdk, gio, glib, subclass::prelude::*};
 
-use ges::Effect;
-use ges::prelude::*;
 use log::{error, info};
 
 use crate::{
     info::{Dimensions, Framerate, get_info},
     orientation::VideoOrientation,
-    profiles::{ContainerFormat, ContainerSelection, OutputFormat},
+    profiles::OutputFormat,
+    render::{RenderJob, run_render},
 };
 
 mod imp {
@@ -43,13 +42,12 @@ mod imp {
 
         pub current_dimensions: Cell<Option<Dimensions<u32>>>,
         pub orientation: Cell<VideoOrientation>,
-        pub audio_level: RefCell<Option<Effect>>,
         pub inpoint: Cell<u64>,
         pub mute: Cell<bool>,
         pub outpoint: Cell<u64>,
-        pub effects: RefCell<Vec<String>>,
-        pub pipeline: RefCell<Option<ges::Pipeline>>,
-        pub clip: RefCell<Option<ges::UriClip>>,
+        pub duration: Cell<u64>,
+        pub pipeline: RefCell<Option<gst::Element>>,
+        pub videoflip: RefCell<Option<gst::Element>>,
         pub path: RefCell<PathBuf>,
         pub ended: Cell<bool>,
         pub bus_watch: RefCell<Option<BusWatchGuard>>,
@@ -136,28 +134,16 @@ impl VideoPreview {
     pub fn reset(&self) {
         self.imp().crop_box.reset();
         self.imp().orientation.set(VideoOrientation::Identity);
-        self.imp().audio_level.replace(None);
-        self.imp().effects.replace(vec![]);
         self.imp().current_dimensions.set(None);
-        {
-            if let Some(pipeline) = self.imp().pipeline.take() {
-                pipeline.set_state(gst::State::Null).unwrap();
-            }
-        }
-        self.imp().clip.replace(None);
+        self.kill();
+        self.imp().videoflip.replace(None);
         self.imp().path.replace(PathBuf::new());
         self.imp().ended.replace(false);
         self.imp().bus_watch.replace(None);
         self.imp().paint.set_paintable(None::<&gdk::Paintable>);
         self.imp().mute.set(false);
+        self.imp().duration.set(0);
         self.emit_by_name::<()>("mode-changed", &[&false]);
-    }
-
-    async fn load_ges_clip(&self, uri: &str) -> Result<ges::UriClip, VideoPreviewError> {
-        let asset = ges::Asset::request_future::<ges::UriClip>(Some(uri)).await?;
-        let clip = asset.extract()?.downcast::<ges::UriClip>().unwrap();
-
-        Ok(clip)
     }
 
     pub async fn load_path(
@@ -169,13 +155,13 @@ impl VideoPreview {
 
         info!("Loading path: {}", url.as_str());
 
-        let clip = self.load_ges_clip(url.as_str()).await?;
-
-        let duration = clip.duration().mseconds();
-        self.imp().clip.replace(Some(clip));
+        let discoverer = Discoverer::new(ClockTime::from_seconds(10))?;
+        let info = discoverer.discover_uri(url.as_str())?;
+        let duration = info.duration().map(|d| d.mseconds()).unwrap_or(0);
 
         self.imp().inpoint.set(0);
         self.imp().outpoint.set(duration);
+        self.imp().duration.set(duration);
 
         let (dimensions, framerate, has_audio) =
             get_info(path.to_str().unwrap().to_owned()).ok_or(VideoPreviewError::NoInfo)?;
@@ -183,10 +169,8 @@ impl VideoPreview {
         self.imp().current_dimensions.set(Some(dimensions));
 
         self.imp().path.replace(path);
-        self.imp().effects.replace(vec![]);
 
         self.imp().crop_box.set_proportions((0., 0., 0., 0.));
-        self.imp().audio_level.replace(None);
         self.imp().orientation.set(Default::default());
         self.emit_by_name::<()>("mode-changed", &[&false]);
 
@@ -212,12 +196,10 @@ impl VideoPreview {
             self.imp().ended.set(true);
         }
 
-        let position = position.max(self.imp().inpoint.get()) - self.imp().inpoint.get();
-
         let op = self.imp().pipeline.borrow();
 
         if let Some(p) = op.as_ref() {
-            p.seek_simple(SeekFlags::empty(), ClockTime::from_mseconds(position))
+            p.seek_simple(SeekFlags::FLUSH, ClockTime::from_mseconds(position))
                 .ok();
         }
     }
@@ -225,24 +207,19 @@ impl VideoPreview {
     pub fn refresh_ui(&self) {
         self.kill();
 
-        let timeline = ges::Timeline::new_audio_video();
-        if let Some(t) = timeline.tracks().first() {
-            t.set_restriction_caps(
-                &gst::Caps::builder("video/x-raw")
-                    .field("framerate", gst::Fraction::new(30, 1))
-                    .build(),
-            );
-        }
+        let uri = {
+            let path = self.imp().path.borrow();
+            url::Url::from_file_path(path.as_path())
+                .expect("Invalid path for playbin3")
+                .to_string()
+        };
 
-        let original_clip = self.imp().clip.borrow();
-        let clip = original_clip.as_ref().unwrap();
+        let playbin = gst::ElementFactory::make("playbin3")
+            .property("uri", &uri)
+            .build()
+            .unwrap();
 
-        let layer = timeline.append_layer();
-        layer.add_clip(clip).unwrap();
-
-        let pipeline = ges::Pipeline::new();
-        pipeline.set_timeline(&timeline).unwrap();
-
+        // Video sink: videoconvertscale -> videoflip -> gtk4paintablesink
         let gtksink = gst::ElementFactory::make("gtk4paintablesink")
             .build()
             .unwrap();
@@ -251,16 +228,25 @@ impl VideoPreview {
 
         self.imp().paint.set_paintable(Some(&paintable));
 
-        let sink = gst::Bin::default();
+        let video_sink = gst::Bin::default();
         let convert = gst::ElementFactory::make("videoconvertscale")
             .build()
             .unwrap();
+        let flip = gst::ElementFactory::make("videoflip")
+            .property(
+                "video-direction",
+                self.imp()
+                    .orientation
+                    .get()
+                    .to_gst_video_orientation_method(),
+            )
+            .build()
+            .unwrap();
 
-        sink.add(&convert).unwrap();
-        sink.add(&gtksink).unwrap();
-        convert.link(&gtksink).unwrap();
+        video_sink.add_many([&convert, &flip, &gtksink]).unwrap();
+        gst::Element::link_many([&convert, &flip, &gtksink]).unwrap();
 
-        let pad = &gst::GhostPad::with_target(&convert.static_pad("sink").unwrap()).unwrap();
+        let pad = gst::GhostPad::with_target(&convert.static_pad("sink").unwrap()).unwrap();
 
         let (sender, receiver) = async_channel::bounded(1);
 
@@ -276,13 +262,18 @@ impl VideoPreview {
             gst::PadProbeReturn::Ok
         });
 
-        sink.add_pad(pad).unwrap();
+        video_sink.add_pad(&pad).unwrap();
 
-        pipeline.set_video_sink(Some(&sink));
+        playbin.set_property("video-sink", &video_sink);
 
-        let bus = pipeline.bus().unwrap();
+        // Apply mute state
+        if self.imp().mute.get() {
+            playbin.set_property("mute", true);
+        }
 
-        pipeline
+        let bus = playbin.bus().unwrap();
+
+        playbin
             .set_state(gst::State::Paused)
             .expect("Unable to set the pipeline to the `Paused` state");
 
@@ -299,8 +290,6 @@ impl VideoPreview {
                         MessageView::Eos(..) => {
                             this.pause();
                             this.imp().ended.set(true);
-                            // this.emit_by_name::<()>("set-position", &[&this.imp().inpoint.get()]);
-                            // this.seek(0);
                         }
                         MessageView::Error(err) => {
                             error!(
@@ -318,7 +307,8 @@ impl VideoPreview {
             ))
             .expect("Failed to add bus watch");
 
-        self.imp().pipeline.replace(Some(pipeline));
+        self.imp().videoflip.replace(Some(flip));
+        self.imp().pipeline.replace(Some(playbin));
         self.imp().bus_watch.replace(Some(bus_watch));
 
         glib::spawn_future_local(clone!(
@@ -333,17 +323,12 @@ impl VideoPreview {
                         this.emit_by_name::<()>("preview-ready", &[]);
                     }
                     if this.is_playing() {
-                        this.emit_by_name::<()>("set-position", &[&(p + this.imp().inpoint.get())]);
+                        this.emit_by_name::<()>("set-position", &[&p]);
                     }
                 }
             }
         ));
     }
-
-    // fn update_position(&self) {
-    //     let position = self.imp().pipeline.borrow().as_ref().unwrap().query_position::<gst::format::ClockTime>().unwrap().mseconds();
-    //     self.imp().timeline.set_position(position);
-    // }
 
     pub fn pause(&self) {
         let orig_p = self.imp().pipeline.borrow();
@@ -351,7 +336,6 @@ impl VideoPreview {
 
         p.set_state(gst::State::Paused).unwrap();
         self.emit_by_name::<()>("mode-changed", &[&false]);
-        // self.imp().play_pause.set_icon_name("play-symbolic");
     }
 
     fn is_playing(&self) -> bool {
@@ -367,49 +351,33 @@ impl VideoPreview {
 
         if self.imp().ended.get() {
             self.imp().ended.set(false);
-            self.quiet_seek(0);
+            self.quiet_seek(self.imp().inpoint.get());
         }
 
         p.set_state(gst::State::Playing).unwrap();
         self.emit_by_name::<()>("mode-changed", &[&true]);
-        // self.imp().play_pause.set_icon_name("pause-symbolic");
     }
 
     pub fn set_range(&self, start: u64, end: u64) {
-        let original_clip = self.imp().clip.borrow();
-        let clip = original_clip.as_ref();
-        if let Some(clip) = clip {
-            clip.set_inpoint(ClockTime::from_mseconds(start));
-            clip.set_duration(Some(ClockTime::from_mseconds(end - start)));
-            self.imp().inpoint.set(start);
-            self.imp().outpoint.set(end);
+        self.imp().inpoint.set(start);
+        self.imp().outpoint.set(end);
+    }
+
+    fn update_videoflip(&self) {
+        if let Some(flip) = self.imp().videoflip.borrow().as_ref() {
+            flip.set_property(
+                "video-direction",
+                self.imp()
+                    .orientation
+                    .get()
+                    .to_gst_video_orientation_method(),
+            );
         }
-        self.commit();
-    }
-
-    fn add_effect(&self, effect: &ges::Effect) {
-        let original_clip = self.imp().clip.borrow();
-        let clip = original_clip.as_ref();
-
-        if let Some(clip) = clip {
-            clip.add_top_effect(effect, 0).unwrap();
-        }
-        self.commit();
-    }
-
-    fn commit(&self) {
-        let orig_p = self.imp().pipeline.borrow();
-        let p = orig_p.as_ref().unwrap();
-
-        p.timeline().unwrap().commit_sync();
-    }
-
-    fn remove_effect(&self, effect: &ges::Effect) {
-        let original_clip = self.imp().clip.borrow();
-        let clip = original_clip.as_ref();
-
-        if let Some(clip) = clip {
-            clip.remove(effect).unwrap();
+        // Force a frame refresh so the change is visible while paused.
+        if let Some(p) = self.imp().pipeline.borrow().as_ref()
+            && let Some(position) = p.query_position::<ClockTime>()
+        {
+            p.seek_simple(SeekFlags::FLUSH, position).ok();
         }
     }
 
@@ -417,11 +385,7 @@ impl VideoPreview {
         self.imp()
             .orientation
             .set(self.imp().orientation.get().rotate_right());
-        self.add_effect(&ges::Effect::new("videoflip method=clockwise").unwrap());
-        self.imp()
-            .effects
-            .borrow_mut()
-            .push("videoflip method=clockwise".to_owned());
+        self.update_videoflip();
         self.emit_by_name::<()>("orientation-flipped", &[]);
         self.imp()
             .crop_box
@@ -434,11 +398,7 @@ impl VideoPreview {
         self.imp()
             .orientation
             .set(self.imp().orientation.get().rotate_left());
-        self.add_effect(&ges::Effect::new("videoflip method=counterclockwise").unwrap());
-        self.imp()
-            .effects
-            .borrow_mut()
-            .push("videoflip method=counterclockwise".to_owned());
+        self.update_videoflip();
         self.emit_by_name::<()>("orientation-flipped", &[]);
         self.imp()
             .crop_box
@@ -452,11 +412,7 @@ impl VideoPreview {
         self.imp()
             .orientation
             .set(self.imp().orientation.get().horizontal_flip());
-        self.add_effect(&ges::Effect::new("videoflip method=horizontal-flip").unwrap());
-        self.imp()
-            .effects
-            .borrow_mut()
-            .push("videoflip method=horizontal-flip".to_owned());
+        self.update_videoflip();
 
         self.imp()
             .crop_box
@@ -464,15 +420,10 @@ impl VideoPreview {
     }
 
     pub fn vertical_flip(&self) {
-        // self.replace_with_thumbnail();
         self.imp()
             .orientation
             .set(self.imp().orientation.get().vertical_flip());
-        self.add_effect(&ges::Effect::new("videoflip method=vertical-flip").unwrap());
-        self.imp()
-            .effects
-            .borrow_mut()
-            .push("videoflip method=vertical-flip".to_owned());
+        self.update_videoflip();
 
         self.imp()
             .crop_box
@@ -481,28 +432,16 @@ impl VideoPreview {
 
     pub fn mute(&self) {
         self.imp().mute.set(true);
-
-        let new_av = ges::Effect::new("volume volume=0").unwrap();
-        let av_orig = self.imp().audio_level.replace(Some(new_av));
-
-        if let Some(av_orig) = av_orig {
-            self.remove_effect(&av_orig);
+        if let Some(p) = self.imp().pipeline.borrow().as_ref() {
+            p.set_property("mute", true);
         }
-
-        self.add_effect(self.imp().audio_level.borrow().as_ref().unwrap());
     }
 
     pub fn unmute(&self) {
         self.imp().mute.set(false);
-
-        let new_av = ges::Effect::new("volume volume=1").unwrap();
-        let av_orig = self.imp().audio_level.replace(Some(new_av));
-
-        if let Some(av_orig) = av_orig {
-            self.remove_effect(&av_orig);
+        if let Some(p) = self.imp().pipeline.borrow().as_ref() {
+            p.set_property("mute", false);
         }
-
-        self.add_effect(self.imp().audio_level.borrow().as_ref().unwrap());
     }
 
     pub fn kill(&self) {
@@ -525,8 +464,8 @@ impl VideoPreview {
         self.kill();
 
         info!(
-            "Converting with output_format={:?}, framerate={:?}, scaled_dimension={:?}",
-            &output_format, &framerate, &scaled_dimension
+            "Converting with output path: {:?}, output format: {:?}, framerate: {:?}, scaled dimension: {:?}",
+            output_path, output_format, framerate, scaled_dimension
         );
 
         let input_path = self.imp().path.borrow().to_owned();
@@ -548,266 +487,26 @@ impl VideoPreview {
         let full_scaled_height = dimensions.height
             * (scaled_dimension.height_f64() / (dimensions.height * (1. - top - bottom)));
 
-        let mute = self.imp().mute.get();
+        let job = RenderJob {
+            input_path,
+            output_path,
+            output_format,
+            framerate,
+            scaled_dimension,
+            orientation,
+            full_scaled_width,
+            full_scaled_height,
+            crop_left: left,
+            crop_top: top,
+            mute: self.imp().mute.get(),
+            inpoint: ClockTime::from_mseconds(self.imp().inpoint.get()),
+            duration: ClockTime::from_mseconds(
+                self.imp().outpoint.get() - self.imp().inpoint.get(),
+            ),
+            sender,
+            running_flag,
+        };
 
-        let inpoint = self.imp().clip.borrow().as_ref().unwrap().inpoint();
-        let duration = self.imp().clip.borrow().as_ref().unwrap().duration();
-
-        std::thread::spawn(move || {
-            let clip = ges::UriClip::new(
-                url::Url::from_file_path(input_path.clone())
-                    .unwrap()
-                    .as_str(),
-            )
-            .unwrap();
-
-            let timeline = ges::Timeline::new_audio_video();
-
-            let layer = timeline.append_layer();
-            layer.add_clip(&clip).unwrap();
-
-            if let Some(t) = timeline.tracks().first() {
-                t.set_restriction_caps(
-                    &gst::Caps::builder("video/x-raw")
-                        .field(
-                            "framerate",
-                            gst::Fraction::new(
-                                framerate.nominator as i32,
-                                framerate.denominator as i32,
-                            ),
-                        )
-                        .field("width", scaled_dimension.width as i32)
-                        .field("height", scaled_dimension.height as i32)
-                        .build(),
-                );
-                t.elements().into_iter().for_each(|te| {
-                    ges::prelude::TrackElementExt::set_child_property(
-                        &te,
-                        "video-direction",
-                        &match orientation {
-                            VideoOrientation::Identity => {
-                                gstreamer_video::VideoOrientationMethod::Identity
-                            }
-                            VideoOrientation::R90 => gstreamer_video::VideoOrientationMethod::_90r,
-                            VideoOrientation::R180 => gstreamer_video::VideoOrientationMethod::_180,
-                            VideoOrientation::R270 => gstreamer_video::VideoOrientationMethod::_90l,
-                            VideoOrientation::FlippedIdentity => {
-                                gstreamer_video::VideoOrientationMethod::Horiz
-                            }
-                            VideoOrientation::FR180 => {
-                                gstreamer_video::VideoOrientationMethod::Vert
-                            }
-                            VideoOrientation::FR90 => gstreamer_video::VideoOrientationMethod::UrLl,
-                            VideoOrientation::FR270 => {
-                                gstreamer_video::VideoOrientationMethod::UlLr
-                            }
-                        }
-                        .to_value(),
-                    )
-                    .unwrap();
-
-                    ges::prelude::TrackElementExt::set_child_property(
-                        &te,
-                        "width",
-                        &(full_scaled_width as i32).to_value(),
-                    )
-                    .unwrap();
-                    ges::prelude::TrackElementExt::set_child_property(
-                        &te,
-                        "height",
-                        &(full_scaled_height as i32).to_value(),
-                    )
-                    .unwrap();
-                    ges::prelude::TrackElementExt::set_child_property(
-                        &te,
-                        "posx",
-                        &((-left * full_scaled_width) as i32).to_value(),
-                    )
-                    .unwrap();
-                    ges::prelude::TrackElementExt::set_child_property(
-                        &te,
-                        "posy",
-                        &((-top * full_scaled_height) as i32).to_value(),
-                    )
-                    .unwrap();
-                });
-            }
-
-            clip.add_top_effect(&ges::Effect::new("videorate").unwrap(), 0)
-                .ok();
-
-            clip.set_inpoint(inpoint);
-            clip.set_duration(Some(duration));
-
-            let pipeline = ges::Pipeline::new();
-            pipeline.set_timeline(&timeline).unwrap();
-
-            match output_format.container_selection {
-                ContainerSelection::Same => {
-                    let profile = gstreamer_pbutils::EncodingProfile::from_discoverer(
-                        &Discoverer::new(gst::ClockTime::SECOND)
-                            .unwrap()
-                            .discover_uri(
-                                url::Url::from_file_path(input_path.clone())
-                                    .unwrap()
-                                    .as_str(),
-                            )
-                            .unwrap(),
-                    )
-                    .unwrap();
-
-                    let (video_caps, audio_caps): (Vec<_>, Vec<_>) = profile
-                        .input_caps()
-                        .iter()
-                        .map(|ic| {
-                            let mut ic = ic.to_owned();
-                            ic.remove_fields(["width", "height", "framerate"]);
-
-                            let mut caps = gst::Caps::builder(ic.name());
-
-                            for (name, value) in ic.into_iter() {
-                                caps = caps.field(name, value.clone());
-                            }
-
-                            caps.build()
-                        })
-                        .partition(|c| c.to_string().starts_with("video"));
-
-                    let profile_format = profile.format();
-
-                    let mut container_profile =
-                        gstreamer_pbutils::EncodingContainerProfile::builder(&profile_format)
-                            .name("container");
-
-                    if let Some(video_cap) = video_caps.first() {
-                        let video_profile =
-                            gstreamer_pbutils::EncodingVideoProfile::builder(video_cap).build();
-
-                        container_profile = container_profile.add_profile(video_profile);
-                    }
-
-                    if !mute && let Some(audio_cap) = audio_caps.first() {
-                        let audio_profile =
-                            gstreamer_pbutils::EncodingAudioProfile::builder(audio_cap).build();
-
-                        container_profile = container_profile.add_profile(audio_profile);
-                    }
-
-                    pipeline
-                        .set_render_settings(
-                            url::Url::from_file_path(output_path).unwrap().as_str(),
-                            &container_profile.build(),
-                        )
-                        .unwrap();
-                }
-                ContainerSelection::Format(ContainerFormat::GifContainer) => {
-                    pipeline
-                        .set_render_settings(
-                            url::Url::from_file_path(output_path).unwrap().as_str(),
-                            &output_format.video_encoding.unwrap().encoding_profile(),
-                        )
-                        .unwrap();
-                }
-                ContainerSelection::Format(container) => {
-                    let video_profile = output_format.video_encoding.unwrap().encoding_profile();
-
-                    let container_caps = gst::Caps::builder(container.format()).build();
-
-                    let mut container_profile =
-                        gstreamer_pbutils::EncodingContainerProfile::builder(&container_caps)
-                            .name("container")
-                            .add_profile(video_profile);
-
-                    if !mute {
-                        let audio_profile = gstreamer_pbutils::EncodingAudioProfile::builder(
-                            &gst::Caps::builder(output_format.audio_encoding.unwrap().get_format())
-                                .build(),
-                        )
-                        .build();
-                        container_profile = container_profile.add_profile(audio_profile);
-                    }
-
-                    pipeline
-                        .set_render_settings(
-                            url::Url::from_file_path(output_path).unwrap().as_str(),
-                            &container_profile.build(),
-                        )
-                        .unwrap();
-                }
-            }
-
-            pipeline.set_mode(ges::PipelineFlags::RENDER).unwrap();
-
-            let sender_pad = sender.clone();
-
-            let another_running_flag = running_flag.clone();
-
-            timeline.pads().first().unwrap().add_probe(
-                PadProbeType::DATA_DOWNSTREAM,
-                move |_, info| {
-                    if let Some(PadProbeData::Buffer(data)) = &info.data
-                        && let Some(pts) = data.pts()
-                        && sender_pad
-                            .send_blocking(Ok((pts.mseconds(), duration.mseconds())))
-                            .is_err()
-                    {
-                        return gst::PadProbeReturn::Drop;
-                    }
-
-                    if !another_running_flag
-                        .clone()
-                        .load(std::sync::atomic::Ordering::SeqCst)
-                    {
-                        if let Err(e) = sender_pad.send_blocking(Err(())) {
-                            error!("Failed to send cancellation from pad probe: {e}");
-                        }
-                        return gst::PadProbeReturn::Drop;
-                    }
-
-                    gst::PadProbeReturn::Ok
-                },
-            );
-
-            pipeline.set_state(gst::State::Playing).unwrap();
-
-            let bus = pipeline
-                .bus()
-                .expect("Pipeline without bus. Shouldn't happen!");
-
-            info!("Starting pipeline");
-
-            for msg in bus.iter_timed(gst::ClockTime::NONE) {
-                use gst::MessageView;
-
-                match msg.view() {
-                    MessageView::Eos(..) => {
-                        if let Err(e) = sender.send_blocking(Ok((1, 1))) {
-                            error!("Failed to send EOS: {e}");
-                        }
-                        break;
-                    }
-                    MessageView::Error(_) => {
-                        pipeline.set_state(gst::State::Null).unwrap();
-
-                        if let Err(e) = sender.send_blocking(Err(())) {
-                            error!("Failed to send error: {e}");
-                        }
-                        break;
-                    }
-                    _ => {
-                        if !running_flag.load(std::sync::atomic::Ordering::SeqCst) {
-                            pipeline.set_state(gst::State::Null).unwrap();
-
-                            if let Err(e) = sender.send_blocking(Err(())) {
-                                error!("Failed to send cancellation: {e}");
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-
-            pipeline.set_state(gst::State::Null).unwrap();
-        });
+        std::thread::spawn(move || run_render(job));
     }
 }

@@ -4,6 +4,7 @@ mod config;
 mod info;
 mod orientation;
 mod profiles;
+mod render;
 mod widgets;
 mod window;
 

@@ -69,4 +69,17 @@ impl VideoOrientation {
     pub fn is_width_height_swapped(&self) -> bool {
         matches!(self, R90 | R270 | FR90 | FR270)
     }
+
+    pub fn to_gst_video_orientation_method(self) -> gstreamer_video::VideoOrientationMethod {
+        match self {
+            Identity => gstreamer_video::VideoOrientationMethod::Identity,
+            R90 => gstreamer_video::VideoOrientationMethod::_90r,
+            R180 => gstreamer_video::VideoOrientationMethod::_180,
+            R270 => gstreamer_video::VideoOrientationMethod::_90l,
+            FlippedIdentity => gstreamer_video::VideoOrientationMethod::Horiz,
+            FR180 => gstreamer_video::VideoOrientationMethod::Vert,
+            FR90 => gstreamer_video::VideoOrientationMethod::UrLl,
+            FR270 => gstreamer_video::VideoOrientationMethod::UlLr,
+        }
+    }
 }
