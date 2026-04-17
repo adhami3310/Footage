@@ -106,10 +106,10 @@ mod imp {
             static SIGNALS: Lazy<[Signal; 3]> = Lazy::new(|| {
                 [
                     Signal::builder("set-range")
-                        .param_types([glib::Type::U64, glib::Type::U64])
+                        .param_types([glib::Type::F64, glib::Type::F64])
                         .build(),
                     Signal::builder("set-position")
-                        .param_types([glib::Type::U64])
+                        .param_types([glib::Type::F64])
                         .build(),
                     Signal::builder("moving").build(),
                 ]

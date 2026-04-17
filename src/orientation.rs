@@ -11,10 +11,33 @@ pub enum VideoOrientation {
     FR270,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum VideoOrientationTransformation {
+    RotateRight,
+    RotateLeft,
+    HorizontalFlip,
+    VerticalFlip,
+}
+
+impl VideoOrientationTransformation {
+    pub fn does_swap_width_height(&self) -> bool {
+        matches!(self, Self::RotateRight | Self::RotateLeft)
+    }
+}
+
 use VideoOrientation::*;
 
 impl VideoOrientation {
-    pub fn rotate_right(&self) -> Self {
+    pub fn transform(&self, transformation: VideoOrientationTransformation) -> Self {
+        match transformation {
+            VideoOrientationTransformation::RotateRight => self.rotate_right(),
+            VideoOrientationTransformation::RotateLeft => self.rotate_left(),
+            VideoOrientationTransformation::HorizontalFlip => self.horizontal_flip(),
+            VideoOrientationTransformation::VerticalFlip => self.vertical_flip(),
+        }
+    }
+
+    fn rotate_right(&self) -> Self {
         match self {
             Identity => R90,
             R90 => R180,
@@ -27,7 +50,7 @@ impl VideoOrientation {
         }
     }
 
-    pub fn rotate_left(&self) -> Self {
+    fn rotate_left(&self) -> Self {
         match self {
             R90 => Identity,
             R180 => R90,
@@ -40,7 +63,7 @@ impl VideoOrientation {
         }
     }
 
-    pub fn horizontal_flip(&self) -> Self {
+    fn horizontal_flip(&self) -> Self {
         match self {
             Identity => FlippedIdentity,
             FlippedIdentity => Identity,
@@ -53,7 +76,7 @@ impl VideoOrientation {
         }
     }
 
-    pub fn vertical_flip(&self) -> Self {
+    fn vertical_flip(&self) -> Self {
         match self {
             Identity => FR180,
             FR180 => Identity,

@@ -3,6 +3,8 @@
 use gtk::{gdk, prelude::*, subclass::prelude::*};
 use gtk::{gio, glib};
 
+use crate::orientation::VideoOrientationTransformation;
+
 mod imp {
     use super::*;
     use glib::{clone, subclass::Signal};
@@ -848,24 +850,36 @@ impl Crop {
         self.queue_allocate();
     }
 
-    pub fn rotate_right_proportions(&self) -> (f64, f64, f64, f64) {
+    fn rotate_right_proportions(&self) -> (f64, f64, f64, f64) {
         let p = self.proportions();
         (p.3, p.0, p.1, p.2)
     }
 
-    pub fn rotate_left_proportions(&self) -> (f64, f64, f64, f64) {
+    fn rotate_left_proportions(&self) -> (f64, f64, f64, f64) {
         let p = self.proportions();
         (p.1, p.2, p.3, p.0)
     }
 
-    pub fn horizontal_flip_proportions(&self) -> (f64, f64, f64, f64) {
+    fn horizontal_flip_proportions(&self) -> (f64, f64, f64, f64) {
         let p = self.proportions();
         (p.0, p.3, p.2, p.3)
     }
 
-    pub fn vertical_flip_proportions(&self) -> (f64, f64, f64, f64) {
+    fn vertical_flip_proportions(&self) -> (f64, f64, f64, f64) {
         let p = self.proportions();
         (p.2, p.1, p.0, p.3)
+    }
+
+    pub fn orientation_transformation_proportions(
+        &self,
+        transformation: VideoOrientationTransformation,
+    ) -> (f64, f64, f64, f64) {
+        match transformation {
+            VideoOrientationTransformation::RotateRight => self.rotate_right_proportions(),
+            VideoOrientationTransformation::RotateLeft => self.rotate_left_proportions(),
+            VideoOrientationTransformation::HorizontalFlip => self.horizontal_flip_proportions(),
+            VideoOrientationTransformation::VerticalFlip => self.vertical_flip_proportions(),
+        }
     }
 
     pub fn reset(&self) {

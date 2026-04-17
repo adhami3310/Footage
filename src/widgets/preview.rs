@@ -15,7 +15,7 @@ use log::{error, info};
 
 use crate::{
     info::{Dimensions, Framerate, get_info},
-    orientation::VideoOrientation,
+    orientation::{VideoOrientation, VideoOrientationTransformation},
     profiles::OutputFormat,
     render::{RenderJob, run_render},
 };
@@ -271,7 +271,7 @@ impl VideoPreview {
 
                     match msg.view() {
                         MessageView::Eos(..) => {
-                            this.pause();
+                            this.set_playing(false);
                             if let Some(loaded) = this.imp().loaded.borrow_mut().as_mut() {
                                 loaded.ended = true;
                             }
@@ -344,6 +344,7 @@ impl VideoPreview {
         else {
             return;
         };
+
         let crop = self.imp().crop_box.proportions();
 
         self.build_pipeline(uri, dimensions, outpoint, mute);
@@ -364,11 +365,11 @@ impl VideoPreview {
     }
 
     pub fn seek(&self, position: Duration) {
-        self.pause();
+        self.set_playing(false);
         self.quiet_seek(position);
     }
 
-    pub fn quiet_seek(&self, position: Duration) {
+    fn quiet_seek(&self, position: Duration) {
         self.with_loaded_mut(|loaded| {
             if position == loaded.outpoint {
                 loaded.ended = true;
@@ -380,32 +381,25 @@ impl VideoPreview {
         });
     }
 
-    pub fn pause(&self) {
-        if self
-            .with_loaded(|loaded| {
-                loaded.pipeline.set_state(gst::State::Paused).unwrap();
-            })
-            .is_some()
-        {
-            self.emit_by_name::<()>("mode-changed", &[&false]);
-        }
-    }
-
-    pub fn play(&self) {
+    pub fn set_playing(&self, playing: bool) {
         if self
             .with_loaded_mut(|loaded| {
-                if loaded.ended {
-                    loaded.ended = false;
-                    loaded
-                        .pipeline
-                        .seek_simple(SeekFlags::FLUSH, duration_to_clocktime(loaded.inpoint))
-                        .ok();
+                if playing {
+                    if loaded.ended {
+                        loaded.ended = false;
+                        loaded
+                            .pipeline
+                            .seek_simple(SeekFlags::FLUSH, duration_to_clocktime(loaded.inpoint))
+                            .ok();
+                    }
+                    loaded.pipeline.set_state(gst::State::Playing).unwrap();
+                } else {
+                    loaded.pipeline.set_state(gst::State::Paused).unwrap();
                 }
-                loaded.pipeline.set_state(gst::State::Playing).unwrap();
             })
             .is_some()
         {
-            self.emit_by_name::<()>("mode-changed", &[&true]);
+            self.emit_by_name::<()>("mode-changed", &[&playing]);
         }
     }
 
@@ -429,85 +423,38 @@ impl VideoPreview {
         });
     }
 
-    pub fn rotate_right(&self) {
+    pub fn transform_orientation(&self, transformation: VideoOrientationTransformation) {
+        let transformation_swaps_width_height = transformation.does_swap_width_height();
         if self
             .with_loaded_mut(|loaded| {
-                loaded.orientation = loaded.orientation.rotate_right();
-                loaded.current_dimensions = loaded.current_dimensions.swap();
+                loaded.orientation = loaded.orientation.transform(transformation);
+                if transformation_swaps_width_height {
+                    loaded.current_dimensions = loaded.current_dimensions.swap();
+                }
             })
             .is_none()
         {
             return;
         }
         self.update_videoflip();
-        self.emit_by_name::<()>("orientation-flipped", &[]);
-        self.imp()
-            .crop_box
-            .set_proportions(self.imp().crop_box.rotate_right_proportions());
-    }
-
-    pub fn rotate_left(&self) {
-        if self
-            .with_loaded_mut(|loaded| {
-                loaded.orientation = loaded.orientation.rotate_left();
-                loaded.current_dimensions = loaded.current_dimensions.swap();
-            })
-            .is_none()
-        {
-            return;
+        if transformation_swaps_width_height {
+            self.emit_by_name::<()>("orientation-flipped", &[]);
         }
-        self.update_videoflip();
-        self.emit_by_name::<()>("orientation-flipped", &[]);
-        self.imp()
-            .crop_box
-            .set_proportions(self.imp().crop_box.rotate_left_proportions());
+        self.imp().crop_box.set_proportions(
+            self.imp()
+                .crop_box
+                .orientation_transformation_proportions(transformation),
+        );
     }
 
-    pub fn horizontal_flip(&self) {
-        if self
-            .with_loaded_mut(|loaded| {
-                loaded.orientation = loaded.orientation.horizontal_flip();
-            })
-            .is_none()
-        {
-            return;
-        }
-        self.update_videoflip();
-        self.imp()
-            .crop_box
-            .set_proportions(self.imp().crop_box.horizontal_flip_proportions());
-    }
-
-    pub fn vertical_flip(&self) {
-        if self
-            .with_loaded_mut(|loaded| {
-                loaded.orientation = loaded.orientation.vertical_flip();
-            })
-            .is_none()
-        {
-            return;
-        }
-        self.update_videoflip();
-        self.imp()
-            .crop_box
-            .set_proportions(self.imp().crop_box.vertical_flip_proportions());
-    }
-
-    pub fn mute(&self) {
+    pub fn set_mute(&self, mute: bool) {
         self.with_loaded_mut(|loaded| {
-            loaded.mute = true;
-            loaded.pipeline.set_property("mute", true);
+            loaded.mute = mute;
+            loaded.pipeline.set_property("mute", mute);
         });
     }
 
-    pub fn unmute(&self) {
-        self.with_loaded_mut(|loaded| {
-            loaded.mute = false;
-            loaded.pipeline.set_property("mute", false);
-        });
-    }
-
-    pub fn kill(&self) {
+    fn kill(&self) {
         if let Some(loaded) = self.imp().loaded.borrow_mut().take() {
             loaded
                 .pipeline

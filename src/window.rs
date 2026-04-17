@@ -11,6 +11,7 @@ use log::{error, warn};
 use crate::{
     Listable,
     info::{Dimensions, Framerate},
+    orientation::VideoOrientationTransformation,
     profiles::{AudioEncoding, ContainerSelection, OutputFormat, VideoEncoding},
     runtime, spawn,
 };
@@ -230,28 +231,36 @@ impl AppWindow {
             #[weak(rename_to=this)]
             self,
             move |_| {
-                this.imp().video_preview.rotate_left();
+                this.imp()
+                    .video_preview
+                    .transform_orientation(VideoOrientationTransformation::RotateLeft);
             }
         ));
         imp.rotate_right_button.connect_clicked(clone!(
             #[weak(rename_to=this)]
             self,
             move |_| {
-                this.imp().video_preview.rotate_right();
+                this.imp()
+                    .video_preview
+                    .transform_orientation(VideoOrientationTransformation::RotateRight);
             }
         ));
         imp.horizontal_flip_button.connect_clicked(clone!(
             #[weak(rename_to=this)]
             self,
             move |_| {
-                this.imp().video_preview.horizontal_flip();
+                this.imp()
+                    .video_preview
+                    .transform_orientation(VideoOrientationTransformation::HorizontalFlip);
             }
         ));
         imp.vertical_flip_button.connect_clicked(clone!(
             #[weak(rename_to=this)]
             self,
             move |_| {
-                this.imp().video_preview.vertical_flip();
+                this.imp()
+                    .video_preview
+                    .transform_orientation(VideoOrientationTransformation::VerticalFlip);
             }
         ));
         imp.audio_button.connect_toggled(clone!(
@@ -267,11 +276,7 @@ impl AppWindow {
                 }
                 // don't think about it
                 if b.is_visible() {
-                    if b.is_active() {
-                        this.imp().video_preview.mute();
-                    } else {
-                        this.imp().video_preview.unmute();
-                    }
+                    this.imp().video_preview.set_mute(b.is_active());
                 }
             }
         ));
@@ -309,9 +314,9 @@ impl AppWindow {
         imp.back_edit.connect_clicked(clone!(
             #[weak(rename_to=this)]
             self,
-            move |g| {
+            move |go_back_button| {
                 this.imp().video_preview.refresh_ui();
-                g.set_visible(false);
+                go_back_button.set_visible(false);
             }
         ));
         imp.open_result.connect_clicked(clone!(
@@ -539,7 +544,7 @@ impl AppWindow {
                 #[upgrade_or]
                 None,
                 move |_| {
-                    this.imp().video_preview.pause();
+                    this.imp().video_preview.set_playing(false);
                     None
                 }
             ),
@@ -615,11 +620,9 @@ impl AppWindow {
             #[weak(rename_to=this)]
             self,
             move |b| {
-                if b.icon_name().unwrap() == "play-symbolic" {
-                    this.imp().video_preview.play();
-                } else {
-                    this.imp().video_preview.pause();
-                }
+                this.imp()
+                    .video_preview
+                    .set_playing(b.icon_name().unwrap() == "play-symbolic");
             }
         ));
     }
