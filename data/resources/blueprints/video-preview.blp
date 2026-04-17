@@ -1,32 +1,38 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $VideoPreview : Adw.Bin {
+template $VideoPreview: Adw.Bin {
   Box {
     orientation: vertical;
     spacing: 12;
 
     Box {
-      Box {
-      }
+      margin-start: 12;
+      margin-end: 12;
+      margin-top: 12;
+      margin-bottom: 12;
+
+      Box {}
+
       Overlay {
         halign: center;
-        
+
         Picture paint {
           halign: fill;
           valign: fill;
           hexpand: true;
           vexpand: false;
-
-          height-request: 240;
         }
 
         [overlay]
         $Crop crop_box {}
-        
       }
-      Box {
-      }
+
+      Box {}
     }
+
+    styles [
+      "preview",
+    ]
   }
 }

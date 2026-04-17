@@ -8,7 +8,7 @@ template $Crop: Widget {
     Box container {
         hexpand: true;
         vexpand: true;
-        
+
         Box crop_box {
             hexpand: true;
             vexpand: true;
@@ -16,15 +16,20 @@ template $Crop: Widget {
             Overlay {
                 Box {
                     orientation: vertical;
+
                     Box {
-                        styles ["crop-border"]
+                        styles [
+                            "crop-border",
+                        ]
                     }
 
                     Box {
                         vexpand: true;
 
                         Box {
-                            styles ["crop-border"]
+                            styles [
+                                "crop-border",
+                            ]
                         }
 
                         Box {
@@ -32,38 +37,46 @@ template $Crop: Widget {
                         }
 
                         Box {
-                            styles ["crop-border"]
+                            styles [
+                                "crop-border",
+                            ]
                         }
                     }
 
                     Box {
-                        styles ["crop-border"]
+                        styles [
+                            "crop-border",
+                        ]
                     }
                 }
-                
+
                 [overlay]
                 Box inner_crop_box {
                     orientation: vertical;
-                    
-                    Box top {
 
+                    Box top {
                         Button top_left {
                             halign: start;
                             valign: start;
                             tooltip-text: _("Top left crop corner");
 
-                            styles ["crop-handle"]
+                            styles [
+                                "crop-handle",
+                            ]
                         }
+
                         Box {
                             hexpand: true;
                         }
+
                         Button top_right {
                             halign: end;
                             valign: start;
                             tooltip-text: _("Top right crop corner");
 
-
-                            styles ["crop-handle"]
+                            styles [
+                                "crop-handle",
+                            ]
                         }
                     }
 
@@ -77,25 +90,35 @@ template $Crop: Widget {
                             valign: end;
                             tooltip-text: _("Bottom left crop corner");
 
-                            styles ["crop-handle"]
+                            styles [
+                                "crop-handle",
+                            ]
                         }
+
                         Box {
                             hexpand: true;
                         }
+
                         Button bottom_right {
                             halign: end;
                             valign: end;
                             tooltip-text: _("Bottom right crop corner");
 
-                            styles ["crop-handle"]
+                            styles [
+                                "crop-handle",
+                            ]
                         }
                     }
                 }
             }
 
-
-            styles ["crop-region"]
+            styles [
+                "crop-region",
+            ]
         }
     }
-    styles ["crop-whole-region"]
+
+    styles [
+        "crop-whole-region",
+    ]
 }

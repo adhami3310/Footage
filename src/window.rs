@@ -316,6 +316,7 @@ impl AppWindow {
             self,
             move |go_back_button| {
                 this.imp().video_preview.refresh_ui();
+                this.imp().stack.set_visible_child_name("editing");
                 go_back_button.set_visible(false);
             }
         ));

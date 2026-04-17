@@ -1,12 +1,12 @@
 using Gtk 4.0;
 
-template $Timeline : Widget {
+template $Timeline: Widget {
   hexpand: true;
 
   Box box_timeline_selection {
     can-target: false;
     overflow: hidden;
-    
+
     Box box_wrapper {
       hexpand: true;
       vexpand: true;
@@ -24,21 +24,32 @@ template $Timeline : Widget {
 
           Box {
             halign: center;
-            styles ["dots"]
+
+            styles [
+              "dots",
+            ]
           }
 
           Box {
             halign: center;
-            styles ["dots"]
+
+            styles [
+              "dots",
+            ]
           }
 
           Box {
             halign: center;
-            styles ["dots"]
+
+            styles [
+              "dots",
+            ]
           }
         }
 
-        styles ["timeline-handle"]
+        styles [
+          "timeline-handle",
+        ]
       }
 
       Box {
@@ -58,32 +69,49 @@ template $Timeline : Widget {
 
           Box {
             halign: center;
-            styles ["dots"]
+
+            styles [
+              "dots",
+            ]
           }
 
           Box {
             halign: center;
-            styles ["dots"]
+
+            styles [
+              "dots",
+            ]
           }
 
           Box {
             halign: center;
-            styles ["dots"]
+
+            styles [
+              "dots",
+            ]
           }
         }
 
-        styles ["timeline-handle"]
+        styles [
+          "timeline-handle",
+        ]
       }
     }
 
-    styles ["timeline-selection"]
+    styles [
+      "timeline-selection",
+    ]
   }
 
   Box box_timeline_position {
     can-target: false;
 
-    styles ["timeline-position"]
+    styles [
+      "timeline-position",
+    ]
   }
 
-  styles ["timeline"]
+  styles [
+    "timeline",
+  ]
 }

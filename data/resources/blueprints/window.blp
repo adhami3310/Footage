@@ -1,7 +1,7 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $AppWindow : Adw.ApplicationWindow {
+template $AppWindow: Adw.ApplicationWindow {
   default-width: 800;
   default-height: 700;
   width-request: 300;
@@ -15,9 +15,11 @@ template $AppWindow : Adw.ApplicationWindow {
         icon-name: 'go-previous-symbolic';
         tooltip-text: _('Edit Same Video');
         visible: false;
-        styles ['flat']
-      }
 
+        styles [
+          'flat',
+        ]
+      }
 
       [end]
       MenuButton {
@@ -27,24 +29,25 @@ template $AppWindow : Adw.ApplicationWindow {
         primary: true;
       }
 
-      styles ["flat"]
+      styles [
+        "flat",
+      ]
     }
 
-    content:
-    Stack stack {
+    content: Stack stack {
       transition-type: crossfade;
 
       StackPage {
         name: "welcome";
-        child: 
-        Adw.StatusPage {
+
+        child: Adw.StatusPage {
           icon-name: "io.gitlab.adhami3310.Footage";
           title: _("Footage");
           description: _("Choose a video to edit");
           hexpand: true;
           vexpand: true;
-          child: 
-          Box {
+
+          child: Box {
             orientation: vertical;
             spacing: 12;
 
@@ -60,210 +63,263 @@ template $AppWindow : Adw.ApplicationWindow {
                 "pill",
               ]
             }
-          }
-
-          ;
-        }
-
-        ;
+          };
+        };
       }
 
       StackPage {
         name: "invalid";
-        child:
-        Adw.StatusPage invalid_image {
+
+        child: Adw.StatusPage invalid_image {
           icon-name: "image-missing-symbolic";
           title: _("Could not Load Video");
           description: _("This video could be corrupted or may use an unsupported file format.");
           hexpand: true;
           vexpand: true;
-        }
-
-        ;
+        };
       }
-
 
       StackPage {
         name: "editing";
-        child: 
-        Adw.PreferencesPage {
-          Adw.PreferencesGroup {
-            $VideoPreview video_preview {}
-          }
-          Adw.PreferencesGroup {
-            Box {
-              spacing: 12;
-              Button play_pause {
-                icon-name: 'play-symbolic';
-                tooltip-text: 'Play';
-              }
-              $Timeline timeline {}
-            }
-          }
-          Adw.PreferencesGroup {
-            Box {
-              halign: center;
-              spacing: 12;
-              Button rotate_left_button {
-                halign: center;
-                icon-name: 'object-rotate-left-symbolic';
-                tooltip-text: _("Rotate Left");
-              }
-              Button rotate_right_button {
-                halign: center;
-                icon-name: 'object-rotate-right-symbolic';
-                tooltip-text: _("Rotate Right");
-              }
-              Button horizontal_flip_button {
-                halign: center;
-                icon-name: 'horizontal-flip-symbolic';
-                tooltip-text: _("Flip Horizontally");
-              }
-              Button vertical_flip_button {
-                halign: center;
-                icon-name: 'vertical-flip-symbolic';
-                tooltip-text: _("Flip Vertically");
-              }
-              ToggleButton audio_button {
-                halign: center;
-                icon-name: 'audio-volume-high-symbolic';
-                tooltip-text: _("Disable Audio");
-              }
-            }
-          }
 
-          Adw.PreferencesGroup {
-            Adw.ActionRow resize_amount_row {
-              title: _("Resize");
+        child: ScrolledWindow {
+          min-content-height: 400;
+
+          Box {
+            orientation: vertical;
+
+            $VideoPreview video_preview {}
+
+            Adw.Clamp {
+              maximum-size: 600;
+              tightening-threshold: 400;
+
               Box {
-                spacing: 5;
-                Entry resize_width_value {
-                  valign: center;
-                  placeholder-text: _("Width");
-                  tooltip-text: _("Width");
-                  input-purpose: digits;
-                  max-width-chars: 6;
-                  visible: false;
-                  hexpand: false;
-                }
-                Entry resize_scale_width_value {
-                  valign: center;
-                  placeholder-text: _("Width");
-                  input-purpose: digits;
-                  tooltip-text: _("Width");
-                  max-width-chars: 6;
-                  hexpand: false;
-                }
-                Image link_axis {
-                  valign: center;
-                  icon-name: 'chain-link-symbolic';
-                  tooltip-text: _("Preserve aspect ratio");
-                  styles ['lock']
-                }
-                Entry resize_height_value {
-                  valign: center;
-                  placeholder-text: _("Height");
-                  tooltip-text: _("Height");
-                  input-purpose: digits;
-                  max-width-chars: 6;
-                  visible: false;
-                  hexpand: false;
-                }
-                Entry resize_scale_height_value {
-                  valign: center;
-                  placeholder-text: _("Height");
-                  tooltip-text: _("Height");
-                  input-purpose: digits;
-                  max-width-chars: 6;
-                  hexpand: false;
-                }
-              }
-              Adw.Bin {
-                Box {
-                  DropDown resize_type {
-                    valign: center;
-                    accessibility {
-                      label: _("Choose between resizing with percentages or using exact pixels");
+                orientation: vertical;
+                spacing: 24;
+                margin-start: 12;
+                margin-end: 12;
+                margin-top: 12;
+                margin-bottom: 12;
+
+                Adw.PreferencesGroup {
+                  Box {
+                    spacing: 12;
+
+                    Button play_pause {
+                      icon-name: 'play-symbolic';
+                      tooltip-text: 'Play';
                     }
-                    model:
-                    StringList resize_types {
-                      strings [_("%"),_("px")]
+
+                    $Timeline timeline {}
+                  }
+                }
+
+                Adw.PreferencesGroup {
+                  Box {
+                    halign: center;
+                    spacing: 12;
+
+                    Button rotate_left_button {
+                      halign: center;
+                      icon-name: 'object-rotate-left-symbolic';
+                      tooltip-text: _("Rotate Left");
                     }
-                    ;
-                    styles ["flat", "unit-drop"]
+
+                    Button rotate_right_button {
+                      halign: center;
+                      icon-name: 'object-rotate-right-symbolic';
+                      tooltip-text: _("Rotate Right");
+                    }
+
+                    Button horizontal_flip_button {
+                      halign: center;
+                      icon-name: 'horizontal-flip-symbolic';
+                      tooltip-text: _("Flip Horizontally");
+                    }
+
+                    Button vertical_flip_button {
+                      halign: center;
+                      icon-name: 'vertical-flip-symbolic';
+                      tooltip-text: _("Flip Vertically");
+                    }
+
+                    ToggleButton audio_button {
+                      halign: center;
+                      icon-name: 'audio-volume-high-symbolic';
+                      tooltip-text: _("Disable Audio");
+                    }
+                  }
+                }
+
+                Adw.PreferencesGroup {
+                  Adw.ActionRow resize_amount_row {
+                    title: _("Resize");
+
+                    Box {
+                      spacing: 5;
+
+                      Entry resize_width_value {
+                        valign: center;
+                        placeholder-text: _("Width");
+                        tooltip-text: _("Width");
+                        input-purpose: digits;
+                        max-width-chars: 6;
+                        visible: false;
+                        hexpand: false;
+                      }
+
+                      Entry resize_scale_width_value {
+                        valign: center;
+                        placeholder-text: _("Width");
+                        input-purpose: digits;
+                        tooltip-text: _("Width");
+                        max-width-chars: 6;
+                        hexpand: false;
+                      }
+
+                      Image link_axis {
+                        valign: center;
+                        icon-name: 'chain-link-symbolic';
+                        tooltip-text: _("Preserve aspect ratio");
+
+                        styles [
+                          'lock',
+                        ]
+                      }
+
+                      Entry resize_height_value {
+                        valign: center;
+                        placeholder-text: _("Height");
+                        tooltip-text: _("Height");
+                        input-purpose: digits;
+                        max-width-chars: 6;
+                        visible: false;
+                        hexpand: false;
+                      }
+
+                      Entry resize_scale_height_value {
+                        valign: center;
+                        placeholder-text: _("Height");
+                        tooltip-text: _("Height");
+                        input-purpose: digits;
+                        max-width-chars: 6;
+                        hexpand: false;
+                      }
+                    }
+
+                    Adw.Bin {
+                      Box {
+                        DropDown resize_type {
+                          valign: center;
+
+                          accessibility {
+                            label: _("Choose between resizing with percentages or using exact pixels");
+                          }
+
+                          model: StringList resize_types {
+                            strings [
+                              _("%"),
+                              _("px"),
+                            ]
+                          };
+
+                          styles [
+                            "flat",
+                            "unit-drop",
+                          ]
+                        }
+                      }
+                    }
+                  }
+
+                  Adw.SpinRow framerate_row {
+                    title: _("Framerate");
+
+                    adjustment: Adjustment {
+                      lower: 1;
+                      step-increment: 1;
+                      upper: 480;
+                    };
+
+                    value: 30;
+                  }
+                }
+
+                Adw.PreferencesGroup {
+                  Adw.ComboRow container_row {
+                    title: _("Container Format");
+                    use-subtitle: true;
+
+                    model: StringList {};
+
+                    styles [
+                      "property",
+                    ]
+                  }
+
+                  Adw.ComboRow video_encoding {
+                    title: _("Video Encoding");
+                    use-subtitle: true;
+
+                    model: StringList {};
+
+                    styles [
+                      "property",
+                    ]
+                  }
+
+                  Adw.ComboRow audio_encoding {
+                    title: _("Audio Encoding");
+                    use-subtitle: true;
+
+                    model: StringList {};
+
+                    styles [
+                      "property",
+                    ]
+                  }
+                }
+
+                Adw.PreferencesGroup {
+                  Box {
+                    halign: center;
+
+                    Button save_button {
+                      label: _("Save Video");
+
+                      styles [
+                        "suggested-action",
+                        "pill",
+                      ]
+                    }
                   }
                 }
               }
             }
-            Adw.SpinRow framerate_row {
-              title: _("Framerate");
-              adjustment: Adjustment {
-                lower: 1;
-                step-increment: 1;
-                upper: 480;
-              }
-
-              ;
-              value: 30;
-            }
           }
-
-          Adw.PreferencesGroup {
-            Adw.ComboRow container_row {
-              title: _("Container Format");
-              use-subtitle: true;
-              model: StringList {};
-              styles ["property"]
-            }
-            Adw.ComboRow video_encoding {
-              title: _("Video Encoding");
-              use-subtitle: true;
-              model: StringList {};
-              styles ["property"]
-            }
-            Adw.ComboRow audio_encoding {
-              title: _("Audio Encoding");
-              use-subtitle: true;
-              model: StringList {};
-              styles ["property"]
-            }
-          }
-
-          Adw.PreferencesGroup {
-            Box {
-              halign: center;
-              Button save_button {
-                label: _("Save Video");
-                styles ["suggested-action", "pill"]
-              }
-            }
-          }
-        }
-
-        ;
+        };
       }
 
       StackPage {
         name: "loading";
-        child: 
-        Adw.Spinner spinner {
+
+        child: Adw.Spinner spinner {
           valign: center;
           halign: center;
           height-request: 28;
           width-request: 28;
-        }
-
-        ;
+        };
       }
 
       StackPage {
         name: "success";
-        child: 
-        Adw.StatusPage success_status {
+
+        child: Adw.StatusPage success_status {
           icon-name: "check-round-outline-symbolic";
           title: _("Video Exported");
-          child: 
-          Box {
+
+          child: Box {
             orientation: vertical;
             halign: center;
             spacing: 12;
@@ -292,22 +348,18 @@ template $AppWindow : Adw.ApplicationWindow {
                 "pill",
               ]
             }
-          }
-
-          ;
-        }
-
-        ;
+          };
+        };
       }
 
       StackPage {
         name: "failure";
-        child: 
-        Adw.StatusPage {
+
+        child: Adw.StatusPage {
           icon-name: "error-symbolic";
           title: _("Exporting Video Unsuccessful");
-          child: 
-          Box {
+
+          child: Box {
             orientation: vertical;
             spacing: 12;
 
@@ -322,18 +374,14 @@ template $AppWindow : Adw.ApplicationWindow {
                 "pill",
               ]
             }
-          }
-
-          ;
-        }
-
-        ;
+          };
+        };
       }
 
       StackPage {
         name: "exporting";
-        child:
-        Adw.StatusPage exporting_page {
+
+        child: Adw.StatusPage exporting_page {
           title: _("Rendering");
           icon-name: "camera-video-symbolic";
           description: _("This may take a while");
@@ -359,13 +407,9 @@ template $AppWindow : Adw.ApplicationWindow {
               ]
             }
           }
-        }
-
-        ;
+        };
       }
-    }
-
-    ;
+    };
   }
 }
 

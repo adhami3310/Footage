@@ -164,8 +164,8 @@ impl VideoPreview {
 
     pub fn reset(&self) {
         self.imp().crop_box.reset();
-        self.imp().loaded.borrow_mut().take();
         self.kill();
+        self.imp().loaded.borrow_mut().take();
         self.imp().paint.set_paintable(None::<&gdk::Paintable>);
         self.emit_by_name::<()>("mode-changed", &[&false]);
     }
@@ -489,7 +489,7 @@ impl VideoPreview {
         };
         let (top, right, bottom, left) = self.imp().crop_box.proportions();
 
-        self.kill();
+        self.set_playing(false);
 
         info!(
             "Converting with output path: {:?}, output format: {:?}, framerate: {:?}, scaled dimension: {:?}",
