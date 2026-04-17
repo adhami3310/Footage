@@ -94,6 +94,8 @@ mod imp {
         pub timeline: TemplateChild<Timeline>,
         #[template_child]
         pub play_pause: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub help_overlay: TemplateChild<adw::ShortcutsDialog>,
 
         pub running_flag: Arc<AtomicBool>,
         pub video_dimensions: Cell<Option<Dimensions<u32>>>,
@@ -207,6 +209,15 @@ impl AppWindow {
                     self,
                     move |_, _, _| {
                         window.show_about();
+                    }
+                ))
+                .build(),
+            gio::ActionEntry::builder("show-help-overlay")
+                .activate(clone!(
+                    #[weak(rename_to=window)]
+                    self,
+                    move |_, _, _| {
+                        window.imp().help_overlay.present(Some(&window));
                     }
                 ))
                 .build(),

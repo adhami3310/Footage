@@ -13,7 +13,7 @@ template $AppWindow: Adw.ApplicationWindow {
     Adw.HeaderBar headerbar {
       Button back_edit {
         icon-name: 'go-previous-symbolic';
-        tooltip-text: _('Edit Same Video');
+        tooltip-text: _("Edit Same Video");
         visible: false;
 
         styles [
@@ -411,6 +411,32 @@ template $AppWindow: Adw.ApplicationWindow {
         };
       }
     };
+  }
+}
+
+Adw.ShortcutsDialog help_overlay {
+  Adw.ShortcutsSection {
+    title: C_("shortcut window", "General");
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Open File");
+      action-name: "win.open";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "New Window");
+      action-name: "app.new-window";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Show Shortcuts");
+      action-name: "win.show-help-overlay";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Quit");
+      action-name: "app.quit";
+    }
   }
 }
 

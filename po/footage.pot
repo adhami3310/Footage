@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: footage\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-16 21:19-1000\n"
+"POT-Creation-Date: 2026-04-16 22:49-1000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -83,31 +83,6 @@ msgstr ""
 msgid "Editing screen with default options"
 msgstr ""
 
-#: data/resources/blueprints/help-overlay.blp:11
-msgctxt "shortcut window"
-msgid "General"
-msgstr ""
-
-#: data/resources/blueprints/help-overlay.blp:14
-msgctxt "shortcut window"
-msgid "Open File"
-msgstr ""
-
-#: data/resources/blueprints/help-overlay.blp:19
-msgctxt "shortcut window"
-msgid "New Window"
-msgstr ""
-
-#: data/resources/blueprints/help-overlay.blp:24
-msgctxt "shortcut window"
-msgid "Show Shortcuts"
-msgstr ""
-
-#: data/resources/blueprints/help-overlay.blp:29
-msgctxt "shortcut window"
-msgid "Quit"
-msgstr ""
-
 #: data/resources/blueprints/crop.blp:61
 msgid "Top left crop corner"
 msgstr ""
@@ -124,6 +99,10 @@ msgstr ""
 msgid "Bottom right crop corner"
 msgstr ""
 
+#: data/resources/blueprints/window.blp:16
+msgid "Edit Same Video"
+msgstr ""
+
 #: data/resources/blueprints/window.blp:28
 msgid "Main Menu"
 msgstr ""
@@ -133,7 +112,7 @@ msgid "Choose a video to edit"
 msgstr ""
 
 #: data/resources/blueprints/window.blp:57
-#: data/resources/blueprints/window.blp:420
+#: data/resources/blueprints/window.blp:446
 msgid "Open Video…"
 msgstr ""
 
@@ -161,7 +140,7 @@ msgstr ""
 msgid "Flip Vertically"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:150 src/window.rs:275
+#: data/resources/blueprints/window.blp:150 src/window.rs:286
 msgid "Disable Audio"
 msgstr ""
 
@@ -247,19 +226,44 @@ msgstr ""
 msgid "This may take a while"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:403 src/window.rs:692
+#: data/resources/blueprints/window.blp:403 src/window.rs:703
 msgid "_Cancel"
 msgstr ""
 
-#: data/resources/blueprints/window.blp:425
+#: data/resources/blueprints/window.blp:419
+msgctxt "shortcut window"
+msgid "General"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:422
+msgctxt "shortcut window"
+msgid "Open File"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:427
+msgctxt "shortcut window"
 msgid "New Window"
 msgstr ""
 
 #: data/resources/blueprints/window.blp:432
-msgid "Keyboard Shortcuts"
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
 msgstr ""
 
 #: data/resources/blueprints/window.blp:437
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:451
+msgid "New Window"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:458
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: data/resources/blueprints/window.blp:463
 msgid "About Footage"
 msgstr ""
 
@@ -271,41 +275,41 @@ msgstr ""
 msgid "Right trimming handle"
 msgstr ""
 
-#: src/window.rs:272
+#: src/window.rs:283
 msgid "Enable Audio"
 msgstr ""
 
-#: src/window.rs:588
+#: src/window.rs:599
 msgid "Pause"
 msgstr ""
 
-#: src/window.rs:593
+#: src/window.rs:604
 msgid "Play"
 msgstr ""
 
-#: src/window.rs:687
+#: src/window.rs:698
 msgid "Stop rendering?"
 msgstr ""
 
-#: src/window.rs:688
+#: src/window.rs:699
 msgid "You will lose all progress."
 msgstr ""
 
-#: src/window.rs:692
+#: src/window.rs:703
 msgid "_Stop"
 msgstr ""
 
-#: src/window.rs:723
+#: src/window.rs:734
 msgid "Video Files"
 msgstr ""
 
-#: src/window.rs:842
+#: src/window.rs:853
 #, rust-format
 msgid "Saved as {}"
 msgstr ""
 
 #. Translators: Replace "translator-credits" with your names, one name per line
-#: src/window.rs:1028
+#: src/window.rs:1039
 msgid "translator-credits"
 msgstr ""
 
